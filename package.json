@@ -1,0 +1,15 @@
+{
+  "name": "furniture-orders-mvp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check functions/api/orders.js && node --check src/orders-core.js",
+    "dev": "wrangler pages dev public --d1 DB --compatibility-date=2026-05-29 --persist-to=.wrangler/state",
+    "deploy": "wrangler pages deploy public --project-name=furniture-orders-mvp"
+  },
+  "devDependencies": {
+    "wrangler": "^4.95.0"
+  }
+}
