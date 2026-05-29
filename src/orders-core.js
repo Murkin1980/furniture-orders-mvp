@@ -1,3 +1,5 @@
+import { isOrderStatus } from "./order-statuses.js";
+
 const REQUIRED_FIELDS = ["name", "phone"];
 
 export function normalizeOrderPayload(input) {
@@ -97,6 +99,7 @@ async function ensureSchema(db, env) {
       furniture_type TEXT,
       budget INTEGER CHECK (budget IS NULL OR budget >= 0),
       description TEXT,
+      notes TEXT,
       status TEXT NOT NULL DEFAULT 'new',
       raw_payload TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -113,6 +116,7 @@ async function ensureSchema(db, env) {
   }
 
   await ensureOrderUpdatedAtColumn(db);
+  await ensureOrderNotesColumn(db);
 }
 
 async function ensureOrderUpdatedAtColumn(db) {
@@ -128,6 +132,169 @@ async function ensureOrderUpdatedAtColumn(db) {
   if (!hasUpdatedAt) {
     await db.prepare("ALTER TABLE orders ADD COLUMN updated_at TEXT").run();
   }
+}
+
+async function ensureOrderNotesColumn(db) {
+  const statement = db.prepare("PRAGMA table_info(orders)");
+  if (typeof statement.all !== "function") {
+    return;
+  }
+
+  const result = await statement.all();
+  const columns = result?.results || [];
+  const hasNotes = columns.some((column) => column.name === "notes");
+
+  if (!hasNotes) {
+    await db.prepare("ALTER TABLE orders ADD COLUMN notes TEXT").run();
+  }
+}
+
+export async function listOrders({ db, env = {}, status = null }) {
+  if (!db) {
+    throw new Error("D1 binding DB is not configured.");
+  }
+
+  await ensureSchema(db, env);
+
+  const normalizedStatus = cleanText(status);
+  if (normalizedStatus && !isOrderStatus(normalizedStatus)) {
+    return {
+      ok: false,
+      status: 400,
+      body: {
+        success: false,
+        error: "invalid_status",
+        message: "Status is not supported."
+      }
+    };
+  }
+
+  const baseQuery = `
+    SELECT
+      orders.id,
+      orders.client_id AS clientId,
+      clients.name AS clientName,
+      clients.phone AS phone,
+      orders.source,
+      orders.city,
+      orders.furniture_type AS furnitureType,
+      orders.budget,
+      orders.description,
+      orders.notes,
+      orders.status,
+      orders.created_at AS createdAt,
+      COALESCE(orders.updated_at, orders.created_at) AS updatedAt
+    FROM orders
+    JOIN clients ON clients.id = orders.client_id`;
+  const orderClause = " ORDER BY orders.created_at DESC, orders.id DESC";
+
+  const statement = normalizedStatus
+    ? db.prepare(`${baseQuery} WHERE orders.status = ?${orderClause}`).bind(normalizedStatus)
+    : db.prepare(`${baseQuery}${orderClause}`);
+  const result = await statement.all();
+
+  return {
+    ok: true,
+    status: 200,
+    body: {
+      success: true,
+      items: result?.results || []
+    }
+  };
+}
+
+export async function updateOrderStatus({ db, env = {}, orderId, status, notes = null }) {
+  if (!db) {
+    throw new Error("D1 binding DB is not configured.");
+  }
+
+  await ensureSchema(db, env);
+
+  const normalizedOrderId = Number(orderId);
+  const normalizedStatus = cleanText(status);
+  const normalizedNotes = cleanText(notes);
+
+  if (!Number.isInteger(normalizedOrderId) || normalizedOrderId < 1) {
+    return {
+      ok: false,
+      status: 400,
+      body: {
+        success: false,
+        error: "invalid_order_id",
+        message: "orderId must be a positive integer."
+      }
+    };
+  }
+
+  if (!normalizedStatus || !isOrderStatus(normalizedStatus)) {
+    return {
+      ok: false,
+      status: 400,
+      body: {
+        success: false,
+        error: "invalid_status",
+        message: "Status is not supported."
+      }
+    };
+  }
+
+  const existing = await db
+    .prepare("SELECT id FROM orders WHERE id = ?")
+    .bind(normalizedOrderId)
+    .first();
+
+  if (!existing) {
+    return {
+      ok: false,
+      status: 404,
+      body: {
+        success: false,
+        error: "order_not_found",
+        message: "Order was not found."
+      }
+    };
+  }
+
+  await db
+    .prepare(
+      `UPDATE orders
+       SET status = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
+       WHERE id = ?`
+    )
+    .bind(normalizedStatus, normalizedNotes, normalizedOrderId)
+    .run();
+
+  const result = await db
+    .prepare(
+      `SELECT
+        orders.id,
+        orders.client_id AS clientId,
+        clients.name AS clientName,
+        clients.phone AS phone,
+        orders.source,
+        orders.city,
+        orders.furniture_type AS furnitureType,
+        orders.budget,
+        orders.description,
+        orders.notes,
+        orders.status,
+        orders.created_at AS createdAt,
+        COALESCE(orders.updated_at, orders.created_at) AS updatedAt
+       FROM orders
+       JOIN clients ON clients.id = orders.client_id
+       WHERE orders.id = ?`
+    )
+    .bind(normalizedOrderId)
+    .first();
+
+  return {
+    ok: true,
+    status: 200,
+    body: {
+      success: true,
+      item: result
+    }
+  };
 }
 
 async function upsertClient(db, payload) {

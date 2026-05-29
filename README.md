@@ -7,6 +7,8 @@
 ## Что уже есть
 
 - `POST /api/orders` принимает единый JSON-контракт заявки.
+- `GET /api/orders` возвращает список заказов для менеджера.
+- `POST /api/orders/status` обновляет статус и заметку заказа.
 - D1-схема создаёт таблицы `clients` и `orders`.
 - Обязательные поля: `name`, `phone`.
 - Новая заявка получает статус `new`.
@@ -14,6 +16,7 @@
 - Внутренние ошибки возвращаются с кодом `500` без стека.
 - Telegram-уведомление отправляется, если заданы `TELEGRAM_BOT_TOKEN` и `TELEGRAM_CHAT_ID`.
 - `public/index.html` даёт тестовую форму для ручной отправки.
+- `public/admin.html` даёт минимальную админку со списком заказов.
 - `src/orders-core.js` содержит основную бизнес-логику отдельно от Cloudflare-слоя.
 - `tests/orders-core.test.js` проверяет нормализацию, валидацию, создание заказа и Telegram-интеграцию.
 
@@ -22,10 +25,14 @@
 ```text
 furniture-orders-mvp/
   functions/api/orders.js
+  functions/api/orders/status.js
   src/orders-core.js
+  src/order-statuses.js
   public/index.html
+  public/admin.html
   migrations/0001_orders.sql
   migrations/0002_orders_updated_at.sql
+  migrations/0003_order_notes.sql
   tests/orders-core.test.js
   wrangler.toml
   package.json
@@ -57,6 +64,12 @@ npm run dev
 После запуска форма будет доступна на локальном адресе Wrangler, обычно `http://127.0.0.1:8788`. В локальном режиме API сам создаёт таблицы `clients` и `orders`, чтобы ручная проверка не зависела от отдельного шага миграции.
 
 Runtime-создание схемы включается только в `npm run dev` через `RUNTIME_SCHEMA_INIT=true`. Для production используйте D1 migrations; это основной способ закреплять схему базы.
+
+Локальная админка доступна по адресу `http://127.0.0.1:8788/admin.html`. Dev token по умолчанию:
+
+```text
+dev-admin-token
+```
 
 ## Рекомендуемый деплой
 
@@ -105,6 +118,7 @@ D1 database: furniture_orders
 7. В Settings добавьте переменные окружения:
 
 ```text
+ADMIN_TOKEN
 TELEGRAM_BOT_TOKEN
 TELEGRAM_CHAT_ID
 ```
@@ -123,10 +137,18 @@ npm run deploy
 
 Для Telegram в Cloudflare Pages задайте:
 
+- `ADMIN_TOKEN`
 - `TELEGRAM_BOT_TOKEN`
 - `TELEGRAM_CHAT_ID`
 
 Если переменные не заданы, заявка всё равно сохраняется, а в ответе будет `telegramSent: false`.
+
+`ADMIN_TOKEN` защищает операционные endpoints:
+
+- `GET /api/orders`
+- `POST /api/orders/status`
+
+Если `ADMIN_TOKEN` не задан, admin endpoints возвращают `503 admin_not_configured`.
 
 Telegram-сообщение отправляется в прикладном формате для менеджера:
 
@@ -166,6 +188,35 @@ curl -X POST https://your-domain.com/api/orders \
     "furnitureType": "kitchen",
     "budget": 850000,
     "description": "Нужна угловая кухня"
+  }'
+```
+
+## Ручной тест admin API
+
+Список заказов:
+
+```bash
+curl https://your-domain.com/api/orders \
+  -H "X-Admin-Token: your-admin-token"
+```
+
+Фильтр по статусу:
+
+```bash
+curl "https://your-domain.com/api/orders?status=new" \
+  -H "X-Admin-Token: your-admin-token"
+```
+
+Обновление статуса:
+
+```bash
+curl -X POST https://your-domain.com/api/orders/status \
+  -H "Content-Type: application/json" \
+  -H "X-Admin-Token: your-admin-token" \
+  -d '{
+    "orderId": 1,
+    "status": "in_review",
+    "notes": "Клиенту нужно уточнить размеры"
   }'
 ```
 

@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Заказы мебели</title>
+  <style>
+    :root {
+      --bg: #f5f3ee;
+      --surface: #ffffff;
+      --ink: #1f2426;
+      --muted: #697275;
+      --line: #d8d2c7;
+      --primary: #116466;
+      --danger: #9f2d23;
+      --ok: #2f6e3e;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .bar,
+    main {
+      width: min(1240px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .bar {
+      min-height: 72px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      padding: 14px 0;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: 0;
+    }
+
+    .controls {
+      display: flex;
+      align-items: end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    label {
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font: inherit;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 68px;
+      resize: vertical;
+    }
+
+    button {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: #fff;
+      color: var(--primary);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    main {
+      padding: 20px 0 42px;
+    }
+
+    .status-line {
+      min-height: 24px;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .status-line.bad { color: var(--danger); }
+    .status-line.ok { color: var(--ok); }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 1080px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #eee9df;
+      color: #3b403f;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+    .muted { color: var(--muted); }
+    .money { white-space: nowrap; }
+    .actions { min-width: 230px; }
+    .actions form { display: grid; gap: 8px; }
+
+    @media (max-width: 760px) {
+      .bar {
+        align-items: stretch;
+      }
+
+      .controls,
+      .controls label,
+      .controls button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="bar">
+      <h1>Заказы мебели</h1>
+      <div class="controls">
+        <label>
+          Admin token
+          <input id="token" type="password" autocomplete="current-password" />
+        </label>
+        <label>
+          Статус
+          <select id="status-filter">
+            <option value="">Все</option>
+            <option value="new">new</option>
+            <option value="in_review">in_review</option>
+            <option value="quoted">quoted</option>
+            <option value="in_production">in_production</option>
+            <option value="completed">completed</option>
+            <option value="canceled">canceled</option>
+          </select>
+        </label>
+        <button id="save-token" class="secondary" type="button">Сохранить</button>
+        <button id="refresh" type="button">Обновить</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="message" class="status-line"></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Клиент</th>
+            <th>Телефон</th>
+            <th>Тип</th>
+            <th>Город</th>
+            <th>Бюджет</th>
+            <th>Статус</th>
+            <th>Создан</th>
+            <th>Обновлён</th>
+            <th>Заметка</th>
+            <th>Действие</th>
+          </tr>
+        </thead>
+        <tbody id="orders-body">
+          <tr>
+            <td colspan="11" class="muted">Загрузка...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    const statuses = ["new", "in_review", "quoted", "in_production", "completed", "canceled"];
+    const tokenInput = document.querySelector("#token");
+    const filterInput = document.querySelector("#status-filter");
+    const message = document.querySelector("#message");
+    const tbody = document.querySelector("#orders-body");
+    const refreshButton = document.querySelector("#refresh");
+
+    tokenInput.value = localStorage.getItem("furnitureAdminToken") || "";
+
+    document.querySelector("#save-token").addEventListener("click", () => {
+      localStorage.setItem("furnitureAdminToken", tokenInput.value.trim());
+      setMessage("Токен сохранён.", "ok");
+      loadOrders();
+    });
+
+    refreshButton.addEventListener("click", loadOrders);
+    filterInput.addEventListener("change", loadOrders);
+
+    loadOrders();
+
+    async function loadOrders() {
+      const token = getToken();
+      if (!token) {
+        renderEmpty("Введите admin token.");
+        return;
+      }
+
+      refreshButton.disabled = true;
+      setMessage("Загрузка заказов...");
+
+      try {
+        const params = new URLSearchParams();
+        if (filterInput.value) {
+          params.set("status", filterInput.value);
+        }
+
+        const response = await fetch(`/api/orders${params.toString() ? `?${params}` : ""}`, {
+          headers: {
+            "X-Admin-Token": token
+          }
+        });
+        const json = await response.json();
+
+        if (!response.ok) {
+          throw new Error(json.message || "Не удалось загрузить заказы.");
+        }
+
+        renderOrders(json.items || []);
+        setMessage(`Заказов: ${(json.items || []).length}`, "ok");
+      } catch (error) {
+        renderEmpty(error.message);
+        setMessage(error.message, "bad");
+      } finally {
+        refreshButton.disabled = false;
+      }
+    }
+
+    function renderOrders(items) {
+      if (!items.length) {
+        renderEmpty("Заказов нет.");
+        return;
+      }
+
+      tbody.innerHTML = items.map((item) => `
+        <tr>
+          <td>#${escapeHtml(item.id)}</td>
+          <td>${escapeHtml(item.clientName || "")}</td>
+          <td>${escapeHtml(item.phone || "")}</td>
+          <td>${escapeHtml(item.furnitureType || "")}</td>
+          <td>${escapeHtml(item.city || "")}</td>
+          <td class="money">${formatMoney(item.budget)}</td>
+          <td>${escapeHtml(item.status || "")}</td>
+          <td>${escapeHtml(item.createdAt || "")}</td>
+          <td>${escapeHtml(item.updatedAt || "")}</td>
+          <td>${escapeHtml(item.notes || "")}</td>
+          <td class="actions">
+            <form data-order-id="${escapeHtml(item.id)}">
+              <select name="status">
+                ${statuses.map((status) => `<option value="${status}" ${status === item.status ? "selected" : ""}>${status}</option>`).join("")}
+              </select>
+              <textarea name="notes" placeholder="Заметка менеджера">${escapeHtml(item.notes || "")}</textarea>
+              <button type="submit">Обновить</button>
+            </form>
+          </td>
+        </tr>
+      `).join("");
+
+      for (const form of tbody.querySelectorAll("form")) {
+        form.addEventListener("submit", updateOrder);
+      }
+    }
+
+    async function updateOrder(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const button = form.querySelector("button");
+      const token = getToken();
+
+      if (!token) {
+        setMessage("Введите admin token.", "bad");
+        return;
+      }
+
+      button.disabled = true;
+
+      try {
+        const response = await fetch("/api/orders/status", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Token": token
+          },
+          body: JSON.stringify({
+            orderId: Number(form.dataset.orderId),
+            status: form.elements.status.value,
+            notes: form.elements.notes.value
+          })
+        });
+        const json = await response.json();
+
+        if (!response.ok) {
+          throw new Error(json.message || "Статус не обновлён.");
+        }
+
+        setMessage(`Заказ #${json.item.id} обновлён.`, "ok");
+        await loadOrders();
+      } catch (error) {
+        setMessage(error.message, "bad");
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    function getToken() {
+      return tokenInput.value.trim();
+    }
+
+    function renderEmpty(text) {
+      tbody.innerHTML = `<tr><td colspan="11" class="muted">${escapeHtml(text)}</td></tr>`;
+    }
+
+    function setMessage(text, kind = "") {
+      message.textContent = text;
+      message.className = `status-line ${kind}`.trim();
+    }
+
+    function formatMoney(value) {
+      if (value === null || value === undefined || value === "") {
+        return "";
+      }
+
+      return new Intl.NumberFormat("ru-KZ").format(value);
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+  </script>
+</body>
+</html>

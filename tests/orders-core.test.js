@@ -3,9 +3,12 @@ import assert from "node:assert/strict";
 import {
   createOrder,
   formatTelegramMessage,
+  listOrders,
   normalizeOrderPayload,
+  updateOrderStatus,
   validateOrderPayload
 } from "../src/orders-core.js";
+import { ORDER_STATUSES, isOrderStatus } from "../src/order-statuses.js";
 
 test("normalizes the base order contract", () => {
   const payload = normalizeOrderPayload({
@@ -106,6 +109,98 @@ test("formats telegram message for furniture managers", () => {
   );
 });
 
+test("defines the stage 2 order statuses", () => {
+  assert.deepEqual(ORDER_STATUSES, [
+    "new",
+    "in_review",
+    "quoted",
+    "in_production",
+    "completed",
+    "canceled"
+  ]);
+  assert.equal(isOrderStatus("quoted"), true);
+  assert.equal(isOrderStatus("unknown"), false);
+});
+
+test("lists orders with client fields and status filter", async () => {
+  const db = createMockDb();
+  await createOrder({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    payload: {
+      name: "Ерлан",
+      phone: "+77011234567",
+      source: "site",
+      city: "Алматы",
+      furnitureType: "kitchen",
+      budget: 850000,
+      description: "Нужна кухня"
+    }
+  });
+
+  const all = await listOrders({ db, env: { RUNTIME_SCHEMA_INIT: "true" } });
+  assert.equal(all.status, 200);
+  assert.equal(all.body.items.length, 1);
+  assert.equal(all.body.items[0].clientName, "Ерлан");
+  assert.equal(all.body.items[0].status, "new");
+
+  const filtered = await listOrders({ db, status: "completed" });
+  assert.equal(filtered.status, 200);
+  assert.equal(filtered.body.items.length, 0);
+});
+
+test("rejects unsupported list filter status", async () => {
+  const result = await listOrders({ db: createMockDb(), status: "waiting" });
+  assert.equal(result.status, 400);
+  assert.equal(result.body.error, "invalid_status");
+});
+
+test("updates order status and notes", async () => {
+  const db = createMockDb();
+  await createOrder({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    payload: {
+      name: "Ерлан",
+      phone: "+77011234567"
+    }
+  });
+
+  const result = await updateOrderStatus({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    orderId: 1,
+    status: "in_review",
+    notes: "Уточнить размеры"
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(result.body.item.status, "in_review");
+  assert.equal(result.body.item.notes, "Уточнить размеры");
+});
+
+test("rejects invalid status updates", async () => {
+  const result = await updateOrderStatus({
+    db: createMockDb(),
+    orderId: 1,
+    status: "waiting"
+  });
+
+  assert.equal(result.status, 400);
+  assert.equal(result.body.error, "invalid_status");
+});
+
+test("returns 404 when updating a missing order", async () => {
+  const result = await updateOrderStatus({
+    db: createMockDb(),
+    orderId: 999,
+    status: "quoted"
+  });
+
+  assert.equal(result.status, 404);
+  assert.equal(result.body.error, "order_not_found");
+});
+
 function createMockDb() {
   const state = {
     clients: [],
@@ -114,7 +209,16 @@ function createMockDb() {
       return {
         all: async () => {
           if (sql.includes("PRAGMA table_info(orders)")) {
-            return { results: [{ name: "updated_at" }] };
+            return { results: [{ name: "updated_at" }, { name: "notes" }] };
+          }
+
+          if (sql.includes("FROM orders") && sql.includes("JOIN clients")) {
+            const statusFilter = sql.includes("WHERE orders.status = ?") ? this?.values?.[0] : null;
+            const items = state.orders
+              .filter((order) => !statusFilter || order.status === statusFilter)
+              .map((order) => toOrderRow(state, order))
+              .sort((a, b) => b.id - a.id);
+            return { results: items };
           }
 
           throw new Error(`Unexpected all SQL: ${sql}`);
@@ -127,6 +231,18 @@ function createMockDb() {
           throw new Error(`Unexpected unbound run SQL: ${sql}`);
         },
         bind: (...values) => ({
+          all: async () => {
+            if (sql.includes("FROM orders") && sql.includes("JOIN clients")) {
+              const statusFilter = sql.includes("WHERE orders.status = ?") ? values[0] : null;
+              const items = state.orders
+                .filter((order) => !statusFilter || order.status === statusFilter)
+                .map((order) => toOrderRow(state, order))
+                .sort((a, b) => b.id - a.id);
+              return { results: items };
+            }
+
+            throw new Error(`Unexpected bound all SQL: ${sql}`);
+          },
           run: async () => {
             if (sql.includes("INSERT INTO clients")) {
               const [name, phone, city] = values;
@@ -152,10 +268,24 @@ function createMockDb() {
                 budget,
                 description,
                 rawPayload,
-                status: "new"
+                notes: null,
+                status: "new",
+                createdAt: now(),
+                updatedAt: now()
               };
               state.orders.push(order);
               return { success: true, meta: { last_row_id: order.id } };
+            }
+
+            if (sql.includes("UPDATE orders")) {
+              const [status, notes, orderId] = values;
+              const order = state.orders.find((item) => item.id === orderId);
+              if (order) {
+                order.status = status;
+                order.notes = notes;
+                order.updatedAt = now();
+              }
+              return { success: true };
             }
 
             throw new Error(`Unexpected run SQL: ${sql}`);
@@ -166,6 +296,18 @@ function createMockDb() {
               return state.clients.find((item) => item.phone === phone) || null;
             }
 
+            if (sql.includes("SELECT id FROM orders WHERE id = ?")) {
+              const [orderId] = values;
+              const order = state.orders.find((item) => item.id === orderId);
+              return order ? { id: order.id } : null;
+            }
+
+            if (sql.includes("FROM orders") && sql.includes("JOIN clients") && sql.includes("WHERE orders.id = ?")) {
+              const [orderId] = values;
+              const order = state.orders.find((item) => item.id === orderId);
+              return order ? toOrderRow(state, order) : null;
+            }
+
             throw new Error(`Unexpected first SQL: ${sql}`);
           }
         })
@@ -174,4 +316,28 @@ function createMockDb() {
   };
 
   return state;
+}
+
+function now() {
+  return "2026-05-30 10:00:00";
+}
+
+function toOrderRow(state, order) {
+  const client = state.clients.find((item) => item.id === order.clientId);
+
+  return {
+    id: order.id,
+    clientId: order.clientId,
+    clientName: client?.name || null,
+    phone: client?.phone || null,
+    source: order.source,
+    city: order.city,
+    furnitureType: order.furnitureType,
+    budget: order.budget,
+    description: order.description,
+    notes: order.notes,
+    status: order.status,
+    createdAt: order.createdAt,
+    updatedAt: order.updatedAt
+  };
 }

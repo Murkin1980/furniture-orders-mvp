@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS orders (
   furniture_type TEXT,
   budget INTEGER CHECK (budget IS NULL OR budget >= 0),
   description TEXT,
+  notes TEXT,
   status TEXT NOT NULL DEFAULT 'new',
   raw_payload TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,

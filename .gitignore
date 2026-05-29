@@ -2,3 +2,4 @@ node_modules/
 .wrangler/
 wrangler-dev.*.log
 .dev.vars
+output/

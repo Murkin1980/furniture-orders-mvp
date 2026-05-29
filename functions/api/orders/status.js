@@ -1,8 +1,8 @@
-import { createOrder, listOrders } from "../../src/orders-core.js";
+import { updateOrderStatus } from "../../../src/orders-core.js";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Admin-Token"
 };
 
@@ -13,35 +13,12 @@ export async function onRequestOptions() {
   });
 }
 
-export async function onRequestGet(context) {
+export async function onRequestPost(context) {
   const auth = requireAdminToken(context.request, context.env);
   if (auth) {
     return auth;
   }
 
-  try {
-    const url = new URL(context.request.url);
-    const result = await listOrders({
-      db: context.env.DB,
-      env: context.env,
-      status: url.searchParams.get("status")
-    });
-
-    return jsonResponse(result.body, result.status);
-  } catch (error) {
-    console.error("Order list API failed", error);
-    return jsonResponse(
-      {
-        success: false,
-        error: "server_error",
-        message: "Orders were not loaded. Please try again later."
-      },
-      500
-    );
-  }
-}
-
-export async function onRequestPost(context) {
   let payload;
 
   try {
@@ -58,20 +35,22 @@ export async function onRequestPost(context) {
   }
 
   try {
-    const result = await createOrder({
+    const result = await updateOrderStatus({
       db: context.env.DB,
-      payload,
-      env: context.env
+      env: context.env,
+      orderId: payload.orderId,
+      status: payload.status,
+      notes: payload.notes
     });
 
     return jsonResponse(result.body, result.status);
   } catch (error) {
-    console.error("Order API failed", error);
+    console.error("Order status API failed", error);
     return jsonResponse(
       {
         success: false,
         error: "server_error",
-        message: "Order was not saved. Please try again later."
+        message: "Order status was not updated. Please try again later."
       },
       500
     );
@@ -83,11 +62,11 @@ export async function onRequest() {
     {
       success: false,
       error: "method_not_allowed",
-      message: "Use GET or POST /api/orders."
+      message: "Use POST /api/orders/status."
     },
     405,
     {
-      Allow: "GET, POST, OPTIONS"
+      Allow: "POST, OPTIONS"
     }
   );
 }
