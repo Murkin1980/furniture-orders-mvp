@@ -5,4 +5,4 @@ pages_build_output_dir = "public"
 [[d1_databases]]
 binding = "DB"
 database_name = "furniture_orders"
-database_id = "replace-with-cloudflare-d1-database-id"
+database_id = "2f5eddec-b27c-4a05-a1aa-18c18e95ae5b"
