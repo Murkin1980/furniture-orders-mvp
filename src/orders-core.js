@@ -40,7 +40,7 @@ export async function createOrder({ db, payload, env = {}, fetchImpl = fetch }) 
     throw new Error("D1 binding DB is not configured.");
   }
 
-  await ensureSchema(db);
+  await ensureSchema(db, env);
 
   const normalized = normalizeOrderPayload(payload);
   const validationErrors = validateOrderPayload(normalized);
@@ -75,8 +75,8 @@ export async function createOrder({ db, payload, env = {}, fetchImpl = fetch }) 
   };
 }
 
-async function ensureSchema(db) {
-  if (typeof db.prepare !== "function") {
+async function ensureSchema(db, env) {
+  if (env.RUNTIME_SCHEMA_INIT !== "true" || typeof db.prepare !== "function") {
     return;
   }
 
@@ -95,11 +95,12 @@ async function ensureSchema(db) {
       source TEXT NOT NULL DEFAULT 'site',
       city TEXT,
       furniture_type TEXT,
-      budget INTEGER,
+      budget INTEGER CHECK (budget IS NULL OR budget >= 0),
       description TEXT,
       status TEXT NOT NULL DEFAULT 'new',
       raw_payload TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (client_id) REFERENCES clients(id)
     )`,
     "CREATE INDEX IF NOT EXISTS idx_orders_client_id ON orders(client_id)",
@@ -109,6 +110,23 @@ async function ensureSchema(db) {
 
   for (const statement of statements) {
     await db.prepare(statement).run();
+  }
+
+  await ensureOrderUpdatedAtColumn(db);
+}
+
+async function ensureOrderUpdatedAtColumn(db) {
+  const statement = db.prepare("PRAGMA table_info(orders)");
+  if (typeof statement.all !== "function") {
+    return;
+  }
+
+  const result = await statement.all();
+  const columns = result?.results || [];
+  const hasUpdatedAt = columns.some((column) => column.name === "updated_at");
+
+  if (!hasUpdatedAt) {
+    await db.prepare("ALTER TABLE orders ADD COLUMN updated_at TEXT").run();
   }
 }
 
@@ -141,8 +159,8 @@ async function insertOrder(db, clientId, payload) {
   const result = await db
     .prepare(
       `INSERT INTO orders (
-        client_id, source, city, furniture_type, budget, description, status, raw_payload
-      ) VALUES (?, ?, ?, ?, ?, ?, 'new', ?)`
+        client_id, source, city, furniture_type, budget, description, status, raw_payload, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, 'new', ?, CURRENT_TIMESTAMP)`
     )
     .bind(
       clientId,
@@ -174,17 +192,7 @@ async function notifyTelegram({ env, order, client, payload, fetchImpl }) {
     return { sent: false, skipped: true };
   }
 
-  const text = [
-    "New furniture order",
-    `Order: #${order.id}`,
-    `Client: ${client.name}`,
-    `Phone: ${client.phone}`,
-    payload.city ? `City: ${payload.city}` : null,
-    payload.furnitureType ? `Type: ${payload.furnitureType}` : null,
-    payload.budget ? `Budget: ${payload.budget}` : null,
-    payload.description ? `Request: ${payload.description}` : null,
-    `Source: ${payload.source}`
-  ].filter(Boolean).join("\n");
+  const text = formatTelegramMessage({ order, client, payload });
 
   try {
     const response = await fetchImpl(`https://api.telegram.org/bot${token}/sendMessage`, {
@@ -201,6 +209,20 @@ async function notifyTelegram({ env, order, client, payload, fetchImpl }) {
     console.error("Telegram notification failed", error);
     return { sent: false };
   }
+}
+
+export function formatTelegramMessage({ order, client, payload }) {
+  return [
+    "Новая заявка на мебель",
+    `Заказ: #${order.id}`,
+    `Клиент: ${client.name}`,
+    `Телефон: ${client.phone}`,
+    payload.city ? `Город: ${payload.city}` : null,
+    payload.furnitureType ? `Тип: ${payload.furnitureType}` : null,
+    payload.budget ? `Бюджет: ${payload.budget}` : null,
+    payload.description ? `Комментарий: ${payload.description}` : null,
+    `Источник: ${payload.source}`
+  ].filter(Boolean).join("\n");
 }
 
 function cleanText(value) {

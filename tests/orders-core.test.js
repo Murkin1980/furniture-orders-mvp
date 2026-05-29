@@ -1,6 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createOrder, normalizeOrderPayload, validateOrderPayload } from "../src/orders-core.js";
+import {
+  createOrder,
+  formatTelegramMessage,
+  normalizeOrderPayload,
+  validateOrderPayload
+} from "../src/orders-core.js";
 
 test("normalizes the base order contract", () => {
   const payload = normalizeOrderPayload({
@@ -26,6 +31,7 @@ test("creates client and order, then sends telegram when configured", async () =
   const result = await createOrder({
     db,
     env: {
+      RUNTIME_SCHEMA_INIT: "true",
       TELEGRAM_BOT_TOKEN: "token",
       TELEGRAM_CHAT_ID: "chat"
     },
@@ -50,12 +56,16 @@ test("creates client and order, then sends telegram when configured", async () =
   assert.equal(result.body.clientId, 1);
   assert.equal(result.body.telegramSent, true);
   assert.equal(telegramCalls.length, 1);
+  assert.match(JSON.parse(telegramCalls[0].options.body).text, /Новая заявка на мебель/);
 });
 
 test("returns 400 without writing invalid orders", async () => {
   const db = createMockDb();
   const result = await createOrder({
     db,
+    env: {
+      RUNTIME_SCHEMA_INIT: "true"
+    },
     payload: {
       phone: "123"
     }
@@ -67,14 +77,50 @@ test("returns 400 without writing invalid orders", async () => {
   assert.equal(db.orders.length, 0);
 });
 
+test("formats telegram message for furniture managers", () => {
+  const text = formatTelegramMessage({
+    order: { id: 123 },
+    client: { name: "Ерлан", phone: "+77011234567" },
+    payload: {
+      source: "site",
+      city: "Алматы",
+      furnitureType: "kitchen",
+      budget: 850000,
+      description: "Нужна угловая кухня"
+    }
+  });
+
+  assert.equal(
+    text,
+    [
+      "Новая заявка на мебель",
+      "Заказ: #123",
+      "Клиент: Ерлан",
+      "Телефон: +77011234567",
+      "Город: Алматы",
+      "Тип: kitchen",
+      "Бюджет: 850000",
+      "Комментарий: Нужна угловая кухня",
+      "Источник: site"
+    ].join("\n")
+  );
+});
+
 function createMockDb() {
   const state = {
     clients: [],
     orders: [],
     prepare(sql) {
       return {
+        all: async () => {
+          if (sql.includes("PRAGMA table_info(orders)")) {
+            return { results: [{ name: "updated_at" }] };
+          }
+
+          throw new Error(`Unexpected all SQL: ${sql}`);
+        },
         run: async () => {
-          if (sql.startsWith("CREATE TABLE") || sql.startsWith("CREATE INDEX")) {
+          if (sql.startsWith("CREATE TABLE") || sql.startsWith("CREATE INDEX") || sql.startsWith("ALTER TABLE")) {
             return { success: true };
           }
 

@@ -13,11 +13,12 @@ CREATE TABLE IF NOT EXISTS orders (
   source TEXT NOT NULL DEFAULT 'site',
   city TEXT,
   furniture_type TEXT,
-  budget INTEGER,
+  budget INTEGER CHECK (budget IS NULL OR budget >= 0),
   description TEXT,
   status TEXT NOT NULL DEFAULT 'new',
   raw_payload TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (client_id) REFERENCES clients(id)
 );
 

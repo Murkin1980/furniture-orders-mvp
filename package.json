@@ -6,7 +6,7 @@
   "scripts": {
     "test": "node --test",
     "check": "node --check functions/api/orders.js && node --check src/orders-core.js",
-    "dev": "wrangler pages dev public --d1 DB --compatibility-date=2026-05-29 --persist-to=.wrangler/state",
+    "dev": "wrangler pages dev public --d1 DB --binding RUNTIME_SCHEMA_INIT=true --compatibility-date=2026-05-29 --persist-to=.wrangler/state",
     "deploy": "wrangler pages deploy public --project-name=furniture-orders-mvp"
   },
   "devDependencies": {
