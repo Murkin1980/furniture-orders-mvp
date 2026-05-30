@@ -2,13 +2,23 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   createOrder,
+  createOrderProjectSteps,
   formatTelegramMessage,
+  listOrderSteps,
   listOrders,
   normalizeOrderPayload,
+  updateOrderStep,
   updateOrderStatus,
   validateOrderPayload
 } from "../src/orders-core.js";
+import {
+  createCalculator,
+  getPublishedCalculatorRuntime,
+  publishCalculator,
+  submitCalculatorLead
+} from "../src/calculators-core.js";
 import { ORDER_STATUSES, isOrderStatus } from "../src/order-statuses.js";
+import { STEP_STATUSES, findProjectTemplate } from "../src/project-templates.js";
 
 test("normalizes the base order contract", () => {
   const payload = normalizeOrderPayload({
@@ -201,10 +211,309 @@ test("returns 404 when updating a missing order", async () => {
   assert.equal(result.body.error, "order_not_found");
 });
 
+test("defines project templates and step statuses", () => {
+  assert.deepEqual(STEP_STATUSES, ["pending", "done", "skipped"]);
+  assert.equal(findProjectTemplate("kitchen").code, "kitchen-basic");
+  assert.equal(findProjectTemplate("wardrobe").code, "wardrobe-basic");
+  assert.equal(findProjectTemplate("unknown").code, "casework-basic");
+});
+
+test("initializes project steps from furniture template", async () => {
+  const db = createMockDb();
+  await createOrder({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    payload: {
+      name: "Ерлан",
+      phone: "+77011234567",
+      furnitureType: "wardrobe"
+    }
+  });
+
+  const result = await createOrderProjectSteps({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    orderId: 1
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(result.body.items.length, 9);
+  assert.equal(result.body.items[0].stepCode, "measure_niche");
+});
+
+test("status transition to in_review initializes project steps", async () => {
+  const db = createMockDb();
+  await createOrder({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    payload: {
+      name: "Ерлан",
+      phone: "+77011234567",
+      furnitureType: "kitchen"
+    }
+  });
+
+  const result = await updateOrderStatus({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    orderId: 1,
+    status: "in_review"
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(result.body.projectSteps.length, 11);
+});
+
+test("updates order step status and completion fields", async () => {
+  const db = createMockDb();
+  await createOrder({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    payload: {
+      name: "Ерлан",
+      phone: "+77011234567",
+      furnitureType: "kitchen"
+    }
+  });
+  await createOrderProjectSteps({ db, env: { RUNTIME_SCHEMA_INIT: "true" }, orderId: 1 });
+  const steps = await listOrderSteps({ db, orderId: 1 });
+
+  const result = await updateOrderStep({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    orderId: 1,
+    stepId: steps.body.items[0].id,
+    status: "done",
+    notes: "Замер подтверждён",
+    completedBy: "manager"
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(result.body.item.status, "done");
+  assert.equal(result.body.item.notes, "Замер подтверждён");
+  assert.equal(result.body.item.completedBy, "manager");
+  assert.equal(result.body.item.completedAt, now());
+});
+
+test("rejects invalid order step status", async () => {
+  const result = await updateOrderStep({
+    db: createMockDb(),
+    orderId: 1,
+    stepId: 1,
+    status: "started"
+  });
+
+  assert.equal(result.status, 400);
+  assert.equal(result.body.error, "invalid_step_status");
+});
+
+test("creates a calculator with default categories", async () => {
+  const db = createMockDb();
+  const result = await createCalculator({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    payload: {
+      ownerName: "Salamat Mebel",
+      title: "Furniture calculator"
+    }
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(result.body.item.id, 1);
+  assert.equal(result.body.item.categories.length, 3);
+  assert.equal(result.body.item.categories[0].code, "kitchen");
+});
+
+test("publishes calculator and returns embed data", async () => {
+  const db = createMockDb();
+  await createCalculator({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    payload: {
+      ownerName: "Salamat Mebel",
+      title: "Furniture calculator"
+    }
+  });
+
+  const published = await publishCalculator({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1,
+    origin: "https://example.com"
+  });
+  const embed = await getPublishedCalculatorRuntime({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1,
+    token: published.body.token
+  });
+
+  assert.equal(published.status, 200);
+  assert.equal(published.body.enabled, true);
+  assert.match(published.body.embedCode, /data-furniture-calculator="1"/);
+  assert.equal(embed.status, 200);
+  assert.equal(embed.body.item.isEnabled, 1);
+});
+
+test("calculator lead creates an order with estimate budget", async () => {
+  const db = createMockDb();
+  await createCalculator({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    payload: {
+      ownerName: "Salamat Mebel",
+      title: "Furniture calculator",
+      categories: [
+        {
+          code: "kitchen",
+          name: "Kitchen",
+          basePrice: 100000,
+          unitLabel: "meter",
+          unitPrice: 50000,
+          minUnits: 2
+        }
+      ]
+    }
+  });
+  const published = await publishCalculator({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1
+  });
+
+  const result = await submitCalculatorLead({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1,
+    token: published.body.token,
+    payload: {
+      name: "Erlan",
+      phone: "+77011234567",
+      categoryCode: "kitchen",
+      units: 3,
+      materialMultiplier: 1.2
+    },
+    fetchImpl: async () => ({ ok: true })
+  });
+
+  assert.equal(result.status, 201);
+  assert.equal(result.body.estimate, 300000);
+  assert.equal(db.orders.length, 1);
+  assert.equal(db.orders[0].source, "calculator:1");
+  assert.equal(db.orders[0].budget, 300000);
+  assert.deepEqual(JSON.parse(db.orders[0].rawPayload).calculatorMeta, {
+    calculatorId: 1,
+    categoryCode: "kitchen",
+    units: 3,
+    materialMultiplier: 1.2,
+    estimate: 300000
+  });
+});
+
+test("rejects calculator lead with invalid embed token", async () => {
+  const db = createMockDb();
+  await createCalculator({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    payload: {
+      ownerName: "Salamat Mebel",
+      title: "Furniture calculator"
+    }
+  });
+
+  const result = await submitCalculatorLead({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1,
+    token: "bad-token",
+    payload: {
+      name: "Erlan",
+      phone: "+77011234567",
+      categoryCode: "kitchen",
+      units: 3
+    }
+  });
+
+  assert.equal(result.status, 401);
+  assert.equal(result.body.error, "invalid_embed_token");
+});
+
+test("rejects calculator runtime for disabled calculators", async () => {
+  const db = createMockDb();
+  await createCalculator({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    payload: {
+      ownerName: "Salamat Mebel",
+      title: "Furniture calculator"
+    }
+  });
+  const published = await publishCalculator({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1,
+    enabled: false
+  });
+
+  const result = await getPublishedCalculatorRuntime({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1,
+    token: published.body.token
+  });
+
+  assert.equal(result.status, 404);
+  assert.equal(result.body.error, "calculator_not_found");
+});
+
+test("rejects calculator lead with invalid phone, category, or multiplier", async () => {
+  const db = createMockDb();
+  await createCalculator({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    payload: {
+      ownerName: "Salamat Mebel",
+      title: "Furniture calculator"
+    }
+  });
+  const published = await publishCalculator({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1
+  });
+
+  const result = await submitCalculatorLead({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1,
+    token: published.body.token,
+    payload: {
+      name: "Erlan",
+      phone: "123",
+      categoryCode: "unknown",
+      units: 3,
+      materialMultiplier: 0
+    }
+  });
+
+  assert.equal(result.status, 400);
+  assert.deepEqual(result.body.fields.map((field) => field.field), [
+    "phone",
+    "categoryCode",
+    "materialMultiplier"
+  ]);
+});
+
 function createMockDb() {
   const state = {
     clients: [],
     orders: [],
+    projectTemplates: [],
+    templateSteps: [],
+    orderSteps: [],
+    calculators: [],
+    calculatorCategories: [],
+    calculatorEmbedTokens: [],
     prepare(sql) {
       return {
         all: async () => {
@@ -221,12 +530,20 @@ function createMockDb() {
             return { results: items };
           }
 
+          if (sql.includes("FROM calculators")) {
+            return {
+              results: state.calculators
+                .map((item) => ({ ...item }))
+                .sort((a, b) => b.id - a.id)
+            };
+          }
+
           throw new Error(`Unexpected all SQL: ${sql}`);
         },
         run: async () => {
-          if (sql.startsWith("CREATE TABLE") || sql.startsWith("CREATE INDEX") || sql.startsWith("ALTER TABLE")) {
-            return { success: true };
-          }
+            if (sql.startsWith("CREATE TABLE") || sql.startsWith("CREATE INDEX") || sql.startsWith("ALTER TABLE")) {
+              return { success: true };
+            }
 
           throw new Error(`Unexpected unbound run SQL: ${sql}`);
         },
@@ -277,6 +594,100 @@ function createMockDb() {
               return { success: true, meta: { last_row_id: order.id } };
             }
 
+            if (sql.includes("INSERT INTO project_templates")) {
+              const [code, name, furnitureType] = values;
+              let template = state.projectTemplates.find((item) => item.code === code);
+              if (!template) {
+                template = { id: state.projectTemplates.length + 1, code, name, furnitureType };
+                state.projectTemplates.push(template);
+              } else {
+                template.name = name;
+                template.furnitureType = furnitureType;
+              }
+              return { success: true };
+            }
+
+            if (sql.includes("INSERT INTO template_steps")) {
+              const [templateId, stepCode, title, sortOrder, required, defaultAssigneeRole] = values;
+              state.templateSteps.push({
+                id: state.templateSteps.length + 1,
+                templateId,
+                stepCode,
+                title,
+                sortOrder,
+                required,
+                defaultAssigneeRole
+              });
+              return { success: true };
+            }
+
+            if (sql.includes("INSERT INTO order_steps")) {
+              const [orderId, templateStepId, stepCode, title, sortOrder] = values;
+              state.orderSteps.push({
+                id: state.orderSteps.length + 1,
+                orderId,
+                templateStepId,
+                stepCode,
+                title,
+                status: "pending",
+                notes: null,
+                completedAt: null,
+                completedBy: null,
+                sortOrder
+              });
+              return { success: true };
+            }
+
+            if (sql.includes("INSERT INTO calculators")) {
+              const [ownerName, ownerPhone, title, description, currency, isEnabled] = values;
+              const calculator = {
+                id: state.calculators.length + 1,
+                ownerName,
+                ownerPhone,
+                title,
+                description,
+                currency,
+                isEnabled,
+                createdAt: now(),
+                updatedAt: now()
+              };
+              state.calculators.push(calculator);
+              return { success: true, meta: { last_row_id: calculator.id } };
+            }
+
+            if (sql.includes("DELETE FROM calculator_categories")) {
+              const [calculatorId] = values;
+              state.calculatorCategories = state.calculatorCategories.filter((item) => item.calculatorId !== calculatorId);
+              return { success: true };
+            }
+
+            if (sql.includes("INSERT INTO calculator_categories")) {
+              const [calculatorId, code, name, basePrice, unitLabel, unitPrice, minUnits, sortOrder] = values;
+              state.calculatorCategories.push({
+                id: state.calculatorCategories.length + 1,
+                calculatorId,
+                code,
+                name,
+                basePrice,
+                unitLabel,
+                unitPrice,
+                minUnits,
+                sortOrder
+              });
+              return { success: true };
+            }
+
+            if (sql.includes("INSERT INTO calculator_embed_tokens")) {
+              const [calculatorId, token] = values;
+              state.calculatorEmbedTokens.push({
+                id: state.calculatorEmbedTokens.length + 1,
+                calculatorId,
+                token,
+                isActive: 1
+              });
+              return { success: true };
+            }
+
             if (sql.includes("UPDATE orders")) {
               const [status, notes, orderId] = values;
               const order = state.orders.find((item) => item.id === orderId);
@@ -284,6 +695,28 @@ function createMockDb() {
                 order.status = status;
                 order.notes = notes;
                 order.updatedAt = now();
+              }
+              return { success: true };
+            }
+
+            if (sql.includes("UPDATE order_steps")) {
+              const [status, notes, statusForCompletedAt, statusForCompletedBy, completedBy, stepId, orderId] = values;
+              const step = state.orderSteps.find((item) => item.id === stepId && item.orderId === orderId);
+              if (step) {
+                step.status = status;
+                step.notes = notes;
+                step.completedAt = statusForCompletedAt === "done" ? now() : null;
+                step.completedBy = statusForCompletedBy === "done" ? completedBy : null;
+              }
+              return { success: true };
+            }
+
+            if (sql.includes("UPDATE calculators")) {
+              const [isEnabled, calculatorId] = values;
+              const calculator = state.calculators.find((item) => item.id === calculatorId);
+              if (calculator) {
+                calculator.isEnabled = isEnabled;
+                calculator.updatedAt = now();
               }
               return { success: true };
             }
@@ -296,10 +729,44 @@ function createMockDb() {
               return state.clients.find((item) => item.phone === phone) || null;
             }
 
+            if (sql.includes("FROM project_templates WHERE code = ?")) {
+              const [code] = values;
+              return state.projectTemplates.find((item) => item.code === code) || null;
+            }
+
+            if (sql.includes("FROM template_steps WHERE template_id = ? AND step_code = ?")) {
+              const [templateId, stepCode] = values;
+              return state.templateSteps.find((item) => item.templateId === templateId && item.stepCode === stepCode) || null;
+            }
+
+            if (sql.includes("SELECT id, furniture_type AS furnitureType FROM orders")) {
+              const [orderId] = values;
+              const order = state.orders.find((item) => item.id === orderId);
+              return order ? { id: order.id, furnitureType: order.furnitureType } : null;
+            }
+
+            if (sql.includes("SELECT id FROM order_steps WHERE order_id = ? LIMIT 1")) {
+              const [orderId] = values;
+              const step = state.orderSteps.find((item) => item.orderId === orderId);
+              return step ? { id: step.id } : null;
+            }
+
             if (sql.includes("SELECT id FROM orders WHERE id = ?")) {
               const [orderId] = values;
               const order = state.orders.find((item) => item.id === orderId);
               return order ? { id: order.id } : null;
+            }
+
+            if (sql.includes("SELECT id FROM order_steps WHERE id = ? AND order_id = ?")) {
+              const [stepId, orderId] = values;
+              const step = state.orderSteps.find((item) => item.id === stepId && item.orderId === orderId);
+              return step ? { id: step.id } : null;
+            }
+
+            if (sql.includes("FROM order_steps") && sql.includes("WHERE id = ? AND order_id = ?")) {
+              const [stepId, orderId] = values;
+              const step = state.orderSteps.find((item) => item.id === stepId && item.orderId === orderId);
+              return step ? toStepRow(step) : null;
             }
 
             if (sql.includes("FROM orders") && sql.includes("JOIN clients") && sql.includes("WHERE orders.id = ?")) {
@@ -308,7 +775,68 @@ function createMockDb() {
               return order ? toOrderRow(state, order) : null;
             }
 
+            if (sql.includes("FROM calculators") && sql.includes("WHERE id = ?")) {
+              const [calculatorId] = values;
+              const calculator = state.calculators.find((item) => item.id === calculatorId);
+              return calculator ? { ...calculator } : null;
+            }
+
+            if (sql.includes("FROM calculator_embed_tokens") && sql.includes("calculator_id = ? AND token = ?")) {
+              const [calculatorId, token] = values;
+              const record = state.calculatorEmbedTokens.find((item) => item.calculatorId === calculatorId && item.token === token && item.isActive === 1);
+              return record ? { ...record } : null;
+            }
+
+            if (sql.includes("FROM calculator_embed_tokens") && sql.includes("calculator_id = ? AND is_active = 1")) {
+              const [calculatorId] = values;
+              const records = state.calculatorEmbedTokens.filter((item) => item.calculatorId === calculatorId && item.isActive === 1);
+              const record = records.at(-1);
+              return record ? { ...record } : null;
+            }
+
             throw new Error(`Unexpected first SQL: ${sql}`);
+          },
+          all: async () => {
+            if (sql.includes("FROM orders") && sql.includes("JOIN clients")) {
+              const statusFilter = sql.includes("WHERE orders.status = ?") ? values[0] : null;
+              const items = state.orders
+                .filter((order) => !statusFilter || order.status === statusFilter)
+                .map((order) => toOrderRow(state, order))
+                .sort((a, b) => b.id - a.id);
+              return { results: items };
+            }
+
+            if (sql.includes("FROM template_steps")) {
+              const [templateId] = values;
+              return {
+                results: state.templateSteps
+                  .filter((item) => item.templateId === templateId)
+                  .sort((a, b) => a.sortOrder - b.sortOrder)
+                  .map((item) => ({ ...item }))
+              };
+            }
+
+            if (sql.includes("FROM order_steps") && sql.includes("WHERE order_id = ?")) {
+              const [orderId] = values;
+              return {
+                results: state.orderSteps
+                  .filter((item) => item.orderId === orderId)
+                  .sort((a, b) => a.sortOrder - b.sortOrder)
+                  .map(toStepRow)
+              };
+            }
+
+            if (sql.includes("FROM calculator_categories")) {
+              const [calculatorId] = values;
+              return {
+                results: state.calculatorCategories
+                  .filter((item) => item.calculatorId === calculatorId)
+                  .sort((a, b) => a.sortOrder - b.sortOrder)
+                  .map((item) => ({ ...item }))
+              };
+            }
+
+            throw new Error(`Unexpected bound all SQL: ${sql}`);
           }
         })
       };
@@ -316,6 +844,21 @@ function createMockDb() {
   };
 
   return state;
+}
+
+function toStepRow(step) {
+  return {
+    id: step.id,
+    orderId: step.orderId,
+    templateStepId: step.templateStepId,
+    stepCode: step.stepCode,
+    title: step.title,
+    status: step.status,
+    notes: step.notes,
+    completedAt: step.completedAt,
+    completedBy: step.completedBy,
+    sortOrder: step.sortOrder
+  };
 }
 
 function now() {

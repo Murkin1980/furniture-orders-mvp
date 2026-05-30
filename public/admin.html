@@ -156,6 +156,101 @@
     .money { white-space: nowrap; }
     .actions { min-width: 230px; }
     .actions form { display: grid; gap: 8px; }
+    .project-panel {
+      margin-top: 18px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .project-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .project-head h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+    .progress {
+      color: var(--ok);
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .steps {
+      display: grid;
+      gap: 10px;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) 150px minmax(200px, 1.2fr) auto;
+      gap: 10px;
+      align-items: start;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+    }
+    .step-title {
+      font-weight: 700;
+    }
+    .step-code {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .calculator-panel {
+      margin-top: 18px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .calculator-grid {
+      display: grid;
+      grid-template-columns: minmax(260px, 0.85fr) minmax(320px, 1.15fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .calculator-list {
+      display: grid;
+      gap: 10px;
+    }
+    .calculator-item {
+      display: grid;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+    }
+    .calculator-item strong {
+      font-size: 15px;
+    }
+    .calculator-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .calculator-actions button {
+      flex: 1 1 130px;
+    }
+    .embed-code {
+      min-height: 90px;
+      font-family: Consolas, monospace;
+      font-size: 12px;
+    }
+    .preview-box {
+      min-height: 220px;
+      border: 1px dashed var(--line);
+      border-radius: 6px;
+      padding: 12px;
+      background: #faf9f6;
+    }
 
     @media (max-width: 760px) {
       .bar {
@@ -166,6 +261,14 @@
       .controls label,
       .controls button {
         width: 100%;
+      }
+
+      .step {
+        grid-template-columns: 1fr;
+      }
+
+      .calculator-grid {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -223,15 +326,56 @@
         </tbody>
       </table>
     </div>
+    <section class="project-panel" aria-labelledby="project-title">
+      <div class="project-head">
+        <h2 id="project-title">Шаги заказа</h2>
+        <div id="project-progress" class="progress"></div>
+      </div>
+      <div id="project-steps" class="steps">
+        <div class="muted">Откройте проект из таблицы заказов.</div>
+      </div>
+    </section>
+    <section class="calculator-panel" aria-labelledby="calculator-title">
+      <div class="project-head">
+        <h2 id="calculator-title">Furniture calculators</h2>
+        <button id="create-calculator" type="button">Create calculator</button>
+      </div>
+      <div class="calculator-grid">
+        <div>
+          <div id="calculator-list" class="calculator-list">
+            <div class="muted">No calculators loaded.</div>
+          </div>
+        </div>
+        <div>
+          <label>
+            Embed code
+            <textarea id="embed-code" class="embed-code" readonly></textarea>
+          </label>
+          <div id="calculator-preview" class="preview-box">
+            <div class="muted">Select a calculator to preview.</div>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <script>
     const statuses = ["new", "in_review", "quoted", "in_production", "completed", "canceled"];
+    const stepStatuses = ["pending", "done", "skipped"];
     const tokenInput = document.querySelector("#token");
     const filterInput = document.querySelector("#status-filter");
     const message = document.querySelector("#message");
     const tbody = document.querySelector("#orders-body");
     const refreshButton = document.querySelector("#refresh");
+    const projectTitle = document.querySelector("#project-title");
+    const projectProgress = document.querySelector("#project-progress");
+    const projectSteps = document.querySelector("#project-steps");
+    const createCalculatorButton = document.querySelector("#create-calculator");
+    const calculatorList = document.querySelector("#calculator-list");
+    const embedCode = document.querySelector("#embed-code");
+    const calculatorPreview = document.querySelector("#calculator-preview");
+    let activeOrderId = null;
+    let activeCalculator = null;
 
     tokenInput.value = localStorage.getItem("furnitureAdminToken") || "";
 
@@ -239,12 +383,15 @@
       localStorage.setItem("furnitureAdminToken", tokenInput.value.trim());
       setMessage("Токен сохранён.", "ok");
       loadOrders();
+      loadCalculators();
     });
 
     refreshButton.addEventListener("click", loadOrders);
     filterInput.addEventListener("change", loadOrders);
+    createCalculatorButton.addEventListener("click", createDefaultCalculator);
 
     loadOrders();
+    loadCalculators();
 
     async function loadOrders() {
       const token = getToken();
@@ -308,6 +455,7 @@
               </select>
               <textarea name="notes" placeholder="Заметка менеджера">${escapeHtml(item.notes || "")}</textarea>
               <button type="submit">Обновить</button>
+              <button class="secondary" type="button" data-project-id="${escapeHtml(item.id)}">Открыть проект</button>
             </form>
           </td>
         </tr>
@@ -315,6 +463,9 @@
 
       for (const form of tbody.querySelectorAll("form")) {
         form.addEventListener("submit", updateOrder);
+      }
+      for (const button of tbody.querySelectorAll("[data-project-id]")) {
+        button.addEventListener("click", () => openProject(Number(button.dataset.projectId)));
       }
     }
 
@@ -351,12 +502,303 @@
         }
 
         setMessage(`Заказ #${json.item.id} обновлён.`, "ok");
+        if (json.projectSteps?.length) {
+          activeOrderId = json.item.id;
+          renderSteps(activeOrderId, json.projectSteps);
+        }
         await loadOrders();
       } catch (error) {
         setMessage(error.message, "bad");
       } finally {
         button.disabled = false;
       }
+    }
+
+    async function openProject(orderId) {
+      const token = getToken();
+      if (!token) {
+        setMessage("Введите admin token.", "bad");
+        return;
+      }
+
+      activeOrderId = orderId;
+      projectTitle.textContent = `Шаги заказа #${orderId}`;
+      projectProgress.textContent = "";
+      projectSteps.innerHTML = '<div class="muted">Загрузка шагов...</div>';
+
+      try {
+        let response = await fetch(`/api/order-steps?orderId=${orderId}`, {
+          headers: { "X-Admin-Token": token }
+        });
+        let json = await response.json();
+
+        if (!response.ok) {
+          throw new Error(json.message || "Не удалось загрузить шаги.");
+        }
+
+        if (!json.items.length) {
+          response = await fetch("/api/orders/project/init", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Admin-Token": token
+            },
+            body: JSON.stringify({ orderId })
+          });
+          json = await response.json();
+
+          if (!response.ok) {
+            throw new Error(json.message || "Не удалось создать шаги.");
+          }
+        }
+
+        renderSteps(orderId, json.items || []);
+      } catch (error) {
+        projectSteps.innerHTML = `<div class="muted">${escapeHtml(error.message)}</div>`;
+        setMessage(error.message, "bad");
+      }
+    }
+
+    function renderSteps(orderId, items) {
+      const doneCount = items.filter((item) => item.status === "done").length;
+      projectTitle.textContent = `Шаги заказа #${orderId}`;
+      projectProgress.textContent = `${doneCount}/${items.length} выполнено`;
+
+      if (!items.length) {
+        projectSteps.innerHTML = '<div class="muted">Шаги ещё не созданы.</div>';
+        return;
+      }
+
+      projectSteps.innerHTML = items.map((item) => `
+        <form class="step" data-step-id="${escapeHtml(item.id)}" data-order-id="${escapeHtml(orderId)}">
+          <div>
+            <div class="step-title">${escapeHtml(item.title)}</div>
+            <span class="step-code">${escapeHtml(item.stepCode)}</span>
+          </div>
+          <select name="status">
+            ${stepStatuses.map((status) => `<option value="${status}" ${status === item.status ? "selected" : ""}>${status}</option>`).join("")}
+          </select>
+          <textarea name="notes" placeholder="Заметка по шагу">${escapeHtml(item.notes || "")}</textarea>
+          <button type="submit">Сохранить</button>
+        </form>
+      `).join("");
+
+      for (const form of projectSteps.querySelectorAll("form")) {
+        form.addEventListener("submit", updateStep);
+      }
+    }
+
+    async function updateStep(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const button = form.querySelector("button");
+      const token = getToken();
+
+      button.disabled = true;
+
+      try {
+        const response = await fetch("/api/order-steps/update", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Token": token
+          },
+          body: JSON.stringify({
+            orderId: Number(form.dataset.orderId),
+            stepId: Number(form.dataset.stepId),
+            status: form.elements.status.value,
+            notes: form.elements.notes.value,
+            completedBy: "manager"
+          })
+        });
+        const json = await response.json();
+
+        if (!response.ok) {
+          throw new Error(json.message || "Шаг не обновлён.");
+        }
+
+        setMessage(`Шаг "${json.item.title}" обновлён.`, "ok");
+        await openProject(Number(form.dataset.orderId));
+      } catch (error) {
+        setMessage(error.message, "bad");
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    async function loadCalculators() {
+      const token = getToken();
+      if (!token) {
+        renderCalculators([]);
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/calculators", {
+          headers: {
+            "X-Admin-Token": token
+          }
+        });
+        const json = await response.json();
+
+        if (!response.ok) {
+          throw new Error(json.message || "Calculators were not loaded.");
+        }
+
+        renderCalculators(json.items || []);
+      } catch (error) {
+        calculatorList.innerHTML = `<div class="muted">${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    async function createDefaultCalculator() {
+      const token = getToken();
+      if (!token) {
+        setMessage("Введите admin token.", "bad");
+        return;
+      }
+
+      createCalculatorButton.disabled = true;
+
+      try {
+        const response = await fetch("/api/calculators", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Token": token
+          },
+          body: JSON.stringify({
+            ownerName: "Salamat Mebel",
+            ownerPhone: "+77000000000",
+            title: "Furniture cost calculator",
+            description: "Quick estimate for custom furniture orders.",
+            currency: "KZT"
+          })
+        });
+        const json = await response.json();
+
+        if (!response.ok) {
+          throw new Error(json.message || "Calculator was not created.");
+        }
+
+        setMessage(`Calculator #${json.item.id} created.`, "ok");
+        await loadCalculators();
+        await openCalculator(json.item.id);
+      } catch (error) {
+        setMessage(error.message, "bad");
+      } finally {
+        createCalculatorButton.disabled = false;
+      }
+    }
+
+    function renderCalculators(items) {
+      if (!items.length) {
+        calculatorList.innerHTML = '<div class="muted">No calculators yet.</div>';
+        return;
+      }
+
+      calculatorList.innerHTML = items.map((item) => `
+        <div class="calculator-item">
+          <strong>#${escapeHtml(item.id)} ${escapeHtml(item.title)}</strong>
+          <span class="muted">${escapeHtml(item.ownerName || "")} · ${item.isEnabled ? "enabled" : "disabled"}</span>
+          <div class="calculator-actions">
+            <button type="button" data-calculator-open="${escapeHtml(item.id)}">Preview</button>
+            <button class="secondary" type="button" data-calculator-publish="${escapeHtml(item.id)}">Publish/embed</button>
+          </div>
+        </div>
+      `).join("");
+
+      for (const button of calculatorList.querySelectorAll("[data-calculator-open]")) {
+        button.addEventListener("click", () => openCalculator(Number(button.dataset.calculatorOpen)));
+      }
+      for (const button of calculatorList.querySelectorAll("[data-calculator-publish]")) {
+        button.addEventListener("click", () => publishCalculator(Number(button.dataset.calculatorPublish)));
+      }
+    }
+
+    async function openCalculator(calculatorId) {
+      const token = getToken();
+      if (!token) {
+        setMessage("Введите admin token.", "bad");
+        return;
+      }
+
+      calculatorPreview.innerHTML = '<div class="muted">Loading calculator...</div>';
+
+      try {
+        const response = await fetch(`/api/calculators/${calculatorId}`, {
+          headers: {
+            "X-Admin-Token": token
+          }
+        });
+        const json = await response.json();
+
+        if (!response.ok) {
+          throw new Error(json.message || "Calculator was not loaded.");
+        }
+
+        activeCalculator = json.item;
+        renderCalculatorPreview(activeCalculator);
+      } catch (error) {
+        calculatorPreview.innerHTML = `<div class="muted">${escapeHtml(error.message)}</div>`;
+        setMessage(error.message, "bad");
+      }
+    }
+
+    async function publishCalculator(calculatorId) {
+      const token = getToken();
+      if (!token) {
+        setMessage("Введите admin token.", "bad");
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/calculators/${calculatorId}/publish`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Token": token
+          },
+          body: JSON.stringify({ enabled: true })
+        });
+        const json = await response.json();
+
+        if (!response.ok) {
+          throw new Error(json.message || "Embed code was not generated.");
+        }
+
+        embedCode.value = json.embedCode || "";
+        setMessage(`Embed code generated for calculator #${calculatorId}.`, "ok");
+        await loadCalculators();
+        await openCalculator(calculatorId);
+      } catch (error) {
+        setMessage(error.message, "bad");
+      }
+    }
+
+    function renderCalculatorPreview(calculator) {
+      const firstCategory = calculator.categories[0];
+      const estimate = firstCategory
+        ? firstCategory.basePrice + firstCategory.unitPrice * Math.max(firstCategory.minUnits, 1)
+        : 0;
+
+      calculatorPreview.innerHTML = `
+        <div class="calculator-item">
+          <strong>${escapeHtml(calculator.title)}</strong>
+          <span class="muted">${escapeHtml(calculator.description || "")}</span>
+          <label>
+            Category
+            <select>
+              ${(calculator.categories || []).map((category) => `<option>${escapeHtml(category.name)} · ${formatMoney(category.basePrice + category.unitPrice * Math.max(category.minUnits, 1))}</option>`).join("")}
+            </select>
+          </label>
+          <label>
+            Size
+            <input type="number" value="${escapeHtml(firstCategory?.minUnits || 1)}" readonly />
+          </label>
+          <div class="progress">Preview estimate: ${formatMoney(estimate)} ${escapeHtml(calculator.currency || "")}</div>
+        </div>
+      `;
     }
 
     function getToken() {

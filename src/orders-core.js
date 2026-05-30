@@ -1,4 +1,6 @@
 import { isOrderStatus } from "./order-statuses.js";
+import { findProjectTemplate, getTemplateSteps, isStepStatus, PROJECT_TEMPLATES } from "./project-templates.js";
+import { hasMinimumPhoneDigits, normalizePhone } from "./phone.js";
 
 const REQUIRED_FIELDS = ["name", "phone"];
 
@@ -11,7 +13,8 @@ export function normalizeOrderPayload(input) {
     city: cleanText(payload.city),
     furnitureType: cleanText(payload.furnitureType),
     budget: normalizeBudget(payload.budget),
-    description: cleanText(payload.description)
+    description: cleanText(payload.description),
+    calculatorMeta: normalizeCalculatorMeta(payload.calculatorMeta)
   };
 
   return normalized;
@@ -26,7 +29,7 @@ export function validateOrderPayload(payload) {
     }
   }
 
-  if (payload.phone && payload.phone.replace(/\D/g, "").length < 10) {
+  if (payload.phone && !hasMinimumPhoneDigits(payload.phone)) {
     errors.push({ field: "phone", message: "Phone must contain at least 10 digits." });
   }
 
@@ -108,7 +111,42 @@ async function ensureSchema(db, env) {
     )`,
     "CREATE INDEX IF NOT EXISTS idx_orders_client_id ON orders(client_id)",
     "CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status)",
-    "CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at)"
+    "CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at)",
+    `CREATE TABLE IF NOT EXISTS project_templates (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      code TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
+      furniture_type TEXT NOT NULL,
+      is_active INTEGER NOT NULL DEFAULT 1,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE TABLE IF NOT EXISTS template_steps (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      template_id INTEGER NOT NULL,
+      step_code TEXT NOT NULL,
+      title TEXT NOT NULL,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      required INTEGER NOT NULL DEFAULT 1,
+      default_assignee_role TEXT,
+      FOREIGN KEY (template_id) REFERENCES project_templates(id) ON DELETE CASCADE
+    )`,
+    `CREATE TABLE IF NOT EXISTS order_steps (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      order_id INTEGER NOT NULL,
+      template_step_id INTEGER,
+      step_code TEXT NOT NULL,
+      title TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending',
+      notes TEXT,
+      completed_at TEXT,
+      completed_by TEXT,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+      FOREIGN KEY (template_step_id) REFERENCES template_steps(id) ON DELETE SET NULL
+    )`,
+    "CREATE INDEX IF NOT EXISTS idx_template_steps_template_id ON template_steps(template_id)",
+    "CREATE INDEX IF NOT EXISTS idx_order_steps_order_id ON order_steps(order_id)",
+    "CREATE INDEX IF NOT EXISTS idx_order_steps_status ON order_steps(status)"
   ];
 
   for (const statement of statements) {
@@ -117,6 +155,7 @@ async function ensureSchema(db, env) {
 
   await ensureOrderUpdatedAtColumn(db);
   await ensureOrderNotesColumn(db);
+  await seedProjectTemplates(db);
 }
 
 async function ensureOrderUpdatedAtColumn(db) {
@@ -147,6 +186,75 @@ async function ensureOrderNotesColumn(db) {
   if (!hasNotes) {
     await db.prepare("ALTER TABLE orders ADD COLUMN notes TEXT").run();
   }
+}
+
+async function seedProjectTemplates(db) {
+  for (const template of PROJECT_TEMPLATES) {
+    await ensureProjectTemplate(db, template);
+  }
+}
+
+async function ensureProjectTemplate(db, template) {
+  await db
+    .prepare(
+      `INSERT INTO project_templates (code, name, furniture_type, is_active)
+       VALUES (?, ?, ?, 1)
+       ON CONFLICT(code) DO UPDATE SET
+         name = excluded.name,
+         furniture_type = excluded.furniture_type,
+         is_active = 1`
+    )
+    .bind(template.code, template.name, template.furnitureType)
+    .run();
+
+  const record = await db
+    .prepare("SELECT id, code, name, furniture_type AS furnitureType FROM project_templates WHERE code = ?")
+    .bind(template.code)
+    .first();
+
+  if (!record) {
+    throw new Error("Project template was not created.");
+  }
+
+  for (const step of getTemplateSteps(template)) {
+    const existing = await db
+      .prepare("SELECT id FROM template_steps WHERE template_id = ? AND step_code = ?")
+      .bind(record.id, step.stepCode)
+      .first();
+
+    if (!existing) {
+      await db
+        .prepare(
+          `INSERT INTO template_steps (
+            template_id, step_code, title, sort_order, required, default_assignee_role
+          ) VALUES (?, ?, ?, ?, ?, ?)`
+        )
+        .bind(record.id, step.stepCode, step.title, step.sortOrder, step.required ? 1 : 0, step.defaultAssigneeRole)
+        .run();
+    }
+  }
+
+  return record;
+}
+
+async function listTemplateSteps(db, templateId) {
+  const result = await db
+    .prepare(
+      `SELECT
+        id,
+        step_code AS stepCode,
+        title,
+        sort_order AS sortOrder,
+        required,
+        default_assignee_role AS defaultAssigneeRole
+       FROM template_steps
+       WHERE template_id = ?
+       ORDER BY sort_order ASC, id ASC`
+    )
+    .bind(templateId)
+    .all();
+
+  return result?.results || [];
 }
 
 export async function listOrders({ db, env = {}, status = null }) {
@@ -264,6 +372,12 @@ export async function updateOrderStatus({ db, env = {}, orderId, status, notes =
     .bind(normalizedStatus, normalizedNotes, normalizedOrderId)
     .run();
 
+  let projectSteps = null;
+  if (normalizedStatus === "in_review") {
+    const steps = await createOrderProjectSteps({ db, env, orderId: normalizedOrderId });
+    projectSteps = steps.body.items;
+  }
+
   const result = await db
     .prepare(
       `SELECT
@@ -292,7 +406,236 @@ export async function updateOrderStatus({ db, env = {}, orderId, status, notes =
     status: 200,
     body: {
       success: true,
-      item: result
+      item: result,
+      projectSteps
+    }
+  };
+}
+
+export async function createOrderProjectSteps({ db, env = {}, orderId }) {
+  if (!db) {
+    throw new Error("D1 binding DB is not configured.");
+  }
+
+  await ensureSchema(db, env);
+
+  const normalizedOrderId = Number(orderId);
+  if (!Number.isInteger(normalizedOrderId) || normalizedOrderId < 1) {
+    return {
+      ok: false,
+      status: 400,
+      body: {
+        success: false,
+        error: "invalid_order_id",
+        message: "orderId must be a positive integer."
+      }
+    };
+  }
+
+  const order = await db
+    .prepare("SELECT id, furniture_type AS furnitureType FROM orders WHERE id = ?")
+    .bind(normalizedOrderId)
+    .first();
+
+  if (!order) {
+    return {
+      ok: false,
+      status: 404,
+      body: {
+        success: false,
+        error: "order_not_found",
+        message: "Order was not found."
+      }
+    };
+  }
+
+  const existing = await db
+    .prepare("SELECT id FROM order_steps WHERE order_id = ? LIMIT 1")
+    .bind(normalizedOrderId)
+    .first();
+
+  if (!existing) {
+    const template = findProjectTemplate(order.furnitureType);
+    const templateRecord = await ensureProjectTemplate(db, template);
+    const templateSteps = await listTemplateSteps(db, templateRecord.id);
+
+    for (const step of templateSteps) {
+      await db
+        .prepare(
+          `INSERT INTO order_steps (
+            order_id, template_step_id, step_code, title, status, notes, completed_at, completed_by, sort_order
+          ) VALUES (?, ?, ?, ?, 'pending', NULL, NULL, NULL, ?)`
+        )
+        .bind(normalizedOrderId, step.id, step.stepCode, step.title, step.sortOrder)
+        .run();
+    }
+  }
+
+  return listOrderSteps({ db, env, orderId: normalizedOrderId });
+}
+
+export async function listOrderSteps({ db, env = {}, orderId }) {
+  if (!db) {
+    throw new Error("D1 binding DB is not configured.");
+  }
+
+  await ensureSchema(db, env);
+
+  const normalizedOrderId = Number(orderId);
+  if (!Number.isInteger(normalizedOrderId) || normalizedOrderId < 1) {
+    return {
+      ok: false,
+      status: 400,
+      body: {
+        success: false,
+        error: "invalid_order_id",
+        message: "orderId must be a positive integer."
+      }
+    };
+  }
+
+  const order = await db.prepare("SELECT id FROM orders WHERE id = ?").bind(normalizedOrderId).first();
+  if (!order) {
+    return {
+      ok: false,
+      status: 404,
+      body: {
+        success: false,
+        error: "order_not_found",
+        message: "Order was not found."
+      }
+    };
+  }
+
+  const result = await db
+    .prepare(
+      `SELECT
+        id,
+        order_id AS orderId,
+        template_step_id AS templateStepId,
+        step_code AS stepCode,
+        title,
+        status,
+        notes,
+        completed_at AS completedAt,
+        completed_by AS completedBy,
+        sort_order AS sortOrder
+       FROM order_steps
+       WHERE order_id = ?
+       ORDER BY sort_order ASC, id ASC`
+    )
+    .bind(normalizedOrderId)
+    .all();
+
+  return {
+    ok: true,
+    status: 200,
+    body: {
+      success: true,
+      items: result?.results || []
+    }
+  };
+}
+
+export async function updateOrderStep({ db, env = {}, orderId, stepId, status, notes = null, completedBy = null }) {
+  if (!db) {
+    throw new Error("D1 binding DB is not configured.");
+  }
+
+  await ensureSchema(db, env);
+
+  const normalizedOrderId = Number(orderId);
+  const normalizedStepId = Number(stepId);
+  const normalizedStatus = cleanText(status);
+  const normalizedNotes = cleanText(notes);
+  const normalizedCompletedBy = cleanText(completedBy);
+
+  if (!Number.isInteger(normalizedOrderId) || normalizedOrderId < 1 || !Number.isInteger(normalizedStepId) || normalizedStepId < 1) {
+    return {
+      ok: false,
+      status: 400,
+      body: {
+        success: false,
+        error: "invalid_step_request",
+        message: "orderId and stepId must be positive integers."
+      }
+    };
+  }
+
+  if (!normalizedStatus || !isStepStatus(normalizedStatus)) {
+    return {
+      ok: false,
+      status: 400,
+      body: {
+        success: false,
+        error: "invalid_step_status",
+        message: "Step status is not supported."
+      }
+    };
+  }
+
+  const existing = await db
+    .prepare("SELECT id FROM order_steps WHERE id = ? AND order_id = ?")
+    .bind(normalizedStepId, normalizedOrderId)
+    .first();
+
+  if (!existing) {
+    return {
+      ok: false,
+      status: 404,
+      body: {
+        success: false,
+        error: "step_not_found",
+        message: "Order step was not found."
+      }
+    };
+  }
+
+  await db
+    .prepare(
+      `UPDATE order_steps
+       SET status = ?,
+           notes = ?,
+           completed_at = CASE WHEN ? = 'done' THEN CURRENT_TIMESTAMP ELSE NULL END,
+           completed_by = CASE WHEN ? = 'done' THEN ? ELSE NULL END
+       WHERE id = ? AND order_id = ?`
+    )
+    .bind(
+      normalizedStatus,
+      normalizedNotes,
+      normalizedStatus,
+      normalizedStatus,
+      normalizedCompletedBy,
+      normalizedStepId,
+      normalizedOrderId
+    )
+    .run();
+
+  const item = await db
+    .prepare(
+      `SELECT
+        id,
+        order_id AS orderId,
+        template_step_id AS templateStepId,
+        step_code AS stepCode,
+        title,
+        status,
+        notes,
+        completed_at AS completedAt,
+        completed_by AS completedBy,
+        sort_order AS sortOrder
+       FROM order_steps
+       WHERE id = ? AND order_id = ?`
+    )
+    .bind(normalizedStepId, normalizedOrderId)
+    .first();
+
+  return {
+    ok: true,
+    status: 200,
+    body: {
+      success: true,
+      item
     }
   };
 }
@@ -401,15 +744,6 @@ function cleanText(value) {
   return text || null;
 }
 
-function normalizePhone(value) {
-  const text = cleanText(value);
-  if (!text) {
-    return null;
-  }
-
-  return text.replace(/[^\d+]/g, "");
-}
-
 function normalizeBudget(value) {
   if (value === undefined || value === null || value === "") {
     return null;
@@ -417,4 +751,36 @@ function normalizeBudget(value) {
 
   const number = Number(value);
   return Number.isFinite(number) ? Math.round(number) : NaN;
+}
+
+function normalizeCalculatorMeta(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return null;
+  }
+
+  return {
+    calculatorId: normalizeNullableInteger(value.calculatorId),
+    categoryCode: cleanText(value.categoryCode),
+    units: normalizeNullableNumber(value.units),
+    materialMultiplier: normalizeNullableNumber(value.materialMultiplier),
+    estimate: normalizeNullableInteger(value.estimate)
+  };
+}
+
+function normalizeNullableInteger(value) {
+  if (value === undefined || value === null || value === "") {
+    return null;
+  }
+
+  const number = Number(value);
+  return Number.isFinite(number) ? Math.round(number) : null;
+}
+
+function normalizeNullableNumber(value) {
+  if (value === undefined || value === null || value === "") {
+    return null;
+  }
+
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
 }

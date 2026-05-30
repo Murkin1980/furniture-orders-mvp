@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "node --test",
-    "check": "node --check functions/api/orders.js && node --check functions/api/orders/status.js && node --check src/orders-core.js && node --check src/order-statuses.js",
+    "check": "node --check functions/api/orders.js && node --check functions/api/orders/status.js && node --check functions/api/orders/project/init.js && node --check functions/api/order-steps.js && node --check functions/api/order-steps/update.js && node --check functions/api/calculators.js && node --check functions/api/calculators/[id].js && node --check functions/api/calculators/[id]/publish.js && node --check functions/api/calculators/[id]/embed.js && node --check functions/api/calculators/[id]/lead.js && node --check src/orders-core.js && node --check src/order-statuses.js && node --check src/project-templates.js && node --check src/calculators-core.js && node --check src/phone.js",
     "dev": "wrangler pages dev public --d1 DB --binding RUNTIME_SCHEMA_INIT=true --binding ADMIN_TOKEN=dev-admin-token --compatibility-date=2026-05-29 --persist-to=.wrangler/state",
     "deploy": "wrangler pages deploy public --project-name=furniture-orders-mvp"
   },
