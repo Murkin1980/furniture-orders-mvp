@@ -251,6 +251,39 @@
       padding: 12px;
       background: #faf9f6;
     }
+    .pricing-editor {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .pricing-row {
+      display: grid;
+      grid-template-columns: minmax(120px, 1.2fr) 110px 110px 90px;
+      gap: 8px;
+      align-items: end;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+    }
+    .rule-row {
+      display: grid;
+      grid-template-columns: minmax(140px, 1fr) 130px 100px;
+      gap: 8px;
+      align-items: end;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+    }
+    .pricing-tools {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .pricing-tools button {
+      flex: 1 1 140px;
+    }
 
     @media (max-width: 760px) {
       .bar {
@@ -268,6 +301,11 @@
       }
 
       .calculator-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .pricing-row,
+      .rule-row {
         grid-template-columns: 1fr;
       }
     }
@@ -354,6 +392,7 @@
           <div id="calculator-preview" class="preview-box">
             <div class="muted">Select a calculator to preview.</div>
           </div>
+          <div id="pricing-editor" class="pricing-editor"></div>
         </div>
       </div>
     </section>
@@ -374,8 +413,10 @@
     const calculatorList = document.querySelector("#calculator-list");
     const embedCode = document.querySelector("#embed-code");
     const calculatorPreview = document.querySelector("#calculator-preview");
+    const pricingEditor = document.querySelector("#pricing-editor");
     let activeOrderId = null;
     let activeCalculator = null;
+    let activePricing = null;
 
     tokenInput.value = localStorage.getItem("furnitureAdminToken") || "";
 
@@ -739,6 +780,7 @@
 
         activeCalculator = json.item;
         renderCalculatorPreview(activeCalculator);
+        await loadPricing(calculatorId);
       } catch (error) {
         calculatorPreview.innerHTML = `<div class="muted">${escapeHtml(error.message)}</div>`;
         setMessage(error.message, "bad");
@@ -799,6 +841,192 @@
           <div class="progress">Preview estimate: ${formatMoney(estimate)} ${escapeHtml(calculator.currency || "")}</div>
         </div>
       `;
+    }
+
+    async function loadPricing(calculatorId) {
+      const token = getToken();
+      pricingEditor.innerHTML = '<div class="muted">Loading pricing...</div>';
+
+      try {
+        const response = await fetch(`/api/calculators/${calculatorId}/pricing`, {
+          headers: {
+            "X-Admin-Token": token
+          }
+        });
+        const json = await response.json();
+
+        if (!response.ok) {
+          throw new Error(json.message || "Pricing was not loaded.");
+        }
+
+        activePricing = json;
+        renderPricingEditor(json);
+      } catch (error) {
+        pricingEditor.innerHTML = `<div class="muted">${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    function renderPricingEditor(pricing) {
+      const prices = pricing.draft?.prices || [];
+      const rules = pricing.draft?.rules || [];
+      const firstPrice = prices[0];
+      const materialRule = rules.find((rule) => rule.ruleType === "multiplier") || rules[0];
+
+      pricingEditor.innerHTML = `
+        <div class="project-head">
+          <h2>Pricing draft</h2>
+          <div class="progress">Published rows: ${(pricing.published?.prices || []).length}</div>
+        </div>
+        <form id="pricing-form" class="pricing-editor">
+          <div>
+            <strong>Prices</strong>
+            ${prices.map((price) => `
+              <div class="pricing-row" data-price-code="${escapeHtml(price.code)}">
+                <label>Category
+                  <input name="label" value="${escapeHtml(price.name)}" />
+                </label>
+                <label>Base
+                  <input name="basePrice" type="number" min="0" step="1000" value="${escapeHtml(price.basePrice)}" />
+                </label>
+                <label>Unit
+                  <input name="unitPrice" type="number" min="0" step="1000" value="${escapeHtml(price.unitPrice)}" />
+                </label>
+                <label>Min
+                  <input name="minUnits" type="number" min="0.1" step="0.1" value="${escapeHtml(price.minUnits)}" />
+                </label>
+              </div>
+            `).join("")}
+          </div>
+          <div>
+            <strong>Rules</strong>
+            ${rules.map((rule) => `
+              <div class="rule-row" data-rule-code="${escapeHtml(rule.code)}" data-rule-type="${escapeHtml(rule.ruleType)}">
+                <label>Rule
+                  <input name="label" value="${escapeHtml(rule.label)}" />
+                </label>
+                <label>Type
+                  <select name="ruleType">
+                    ${["multiplier", "fixed_addon", "percent_discount"].map((type) => `<option value="${type}" ${type === rule.ruleType ? "selected" : ""}>${type}</option>`).join("")}
+                  </select>
+                </label>
+                <label>Value
+                  <input name="value" type="number" min="0" step="0.01" value="${escapeHtml(rule.value)}" />
+                </label>
+              </div>
+            `).join("")}
+          </div>
+          <div class="pricing-row">
+            <label>Preview category
+              <select name="previewCategory">
+                ${prices.map((price) => `<option value="${escapeHtml(price.code)}">${escapeHtml(price.name)}</option>`).join("")}
+              </select>
+            </label>
+            <label>Size
+              <input name="previewUnits" type="number" min="0.1" step="0.1" value="${escapeHtml(firstPrice?.minUnits || 1)}" />
+            </label>
+            <label>Material
+              <select name="previewRule">
+                ${rules.filter((rule) => rule.ruleType === "multiplier").map((rule) => `<option value="${escapeHtml(rule.code)}" ${rule.code === materialRule?.code ? "selected" : ""}>${escapeHtml(rule.label)}</option>`).join("")}
+              </select>
+            </label>
+            <label>Result
+              <input name="previewResult" readonly />
+            </label>
+          </div>
+          <div class="pricing-tools">
+            <button type="submit">Save draft</button>
+            <button class="secondary" type="button" id="pricing-preview">Preview</button>
+            <button class="secondary" type="button" id="pricing-publish">Publish/embed</button>
+          </div>
+        </form>
+      `;
+
+      const form = document.querySelector("#pricing-form");
+      form.addEventListener("submit", savePricingDraft);
+      document.querySelector("#pricing-preview").addEventListener("click", previewPricing);
+      document.querySelector("#pricing-publish").addEventListener("click", () => publishCalculator(activeCalculator.id));
+    }
+
+    function collectPricingPayload() {
+      const priceRows = [...pricingEditor.querySelectorAll("[data-price-code]")];
+      const ruleRows = [...pricingEditor.querySelectorAll("[data-rule-code]")];
+
+      return {
+        prices: priceRows.map((row, index) => ({
+          code: row.dataset.priceCode,
+          name: row.querySelector('[name="label"]').value,
+          basePrice: Number(row.querySelector('[name="basePrice"]').value),
+          unitLabel: activePricing.draft.prices[index]?.unitLabel || "unit",
+          unitPrice: Number(row.querySelector('[name="unitPrice"]').value),
+          minUnits: Number(row.querySelector('[name="minUnits"]').value),
+          sortOrder: activePricing.draft.prices[index]?.sortOrder || (index + 1) * 10
+        })),
+        rules: ruleRows.map((row, index) => ({
+          code: row.dataset.ruleCode,
+          label: row.querySelector('[name="label"]').value,
+          ruleType: row.querySelector('[name="ruleType"]').value,
+          value: Number(row.querySelector('[name="value"]').value),
+          sortOrder: activePricing.draft.rules[index]?.sortOrder || (index + 1) * 10
+        })),
+        fields: activePricing.fields || []
+      };
+    }
+
+    async function savePricingDraft(event) {
+      event.preventDefault();
+      const token = getToken();
+
+      try {
+        const response = await fetch(`/api/calculators/${activeCalculator.id}/pricing`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Token": token
+          },
+          body: JSON.stringify(collectPricingPayload())
+        });
+        const json = await response.json();
+
+        if (!response.ok) {
+          throw new Error(json.message || "Pricing was not saved.");
+        }
+
+        activePricing = json;
+        renderPricingEditor(json);
+        setMessage("Pricing draft saved.", "ok");
+      } catch (error) {
+        setMessage(error.message, "bad");
+      }
+    }
+
+    async function previewPricing() {
+      const token = getToken();
+      const form = document.querySelector("#pricing-form");
+
+      try {
+        const response = await fetch(`/api/calculators/${activeCalculator.id}/preview`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Token": token
+          },
+          body: JSON.stringify({
+            categoryCode: form.elements.previewCategory.value,
+            units: Number(form.elements.previewUnits.value),
+            materialRuleCode: form.elements.previewRule.value
+          })
+        });
+        const json = await response.json();
+
+        if (!response.ok) {
+          throw new Error(json.message || "Preview was not calculated.");
+        }
+
+        form.elements.previewResult.value = `${formatMoney(json.estimate)} ${json.currency}`;
+        setMessage("Pricing preview calculated.", "ok");
+      } catch (error) {
+        setMessage(error.message, "bad");
+      }
     }
 
     function getToken() {

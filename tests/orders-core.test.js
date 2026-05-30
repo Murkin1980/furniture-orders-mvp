@@ -13,10 +13,14 @@ import {
 } from "../src/orders-core.js";
 import {
   createCalculator,
+  getCalculatorPricing,
   getPublishedCalculatorRuntime,
+  previewCalculatorPricing,
   publishCalculator,
-  submitCalculatorLead
+  submitCalculatorLead,
+  updateCalculatorPricing
 } from "../src/calculators-core.js";
+import { estimateCalculatorPrice } from "../src/calculators-pricing.js";
 import { ORDER_STATUSES, isOrderStatus } from "../src/order-statuses.js";
 import { STEP_STATUSES, findProjectTemplate } from "../src/project-templates.js";
 
@@ -353,6 +357,8 @@ test("publishes calculator and returns embed data", async () => {
   assert.match(published.body.embedCode, /data-furniture-calculator="1"/);
   assert.equal(embed.status, 200);
   assert.equal(embed.body.item.isEnabled, 1);
+  assert.equal(embed.body.item.runtimeVersion, 1);
+  assert.equal(embed.body.item.formulaVersion, 1);
 });
 
 test("calculator lead creates an order with estimate budget", async () => {
@@ -405,8 +411,10 @@ test("calculator lead creates an order with estimate budget", async () => {
     calculatorId: 1,
     categoryCode: "kitchen",
     units: 3,
+    materialRuleCode: null,
     materialMultiplier: 1.2,
-    estimate: 300000
+    estimate: 300000,
+    formulaVersion: 1
   });
 });
 
@@ -504,6 +512,270 @@ test("rejects calculator lead with invalid phone, category, or multiplier", asyn
   ]);
 });
 
+test("updates calculator draft pricing and previews draft total", async () => {
+  const db = createMockDb();
+  await createCalculator({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    payload: {
+      ownerName: "Salamat Mebel",
+      title: "Furniture calculator"
+    }
+  });
+
+  const updated = await updateCalculatorPricing({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1,
+    payload: {
+      prices: [
+        {
+          code: "kitchen",
+          name: "Kitchen",
+          basePrice: 120000,
+          unitLabel: "meter",
+          unitPrice: 60000,
+          minUnits: 2
+        }
+      ],
+      rules: [
+        { code: "material_standard", label: "Standard", ruleType: "multiplier", value: 1 },
+        { code: "material_premium", label: "Premium", ruleType: "multiplier", value: 1.5 },
+        { code: "delivery", label: "Delivery", ruleType: "fixed_addon", value: 10000 },
+        { code: "discount", label: "Discount", ruleType: "percent_discount", value: 10 }
+      ]
+    }
+  });
+  const preview = await previewCalculatorPricing({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1,
+    payload: {
+      categoryCode: "kitchen",
+      units: 3,
+      materialRuleCode: "material_premium"
+    }
+  });
+
+  assert.equal(updated.status, 200);
+  assert.equal(updated.body.draft.prices[0].basePrice, 120000);
+  assert.equal(preview.status, 200);
+  assert.equal(preview.body.estimate, 414000);
+  assert.equal(preview.body.formulaVersion, 1);
+});
+
+test("publish copies draft pricing to published calculator runtime", async () => {
+  const db = createMockDb();
+  await createCalculator({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    payload: {
+      ownerName: "Salamat Mebel",
+      title: "Furniture calculator"
+    }
+  });
+  await updateCalculatorPricing({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1,
+    payload: {
+      prices: [
+        {
+          code: "wardrobe",
+          name: "Wardrobe",
+          basePrice: 200000,
+          unitLabel: "square meter",
+          unitPrice: 70000,
+          minUnits: 3
+        }
+      ],
+      rules: [
+        { code: "material_standard", label: "Standard", ruleType: "multiplier", value: 1 }
+      ]
+    }
+  });
+  const published = await publishCalculator({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1
+  });
+  const runtime = await getPublishedCalculatorRuntime({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1,
+    token: published.body.token
+  });
+
+  assert.equal(runtime.status, 200);
+  assert.equal(runtime.body.item.categories[0].code, "wardrobe");
+  assert.equal(runtime.body.item.categories[0].basePrice, 200000);
+});
+
+test("calculator preview, runtime, and lead use the same pricing formula", async () => {
+  const db = createMockDb();
+  await createCalculator({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    payload: {
+      ownerName: "Salamat Mebel",
+      title: "Furniture calculator"
+    }
+  });
+  await updateCalculatorPricing({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1,
+    payload: {
+      prices: [
+        {
+          code: "kitchen",
+          name: "Kitchen",
+          basePrice: 120000,
+          unitLabel: "meter",
+          unitPrice: 60000,
+          minUnits: 2
+        }
+      ],
+      rules: [
+        { code: "material_standard", label: "Standard", ruleType: "multiplier", value: 1 },
+        { code: "material_premium", label: "Premium", ruleType: "multiplier", value: 1.5 },
+        { code: "delivery", label: "Delivery", ruleType: "fixed_addon", value: 10000 },
+        { code: "discount", label: "Discount", ruleType: "percent_discount", value: 10 }
+      ]
+    }
+  });
+  const preview = await previewCalculatorPricing({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1,
+    payload: {
+      categoryCode: "kitchen",
+      units: 3,
+      materialRuleCode: "material_premium"
+    }
+  });
+  const published = await publishCalculator({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1
+  });
+  const runtime = await getPublishedCalculatorRuntime({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1,
+    token: published.body.token
+  });
+  const category = runtime.body.item.categories[0];
+  const expected = estimateCalculatorPrice(category, 3, {
+    materialRuleCode: "material_premium",
+    rules: runtime.body.item.rules
+  });
+  const lead = await submitCalculatorLead({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1,
+    token: published.body.token,
+    payload: {
+      name: "Erlan",
+      phone: "+77011234567",
+      categoryCode: "kitchen",
+      units: 3,
+      materialRuleCode: "material_premium"
+    },
+    fetchImpl: async () => ({ ok: true })
+  });
+
+  assert.equal(preview.body.estimate, expected);
+  assert.equal(lead.body.estimate, expected);
+  assert.equal(JSON.parse(db.orders[0].rawPayload).calculatorMeta.materialMultiplier, 1.5);
+});
+
+test("rejects unknown calculator material rule codes", async () => {
+  const db = createMockDb();
+  await createCalculator({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    payload: {
+      ownerName: "Salamat Mebel",
+      title: "Furniture calculator"
+    }
+  });
+  const published = await publishCalculator({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1
+  });
+  const preview = await previewCalculatorPricing({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1,
+    payload: {
+      categoryCode: "kitchen",
+      units: 3,
+      materialRuleCode: "material_unknown"
+    }
+  });
+  const lead = await submitCalculatorLead({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1,
+    token: published.body.token,
+    payload: {
+      name: "Erlan",
+      phone: "+77011234567",
+      categoryCode: "kitchen",
+      units: 3,
+      materialRuleCode: "material_unknown"
+    }
+  });
+
+  assert.equal(preview.status, 400);
+  assert.equal(preview.body.fields[0].field, "materialRuleCode");
+  assert.equal(lead.status, 400);
+  assert.equal(lead.body.fields[0].field, "materialRuleCode");
+});
+
+test("rejects invalid calculator pricing rules", async () => {
+  const db = createMockDb();
+  await createCalculator({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    payload: {
+      ownerName: "Salamat Mebel",
+      title: "Furniture calculator"
+    }
+  });
+
+  const result = await updateCalculatorPricing({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1,
+    payload: {
+      prices: [
+        {
+          code: "kitchen",
+          name: "Kitchen",
+          basePrice: 100000,
+          unitPrice: 50000,
+          minUnits: 2
+        }
+      ],
+      rules: [
+        { code: "material_bad", label: "Bad", ruleType: "multiplier", value: 0.5 }
+      ]
+    }
+  });
+  const pricing = await getCalculatorPricing({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1
+  });
+
+  assert.equal(result.status, 400);
+  assert.equal(result.body.error, "validation_error");
+  assert.equal(pricing.body.draft.prices.length > 0, true);
+});
+
 function createMockDb() {
   const state = {
     clients: [],
@@ -514,6 +786,9 @@ function createMockDb() {
     calculators: [],
     calculatorCategories: [],
     calculatorEmbedTokens: [],
+    calculatorPrices: [],
+    calculatorRules: [],
+    calculatorFields: [],
     prepare(sql) {
       return {
         all: async () => {
@@ -541,7 +816,7 @@ function createMockDb() {
           throw new Error(`Unexpected all SQL: ${sql}`);
         },
         run: async () => {
-            if (sql.startsWith("CREATE TABLE") || sql.startsWith("CREATE INDEX") || sql.startsWith("ALTER TABLE")) {
+            if (sql.startsWith("CREATE") || sql.startsWith("ALTER TABLE")) {
               return { success: true };
             }
 
@@ -688,6 +963,73 @@ function createMockDb() {
               return { success: true };
             }
 
+            if (sql.includes("DELETE FROM calculator_prices")) {
+              const [calculatorId, pricingState] = values;
+              state.calculatorPrices = state.calculatorPrices.filter((item) => item.calculatorId !== calculatorId || item.state !== pricingState);
+              return { success: true };
+            }
+
+            if (sql.includes("INSERT INTO calculator_prices")) {
+              const [calculatorId, code, name, basePrice, unitLabel, unitPrice, minUnits, sortOrder, pricingState] = values;
+              state.calculatorPrices.push({
+                id: state.calculatorPrices.length + 1,
+                calculatorId,
+                code,
+                name,
+                basePrice,
+                unitLabel,
+                unitPrice,
+                minUnits,
+                sortOrder,
+                state: pricingState
+              });
+              return { success: true };
+            }
+
+            if (sql.includes("DELETE FROM calculator_rules")) {
+              const [calculatorId, pricingState] = values;
+              state.calculatorRules = state.calculatorRules.filter((item) => item.calculatorId !== calculatorId || item.state !== pricingState);
+              return { success: true };
+            }
+
+            if (sql.includes("INSERT INTO calculator_rules")) {
+              const [calculatorId, code, label, ruleType, value, pricingState, sortOrder] = values;
+              state.calculatorRules.push({
+                id: state.calculatorRules.length + 1,
+                calculatorId,
+                code,
+                label,
+                ruleType,
+                value,
+                state: pricingState,
+                sortOrder
+              });
+              return { success: true };
+            }
+
+            if (sql.includes("DELETE FROM calculator_fields")) {
+              const [calculatorId] = values;
+              state.calculatorFields = state.calculatorFields.filter((item) => item.calculatorId !== calculatorId);
+              return { success: true };
+            }
+
+            if (sql.includes("INSERT INTO calculator_fields")) {
+              const [calculatorId, fieldCode, label, fieldType, defaultValue, minValue, maxValue, sortOrder, isActive] = values;
+              state.calculatorFields.push({
+                id: state.calculatorFields.length + 1,
+                calculatorId,
+                fieldCode,
+                label,
+                fieldType,
+                defaultValue,
+                minValue,
+                maxValue,
+                sortOrder,
+                isActive
+              });
+              return { success: true };
+            }
+
             if (sql.includes("UPDATE orders")) {
               const [status, notes, orderId] = values;
               const order = state.orders.find((item) => item.id === orderId);
@@ -794,6 +1136,12 @@ function createMockDb() {
               return record ? { ...record } : null;
             }
 
+            if (sql.includes("SELECT id FROM calculator_prices")) {
+              const [calculatorId] = values;
+              const row = state.calculatorPrices.find((item) => item.calculatorId === calculatorId && item.state === "draft");
+              return row ? { id: row.id } : null;
+            }
+
             throw new Error(`Unexpected first SQL: ${sql}`);
           },
           all: async () => {
@@ -830,6 +1178,36 @@ function createMockDb() {
               const [calculatorId] = values;
               return {
                 results: state.calculatorCategories
+                  .filter((item) => item.calculatorId === calculatorId)
+                  .sort((a, b) => a.sortOrder - b.sortOrder)
+                  .map((item) => ({ ...item }))
+              };
+            }
+
+            if (sql.includes("FROM calculator_prices")) {
+              const [calculatorId, pricingState] = values;
+              return {
+                results: state.calculatorPrices
+                  .filter((item) => item.calculatorId === calculatorId && item.state === pricingState)
+                  .sort((a, b) => a.sortOrder - b.sortOrder)
+                  .map((item) => ({ ...item }))
+              };
+            }
+
+            if (sql.includes("FROM calculator_rules")) {
+              const [calculatorId, pricingState] = values;
+              return {
+                results: state.calculatorRules
+                  .filter((item) => item.calculatorId === calculatorId && item.state === pricingState)
+                  .sort((a, b) => a.sortOrder - b.sortOrder)
+                  .map((item) => ({ ...item }))
+              };
+            }
+
+            if (sql.includes("FROM calculator_fields")) {
+              const [calculatorId] = values;
+              return {
+                results: state.calculatorFields
                   .filter((item) => item.calculatorId === calculatorId)
                   .sort((a, b) => a.sortOrder - b.sortOrder)
                   .map((item) => ({ ...item }))

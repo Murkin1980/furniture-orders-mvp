@@ -91,13 +91,24 @@ function renderWidgetScript({ calculator, token }) {
 
   const apiOrigin = new URL(document.currentScript.src).origin;
   const formatMoney = (value) => new Intl.NumberFormat("ru-KZ").format(value) + " " + data.calculator.currency;
+  const materialRules = data.calculator.rules.filter((rule) => rule.ruleType === "multiplier");
+  const fixedRules = data.calculator.rules.filter((rule) => rule.ruleType === "fixed_addon");
+  const discountRules = data.calculator.rules.filter((rule) => rule.ruleType === "percent_discount");
   const escapeHtml = (value) => String(value ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
-  const estimate = (category, units, multiplier) => Math.round((Number(category.basePrice || 0) + Number(category.unitPrice || 0) * Math.max(Number(units) || 0, Number(category.minUnits) || 1)) * (Number(multiplier) || 1));
+  const estimate = (category, units, materialRuleCode) => {
+    const materialRule = materialRules.find((rule) => rule.code === materialRuleCode) || materialRules[0];
+    const multiplier = Math.max(1, Number(materialRule?.value) || 1);
+    const base = Number(category.basePrice || 0) + Number(category.unitPrice || 0) * Math.max(Number(units) || 0, Number(category.minUnits) || 1);
+    const addons = fixedRules.reduce((total, rule) => total + Math.max(0, Number(rule.value) || 0), 0);
+    const discountPercent = discountRules.reduce((total, rule) => total + Math.max(0, Number(rule.value) || 0), 0);
+    const gross = base * multiplier + addons;
+    return Math.round(gross - gross * Math.min(discountPercent, 95) / 100);
+  };
 
   root.innerHTML = \`
     <style>
@@ -124,10 +135,8 @@ function renderWidgetScript({ calculator, token }) {
         <input name="units" type="number" min="0.1" step="0.1" value="\${escapeHtml(data.calculator.categories[0]?.minUnits || 1)}" />
       </label>
       <label>Material
-        <select name="materialMultiplier">
-          <option value="1">Standard</option>
-          <option value="1.25">Premium</option>
-          <option value="1.45">Premium plus</option>
+        <select name="materialRuleCode">
+          \${materialRules.map((rule) => \`<option value="\${escapeHtml(rule.code)}">\${escapeHtml(rule.label)}</option>\`).join("")}
         </select>
       </label>
       <div class="fo-estimate" data-estimate></div>
@@ -153,12 +162,12 @@ function renderWidgetScript({ calculator, token }) {
   const currentCategory = () => data.calculator.categories.find((category) => category.code === form.elements.categoryCode.value) || data.calculator.categories[0];
   const updateEstimate = () => {
     const category = currentCategory();
-    estimateNode.textContent = "Estimated from " + formatMoney(estimate(category, form.elements.units.value, form.elements.materialMultiplier.value));
+    estimateNode.textContent = "Estimated from " + formatMoney(estimate(category, form.elements.units.value, form.elements.materialRuleCode.value));
   };
 
   form.elements.categoryCode.addEventListener("change", updateEstimate);
   form.elements.units.addEventListener("input", updateEstimate);
-  form.elements.materialMultiplier.addEventListener("change", updateEstimate);
+  form.elements.materialRuleCode.addEventListener("change", updateEstimate);
   updateEstimate();
 
   form.addEventListener("submit", async (event) => {
