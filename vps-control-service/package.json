@@ -1,0 +1,14 @@
+{
+  "name": "furniture-vps-control",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "check": "node --check src/server.js && node --check src/config.js && node --check src/auth.js && node --check src/http.js && node --check src/services.js && node --check src/deploy.js && node --check src/logs.js && node --check src/validation.js",
+    "test": "node --test"
+  }
+}

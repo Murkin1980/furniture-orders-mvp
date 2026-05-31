@@ -49,6 +49,7 @@
 - `src/calculators-core.js` содержит бизнес-логику калькуляторов, embed token и lead flow.
 - `src/calculators-pricing.js` содержит единые defaults, версию runtime/formula и чистую формулу расчёта для preview/runtime/lead.
 - `src/vps-control.js` содержит безопасный клиент VPS control API и валидацию deploy/reload payload.
+- `vps-control-service/` содержит Ubuntu-side MVP сервиса, который принимает запросы Cloudflare proxy и выполняет только allowlisted VPS actions.
 - `src/phone.js` содержит общую нормализацию и проверку телефона для заявок и calculator leads.
 - `tests/orders-core.test.js` проверяет intake flow, список заказов, фильтр, смену статуса, проектные шаги, калькуляторы, негативные embed/lead сценарии, `400` и `404`.
 
@@ -81,6 +82,7 @@ furniture-orders-mvp/
   src/calculators-pricing.js
   src/vps-control.js
   src/phone.js
+  vps-control-service/
   public/index.html
   public/admin.html
   migrations/0001_orders.sql
@@ -170,6 +172,16 @@ canceled
 - `POST /api/vps/reload/webserver` принимает только `nginx` или `caddy`.
 - Admin UI содержит панель VPS control: health, services, deploy site, reload webserver, logs.
 - Stage 4.03 deliberately не запускает heavy AI на VPS: Ollama, Open WebUI, image generation, STT/OCR остаются вне этого node.
+
+## Ubuntu-side VPS control service Stage 4.03B
+
+- Код сервиса лежит в `vps-control-service/`.
+- Сервис запускается отдельно на Ubuntu 22.04 через `systemd/furniture-vps-control.service`.
+- Все endpoints требуют `Authorization: Bearer <VPS_CONTROL_TOKEN>`.
+- Поддержаны `/health`, `/services`, `/reload/webserver`, `/deploy/site`, `/deploy/logs`.
+- Real deploy пока намеренно не реализован: `dryRun: false` возвращает `501 deploy_not_implemented`.
+- Reload webserver использует allowlisted `sudo /bin/systemctl reload nginx|caddy`, поэтому на VPS нужен узкий `sudoers` rule из README сервиса.
+- Router проверяет bearer token до чтения POST body и ограничивает body size через `VPS_CONTROL_MAX_BODY_BYTES`.
 
 ## Локальная проверка
 
@@ -494,13 +506,13 @@ npm test
 На момент обновления README тестовый набор:
 
 ```text
-34 tests
-34 pass
+53 tests
+53 pass
 ```
 
 ## Следующий этап
 
 Логичный следующий подэтап Stage 4:
 
-- Stage 4.03B: поднять реальный VPS control service на Ubuntu 22.04, выдать `VPS_CONTROL_BASE_URL`/`VPS_CONTROL_TOKEN`, проверить live deploy/reload/logs.
+- Stage 4.03C: установить `vps-control-service/` на Ubuntu 22.04, выдать `VPS_CONTROL_BASE_URL`/`VPS_CONTROL_TOKEN`, проверить live deploy/reload/logs.
 - Stage 4.04: модуль лендингов мебельщиков.

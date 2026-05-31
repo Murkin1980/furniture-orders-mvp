@@ -1,0 +1,22 @@
+[Unit]
+Description=Furniture VPS Control Service
+Documentation=https://github.com/Murkin1980/furniture-orders-mvp
+After=network.target
+
+[Service]
+Type=simple
+User=furniture-control
+Group=furniture-control
+WorkingDirectory=/opt/furniture-control
+EnvironmentFile=/etc/furniture-control.env
+ExecStart=/usr/bin/node /opt/furniture-control/src/server.js
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/srv/sites /srv/deploy-staging /var/log/furniture-control
+
+[Install]
+WantedBy=multi-user.target
