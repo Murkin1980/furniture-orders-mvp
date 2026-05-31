@@ -184,14 +184,104 @@
       border: 1px solid #e2b3aa;
     }
 
+    .gallery {
+      grid-column: 1 / -1;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px;
+    }
+
+    .gallery-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: end;
+      margin-bottom: 16px;
+    }
+
+    .gallery-head h2 {
+      margin: 0;
+      font-size: 26px;
+    }
+
+    .gallery-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+    }
+
+    .gallery-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .gallery-filters button {
+      min-height: 36px;
+      padding: 0 12px;
+      background: #fff;
+      color: var(--primary-dark);
+      border: 1px solid var(--line);
+      font-weight: 700;
+    }
+
+    .gallery-filters button.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .gallery-card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .gallery-card img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      display: block;
+      background: #eee7dc;
+    }
+
+    .gallery-card div {
+      padding: 12px;
+    }
+
+    .gallery-card strong,
+    .gallery-card span {
+      display: block;
+    }
+
+    .gallery-card span {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
     @media (max-width: 820px) {
       main {
         grid-template-columns: 1fr;
       }
 
       .proof,
-      .two {
+      .two,
+      .gallery-grid {
         grid-template-columns: 1fr;
+      }
+
+      .gallery-head {
+        display: block;
       }
     }
   </style>
@@ -261,12 +351,34 @@
       </form>
       <div id="result" class="result" role="status"></div>
     </section>
+
+    <section class="gallery" aria-labelledby="gallery-title">
+      <div class="gallery-head">
+        <div>
+          <h2 id="gallery-title">РџРѕСЂС‚С„РѕР»РёРѕ СЂР°Р±РѕС‚</h2>
+          <p>РћРїСѓР±Р»РёРєРѕРІР°РЅРЅС‹Рµ РїСЂРѕРµРєС‚С‹ РёР· Р°РґРјРёРЅРєРё СЃ С„РёР»СЊС‚СЂРѕРј РїРѕ РєР°С‚РµРіРѕСЂРёСЏРј.</p>
+        </div>
+      </div>
+      <div id="portfolio-filters" class="gallery-filters"></div>
+      <div id="portfolio-gallery" class="gallery-grid">
+        <div class="gallery-card">
+          <div>
+            <strong>РџРѕСЂС‚С„РѕР»РёРѕ РїРѕРєР° РЅРµ Р·Р°РіСЂСѓР¶РµРЅРѕ</strong>
+            <span>РћРїСѓР±Р»РёРєСѓР№С‚Рµ СЂР°Р±РѕС‚С‹ РІ Р°РґРјРёРЅРєРµ, Рё РѕРЅРё РїРѕСЏРІСЏС‚СЃСЏ Р·РґРµСЃСЊ.</span>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <script>
     const form = document.querySelector("#order-form");
     const result = document.querySelector("#result");
     const button = form.querySelector("button");
+    const portfolioGallery = document.querySelector("#portfolio-gallery");
+    const portfolioFilters = document.querySelector("#portfolio-filters");
+    let portfolioItems = [];
+    let portfolioCategories = [];
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -300,6 +412,86 @@
         button.disabled = false;
       }
     });
+
+    loadPortfolioGallery();
+
+    async function loadPortfolioGallery() {
+      try {
+        const response = await fetch("/api/portfolio");
+        const json = await response.json();
+        if (!response.ok) {
+          throw new Error(json.message || "Portfolio was not loaded.");
+        }
+
+        portfolioItems = json.items || [];
+        portfolioCategories = json.categories || [];
+        renderPortfolioFilters("");
+        renderPortfolioGallery(portfolioItems);
+      } catch (error) {
+        portfolioGallery.innerHTML = `
+          <div class="gallery-card">
+            <div>
+              <strong>Р“Р°Р»РµСЂРµСЏ РЅРµ Р·Р°РіСЂСѓР¶РµРЅР°</strong>
+              <span>${escapeHtml(error.message)}</span>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function renderPortfolioFilters(activeCategory) {
+      portfolioFilters.innerHTML = `
+        <button type="button" class="${activeCategory ? "" : "active"}" data-category="">Р’СЃРµ</button>
+        ${portfolioCategories.map((category) => `
+          <button type="button" class="${activeCategory === category.code ? "active" : ""}" data-category="${escapeHtml(category.code)}">${escapeHtml(category.name)}</button>
+        `).join("")}
+      `;
+
+      for (const item of portfolioFilters.querySelectorAll("[data-category]")) {
+        item.addEventListener("click", () => {
+          const category = item.dataset.category;
+          renderPortfolioFilters(category);
+          renderPortfolioGallery(category ? portfolioItems.filter((work) => work.categoryCode === category) : portfolioItems);
+        });
+      }
+    }
+
+    function renderPortfolioGallery(items) {
+      if (!items.length) {
+        portfolioGallery.innerHTML = `
+          <div class="gallery-card">
+            <div>
+              <strong>РџРѕРєР° РЅРµС‚ РѕРїСѓР±Р»РёРєРѕРІР°РЅРЅС‹С… СЂР°Р±РѕС‚</strong>
+              <span>РџСЂРѕРІРµСЂСЊС‚Рµ РґСЂСѓРіСѓСЋ РєР°С‚РµРіРѕСЂРёСЋ РёР»Рё РѕРїСѓР±Р»РёРєСѓР№С‚Рµ РїРµСЂРІС‹Рµ РїСЂРѕРµРєС‚С‹ РІ Р°РґРјРёРЅРєРµ.</span>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      portfolioGallery.innerHTML = items.map((item) => {
+        const image = item.images?.[0];
+        return `
+          <article class="gallery-card">
+            ${image ? `<img src="${escapeHtml(image.imageUrl)}" alt="${escapeHtml(image.altText || item.title)}" loading="lazy" />` : ""}
+            <div>
+              <strong>${escapeHtml(item.title)}</strong>
+              <span>${escapeHtml(item.categoryName || item.categoryCode)}</span>
+              <span>${escapeHtml(item.description || "")}</span>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
   </script>
 </body>
 </html>

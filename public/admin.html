@@ -291,6 +291,7 @@
       border-radius: 8px;
       padding: 16px;
     }
+    .portfolio-grid,
     .sites-grid,
     .vps-grid {
       display: grid;
@@ -298,20 +299,34 @@
       gap: 16px;
       align-items: start;
     }
+    .portfolio-list,
     .site-list {
       display: grid;
       gap: 10px;
     }
+    .portfolio-item,
     .site-item {
       border: 1px solid var(--line);
       border-radius: 6px;
       padding: 12px;
       background: #faf9f6;
     }
+    .portfolio-item strong,
+    .portfolio-item span,
     .site-item strong,
     .site-item span {
       display: block;
     }
+    .portfolio-thumb {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      background: #fff;
+      margin-bottom: 8px;
+    }
+    .portfolio-actions,
     .site-actions {
       display: flex;
       flex-wrap: wrap;
@@ -353,6 +368,7 @@
       }
 
       .calculator-grid,
+      .portfolio-grid,
       .sites-grid,
       .vps-grid {
         grid-template-columns: 1fr;
@@ -363,6 +379,7 @@
         grid-template-columns: 1fr;
       }
 
+      .portfolio-actions,
       .site-actions,
       .vps-actions {
         grid-template-columns: 1fr;
@@ -452,6 +469,55 @@
             <div class="muted">Select a calculator to preview.</div>
           </div>
           <div id="pricing-editor" class="pricing-editor"></div>
+        </div>
+      </div>
+    </section>
+    <section class="vps-panel" aria-labelledby="portfolio-title">
+      <div class="project-head">
+        <h2 id="portfolio-title">Portfolio gallery</h2>
+        <button id="refresh-portfolio" type="button">Refresh portfolio</button>
+      </div>
+      <div class="portfolio-grid">
+        <form id="portfolio-form">
+          <label>
+            Work title
+            <input name="title" value="Modern kitchen in Almaty" />
+          </label>
+          <label>
+            Category
+            <select name="categoryCode" id="portfolio-category-select">
+              <option value="kitchens">Kitchens</option>
+              <option value="wardrobes">Wardrobes</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+          <label>
+            Sort order
+            <input name="sortOrder" type="number" value="10" />
+          </label>
+          <label>
+            Image URLs
+            <textarea name="imageUrls" placeholder="https://example.com/photo-1.jpg&#10;https://example.com/photo-2.jpg"></textarea>
+          </label>
+          <label>
+            Description
+            <textarea name="description">Custom furniture project with fitted storage and durable hardware.</textarea>
+          </label>
+          <label>
+            <input name="isFeatured" type="checkbox" />
+            Featured
+          </label>
+          <div class="portfolio-actions">
+            <button type="submit">Create work</button>
+          </div>
+        </form>
+        <div>
+          <div class="portfolio-actions" id="portfolio-filters">
+            <button type="button" data-portfolio-filter="">All</button>
+          </div>
+          <div id="portfolio-list" class="portfolio-list">
+            <div class="muted">No portfolio loaded.</div>
+          </div>
         </div>
       </div>
     </section>
@@ -557,6 +623,11 @@
     const embedCode = document.querySelector("#embed-code");
     const calculatorPreview = document.querySelector("#calculator-preview");
     const pricingEditor = document.querySelector("#pricing-editor");
+    const portfolioForm = document.querySelector("#portfolio-form");
+    const portfolioList = document.querySelector("#portfolio-list");
+    const portfolioFilters = document.querySelector("#portfolio-filters");
+    const portfolioCategorySelect = document.querySelector("#portfolio-category-select");
+    const refreshPortfolioButton = document.querySelector("#refresh-portfolio");
     const siteForm = document.querySelector("#site-form");
     const siteList = document.querySelector("#site-list");
     const siteOutput = document.querySelector("#site-output");
@@ -583,6 +654,8 @@
     refreshButton.addEventListener("click", loadOrders);
     filterInput.addEventListener("change", loadOrders);
     createCalculatorButton.addEventListener("click", createDefaultCalculator);
+    refreshPortfolioButton.addEventListener("click", () => loadPortfolio(""));
+    portfolioForm.addEventListener("submit", createPortfolioItem);
     refreshSitesButton.addEventListener("click", loadSites);
     siteForm.addEventListener("submit", createSite);
     vpsHealthButton.addEventListener("click", loadVpsHealth);
@@ -593,6 +666,7 @@
 
     loadOrders();
     loadCalculators();
+    loadPortfolio("");
     loadSites();
 
     async function loadOrders() {
@@ -1185,6 +1259,178 @@
 
         form.elements.previewResult.value = `${formatMoney(json.estimate)} ${json.currency}`;
         setMessage("Pricing preview calculated.", "ok");
+      } catch (error) {
+        setMessage(error.message, "bad");
+      }
+    }
+
+    async function loadPortfolio(category = "") {
+      const token = getToken();
+      if (!token) {
+        renderPortfolio([], []);
+        return;
+      }
+
+      refreshPortfolioButton.disabled = true;
+
+      try {
+        const params = new URLSearchParams();
+        if (category) {
+          params.set("category", category);
+        }
+        const response = await fetch(`/api/portfolio${params.toString() ? `?${params}` : ""}`, {
+          headers: {
+            "X-Admin-Token": token
+          }
+        });
+        const json = await response.json();
+
+        if (!response.ok) {
+          throw new Error(json.message || "Portfolio was not loaded.");
+        }
+
+        renderPortfolio(json.items || [], json.categories || [], category);
+      } catch (error) {
+        portfolioList.innerHTML = `<div class="muted">${escapeHtml(error.message)}</div>`;
+      } finally {
+        refreshPortfolioButton.disabled = false;
+      }
+    }
+
+    async function createPortfolioItem(event) {
+      event.preventDefault();
+      const token = getToken();
+      if (!token) {
+        setMessage("Р’РІРµРґРёС‚Рµ admin token.", "bad");
+        return;
+      }
+
+      const button = portfolioForm.querySelector("button");
+      button.disabled = true;
+
+      try {
+        const response = await fetch("/api/portfolio", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Token": token
+          },
+          body: JSON.stringify({
+            title: portfolioForm.elements.title.value,
+            description: portfolioForm.elements.description.value,
+            categoryCode: portfolioForm.elements.categoryCode.value,
+            sortOrder: Number(portfolioForm.elements.sortOrder.value),
+            isFeatured: portfolioForm.elements.isFeatured.checked,
+            imageUrls: portfolioForm.elements.imageUrls.value
+          })
+        });
+        const json = await response.json();
+
+        if (!response.ok) {
+          throw new Error(json.message || "Portfolio item was not created.");
+        }
+
+        setMessage(`Portfolio item #${json.item.id} created.`, "ok");
+        portfolioForm.elements.imageUrls.value = "";
+        await loadPortfolio("");
+      } catch (error) {
+        setMessage(error.message, "bad");
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    function renderPortfolio(items, categories, activeCategory = "") {
+      if (categories.length) {
+        portfolioCategorySelect.innerHTML = categories.map((category) => `
+          <option value="${escapeHtml(category.code)}">${escapeHtml(category.name)}</option>
+        `).join("");
+        portfolioFilters.innerHTML = `
+          <button type="button" data-portfolio-filter="" ${activeCategory ? "" : "disabled"}>All</button>
+          ${categories.map((category) => `
+            <button class="secondary" type="button" data-portfolio-filter="${escapeHtml(category.code)}" ${activeCategory === category.code ? "disabled" : ""}>${escapeHtml(category.name)}</button>
+          `).join("")}
+        `;
+        for (const button of portfolioFilters.querySelectorAll("[data-portfolio-filter]")) {
+          button.addEventListener("click", () => loadPortfolio(button.dataset.portfolioFilter));
+        }
+      }
+
+      if (!items.length) {
+        portfolioList.innerHTML = '<div class="muted">No portfolio works yet.</div>';
+        return;
+      }
+
+      portfolioList.innerHTML = items.map((item) => {
+        const image = item.images?.[0];
+        return `
+          <div class="portfolio-item">
+            ${image ? `<img class="portfolio-thumb" src="${escapeHtml(image.imageUrl)}" alt="${escapeHtml(image.altText || item.title)}" loading="lazy" />` : ""}
+            <strong>#${escapeHtml(item.id)} ${escapeHtml(item.title)}</strong>
+            <span class="muted">${escapeHtml(item.categoryName || item.categoryCode)} В· ${escapeHtml(item.status)} В· ${(item.images || []).length} photos</span>
+            <span class="muted">${escapeHtml(item.description || "")}</span>
+            <div class="portfolio-actions">
+              <button type="button" data-portfolio-publish="${escapeHtml(item.id)}">${item.status === "published" ? "Unpublish" : "Publish"}</button>
+              <button class="secondary" type="button" data-portfolio-add-image="${escapeHtml(item.id)}">Add photos</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      for (const button of portfolioList.querySelectorAll("[data-portfolio-publish]")) {
+        button.addEventListener("click", () => togglePortfolioPublish(Number(button.dataset.portfolioPublish), button.textContent !== "Unpublish"));
+      }
+      for (const button of portfolioList.querySelectorAll("[data-portfolio-add-image]")) {
+        button.addEventListener("click", () => addPortfolioImages(Number(button.dataset.portfolioAddImage)));
+      }
+    }
+
+    async function togglePortfolioPublish(itemId, published) {
+      const token = getToken();
+      try {
+        const response = await fetch(`/api/portfolio/${itemId}/publish`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Token": token
+          },
+          body: JSON.stringify({ published })
+        });
+        const json = await response.json();
+        if (!response.ok) {
+          throw new Error(json.message || "Portfolio publish state was not updated.");
+        }
+
+        setMessage(`Portfolio item #${itemId} ${published ? "published" : "unpublished"}.`, "ok");
+        await loadPortfolio("");
+      } catch (error) {
+        setMessage(error.message, "bad");
+      }
+    }
+
+    async function addPortfolioImages(itemId) {
+      const token = getToken();
+      const value = window.prompt("Paste one or more image URLs separated by spaces or new lines:");
+      if (!value) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/portfolio/${itemId}/images`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Token": token
+          },
+          body: JSON.stringify({ imageUrls: value })
+        });
+        const json = await response.json();
+        if (!response.ok) {
+          throw new Error(json.message || "Portfolio images were not added.");
+        }
+
+        setMessage(`Photos added to portfolio item #${itemId}.`, "ok");
+        await loadPortfolio("");
       } catch (error) {
         setMessage(error.message, "bad");
       }
