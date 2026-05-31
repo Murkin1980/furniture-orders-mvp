@@ -13,6 +13,7 @@
 - Этап 4.04A: модуль лендингов мебельщиков как отдельная сущность с доменами, статусом и dry-run publish flow через VPS layer.
 - Этап 4.05: портфолио и публичная галерея работ с категориями и publish/unpublish flow.
 - Этап 4-R: начат стабилизационный refactor lane для админки и API-контрактов без изменения продуктового поведения.
+- Этап 4.02B: подготовлен implementation plan для schema-driven calculator layer без arbitrary formulas/user-defined code execution.
 
 ## Production
 
@@ -254,6 +255,14 @@ canceled
 - Slice 2 перевёл legacy-панели `orders`, `project steps`, `calculators`, pricing draft save и draft preview на тот же request layer.
 - После slice 2 прямой `fetch` в admin inline script остался только внутри `adminFetchJson`.
 - Старые блоки оставлены в том же inline script; разбиение `public/admin.html` на модули вынесено в следующий стабилизационный проход, чтобы не смешивать request-layer cleanup с крупной перестройкой файла.
+
+## Stage 4.02B schema-driven calculator plan
+
+- План реализации записан в `furniture-stage4-02B-implementation-plan.md`.
+- Цель Stage 4.02B: превратить существующий задел `calculator_fields` в полноценный draft/published schema layer для runtime rendering, draft preview и lead submission.
+- План сохраняет текущий безопасный formula layer: без arbitrary formulas, user-defined JavaScript, SQL, templates, expressions или admin-authored runtime code.
+- План добавляет `schemaVersion` рядом с существующими `runtimeVersion` и `formulaVersion` как additive runtime field без удаления текущих `categories`, `rules` и `fields`.
+- Рекомендуемая реализация: использовать существующую таблицу `calculator_fields`, добавить state-aware columns и публиковать draft fields вместе с prices/rules.
 
 ## Локальная проверка
 
@@ -591,4 +600,5 @@ npm test
 - Stage 4.03C: установить `vps-control-service/` на Ubuntu 22.04, выдать `VPS_CONTROL_BASE_URL`/`VPS_CONTROL_TOKEN`, проверить live deploy/reload/logs.
 - Stage 4.04B: подключить реальную генерацию/упаковку static landing artifact и заменить текущий publish dry run на live deploy после готовности VPS service.
 - Stage 4.05B: подключить реальную загрузку изображений в Storage/R2 вместо URL-only MVP.
+- Stage 4.02B coding pass: после согласования плана добавить draft/published schema fields, `schemaVersion`, runtime rendering по безопасной схеме и тесты совместимости.
 - Stage 4-R next slice: вынести admin helper/request utilities из inline script в отдельный JS-модуль и затем уменьшать размер `public/admin.html` без изменения поведения.
