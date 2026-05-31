@@ -12,6 +12,7 @@
 - Этап 4.03: безопасный VPS control layer через внешний лёгкий control API.
 - Этап 4.04A: модуль лендингов мебельщиков как отдельная сущность с доменами, статусом и dry-run publish flow через VPS layer.
 - Этап 4.05: портфолио и публичная галерея работ с категориями и publish/unpublish flow.
+- Этап 4-R: начат стабилизационный refactor lane для админки и API-контрактов без изменения продуктового поведения.
 
 ## Production
 
@@ -48,6 +49,7 @@
 - Telegram-уведомление отправляется, если заданы `TELEGRAM_BOT_TOKEN` и `TELEGRAM_CHAT_ID`.
 - `public/index.html` даёт тестовую форму для ручной отправки.
 - `public/admin.html` даёт минимальную админку со списком заказов.
+- `public/admin.html` начал переход на общий `adminFetchJson` helper для admin JSON-запросов; первый срез покрывает portfolio, sites и VPS панели.
 - `src/orders-core.js` содержит основную бизнес-логику отдельно от Cloudflare-слоя.
 - `src/order-statuses.js` содержит единый список допустимых статусов.
 - `src/project-templates.js` содержит шаблоны проектных шагов.
@@ -237,6 +239,19 @@ canceled
 - Публичный `GET /api/portfolio` возвращает только `published` работы, а admin-запрос с токеном возвращает draft и published.
 - `public/index.html` рендерит gallery block и фильтры по категориям из публичного API.
 - `public/admin.html` содержит блок Portfolio gallery: создание работы, список, фильтр, добавление URL фото, publish/unpublish.
+
+## Stage 4-R admin stabilization lane
+
+- Stage 4-R не является отдельной продуктовой функцией и не занимает номер существующих Stage 4.04-4.10.
+- Первый срез добавляет общий `adminFetchJson(path, options)` helper в `public/admin.html`.
+- Helper централизует:
+  - чтение admin token;
+  - `X-Admin-Token`;
+  - JSON body;
+  - JSON parsing;
+  - error normalization через `json.message || fallbackMessage`.
+- На helper переведены новые панели `Portfolio gallery`, `Landing sites` и `VPS control`.
+- Старые блоки orders/calculators/project steps пока оставлены без широкой переписки, чтобы не смешивать стабилизацию с рискованным UI-refactor.
 
 ## Локальная проверка
 
@@ -574,3 +589,4 @@ npm test
 - Stage 4.03C: установить `vps-control-service/` на Ubuntu 22.04, выдать `VPS_CONTROL_BASE_URL`/`VPS_CONTROL_TOKEN`, проверить live deploy/reload/logs.
 - Stage 4.04B: подключить реальную генерацию/упаковку static landing artifact и заменить текущий publish dry run на live deploy после готовности VPS service.
 - Stage 4.05B: подключить реальную загрузку изображений в Storage/R2 вместо URL-only MVP.
+- Stage 4-R next slice: вынести admin helpers в отдельный JS-модуль и постепенно перевести orders/calculators/project steps на общий request layer.

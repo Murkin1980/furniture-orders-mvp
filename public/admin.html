@@ -1265,8 +1265,7 @@
     }
 
     async function loadPortfolio(category = "") {
-      const token = getToken();
-      if (!token) {
+      if (!getToken()) {
         renderPortfolio([], []);
         return;
       }
@@ -1278,16 +1277,9 @@
         if (category) {
           params.set("category", category);
         }
-        const response = await fetch(`/api/portfolio${params.toString() ? `?${params}` : ""}`, {
-          headers: {
-            "X-Admin-Token": token
-          }
+        const json = await adminFetchJson(`/api/portfolio${params.toString() ? `?${params}` : ""}`, {
+          fallbackMessage: "Portfolio was not loaded."
         });
-        const json = await response.json();
-
-        if (!response.ok) {
-          throw new Error(json.message || "Portfolio was not loaded.");
-        }
 
         renderPortfolio(json.items || [], json.categories || [], category);
       } catch (error) {
@@ -1309,26 +1301,18 @@
       button.disabled = true;
 
       try {
-        const response = await fetch("/api/portfolio", {
+        const json = await adminFetchJson("/api/portfolio", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Admin-Token": token
-          },
-          body: JSON.stringify({
+          payload: {
             title: portfolioForm.elements.title.value,
             description: portfolioForm.elements.description.value,
             categoryCode: portfolioForm.elements.categoryCode.value,
             sortOrder: Number(portfolioForm.elements.sortOrder.value),
             isFeatured: portfolioForm.elements.isFeatured.checked,
             imageUrls: portfolioForm.elements.imageUrls.value
-          })
+          },
+          fallbackMessage: "Portfolio item was not created."
         });
-        const json = await response.json();
-
-        if (!response.ok) {
-          throw new Error(json.message || "Portfolio item was not created.");
-        }
 
         setMessage(`Portfolio item #${json.item.id} created.`, "ok");
         portfolioForm.elements.imageUrls.value = "";
@@ -1386,20 +1370,12 @@
     }
 
     async function togglePortfolioPublish(itemId, published) {
-      const token = getToken();
       try {
-        const response = await fetch(`/api/portfolio/${itemId}/publish`, {
+        await adminFetchJson(`/api/portfolio/${itemId}/publish`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Admin-Token": token
-          },
-          body: JSON.stringify({ published })
+          payload: { published },
+          fallbackMessage: "Portfolio publish state was not updated."
         });
-        const json = await response.json();
-        if (!response.ok) {
-          throw new Error(json.message || "Portfolio publish state was not updated.");
-        }
 
         setMessage(`Portfolio item #${itemId} ${published ? "published" : "unpublished"}.`, "ok");
         await loadPortfolio("");
@@ -1409,25 +1385,17 @@
     }
 
     async function addPortfolioImages(itemId) {
-      const token = getToken();
       const value = window.prompt("Paste one or more image URLs separated by spaces or new lines:");
       if (!value) {
         return;
       }
 
       try {
-        const response = await fetch(`/api/portfolio/${itemId}/images`, {
+        await adminFetchJson(`/api/portfolio/${itemId}/images`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Admin-Token": token
-          },
-          body: JSON.stringify({ imageUrls: value })
+          payload: { imageUrls: value },
+          fallbackMessage: "Portfolio images were not added."
         });
-        const json = await response.json();
-        if (!response.ok) {
-          throw new Error(json.message || "Portfolio images were not added.");
-        }
 
         setMessage(`Photos added to portfolio item #${itemId}.`, "ok");
         await loadPortfolio("");
@@ -1437,8 +1405,7 @@
     }
 
     async function loadSites() {
-      const token = getToken();
-      if (!token) {
+      if (!getToken()) {
         renderSites([]);
         return;
       }
@@ -1446,16 +1413,9 @@
       refreshSitesButton.disabled = true;
 
       try {
-        const response = await fetch("/api/sites", {
-          headers: {
-            "X-Admin-Token": token
-          }
+        const json = await adminFetchJson("/api/sites", {
+          fallbackMessage: "Sites were not loaded."
         });
-        const json = await response.json();
-
-        if (!response.ok) {
-          throw new Error(json.message || "Sites were not loaded.");
-        }
 
         renderSites(json.items || []);
       } catch (error) {
@@ -1477,25 +1437,17 @@
       button.disabled = true;
 
       try {
-        const response = await fetch("/api/sites", {
+        const json = await adminFetchJson("/api/sites", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Admin-Token": token
-          },
-          body: JSON.stringify({
+          payload: {
             name: siteForm.elements.name.value,
             slug: siteForm.elements.slug.value,
             ownerName: siteForm.elements.ownerName.value,
             domain: siteForm.elements.domain.value,
             templateKey: siteForm.elements.templateKey.value
-          })
+          },
+          fallbackMessage: "Site was not created."
         });
-        const json = await response.json();
-
-        if (!response.ok) {
-          throw new Error(json.message || "Site was not created.");
-        }
 
         setMessage(`Site #${json.item.id} created.`, "ok");
         siteForm.elements.slug.value = "";
@@ -1564,21 +1516,13 @@
       siteOutput.textContent = loadingText;
 
       try {
-        const response = await fetch(path, {
+        const json = await adminFetchJson(path, {
           method,
-          headers: {
-            "Content-Type": "application/json",
-            "X-Admin-Token": token
-          },
-          body: payload ? JSON.stringify(payload) : undefined
+          payload,
+          fallbackMessage: "Site request failed."
         });
-        const json = await response.json();
 
         siteOutput.textContent = JSON.stringify(json, null, 2);
-        if (!response.ok) {
-          throw new Error(json.message || "Site request failed.");
-        }
-
         setMessage("Site request completed.", "ok");
       } catch (error) {
         setMessage(error.message, "bad");
@@ -1650,25 +1594,42 @@
       vpsOutput.textContent = loadingText;
 
       try {
-        const response = await fetch(path, {
+        const json = await adminFetchJson(path, {
           method,
-          headers: {
-            "Content-Type": "application/json",
-            "X-Admin-Token": token
-          },
-          body: payload ? JSON.stringify(payload) : undefined
+          payload,
+          fallbackMessage: "VPS control request failed."
         });
-        const json = await response.json();
 
         vpsOutput.textContent = JSON.stringify(json, null, 2);
-        if (!response.ok) {
-          throw new Error(json.message || "VPS control request failed.");
-        }
-
         setMessage("VPS control request completed.", "ok");
       } catch (error) {
         setMessage(error.message, "bad");
       }
+    }
+
+    async function adminFetchJson(path, { method = "GET", payload, fallbackMessage = "Admin request failed." } = {}) {
+      const token = getToken();
+      if (!token) {
+        throw new Error("Введите admin token.");
+      }
+
+      const headers = { "X-Admin-Token": token };
+      if (payload !== undefined) {
+        headers["Content-Type"] = "application/json";
+      }
+
+      const response = await fetch(path, {
+        method,
+        headers,
+        body: payload !== undefined ? JSON.stringify(payload) : undefined
+      });
+      const json = await response.json();
+
+      if (!response.ok) {
+        throw new Error(json.message || fallbackMessage);
+      }
+
+      return json;
     }
 
     function getToken() {
