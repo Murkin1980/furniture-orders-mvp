@@ -9,6 +9,7 @@
 - Этап 3: проектные шаги заказа по шаблонам мебели.
 - Этап 4.01: мебельный калькулятор как embeddable widget.
 - Этап 4.02: редактор цен, коэффициентов и формул калькулятора в админке.
+- Этап 4.03: безопасный VPS control layer через внешний лёгкий control API.
 
 ## Production
 
@@ -33,6 +34,7 @@
 - `POST /api/calculators/:id/preview` считает draft preview без публикации.
 - `POST /api/calculators/:id/publish` теперь копирует draft pricing/rules в published, и embed использует published-версию.
 - Calculator leads сохраняют `calculatorMeta` в `raw_payload`: `calculatorId`, `categoryCode`, `units`, `materialRuleCode`, `materialMultiplier`, `estimate`, `formulaVersion`.
+- `GET /api/vps/health`, `GET /api/vps/services`, `POST /api/vps/deploy/site`, `POST /api/vps/reload/webserver`, `GET /api/vps/deploy/logs` дают admin proxy к внешнему VPS control API.
 - D1-схема создаёт таблицы `clients` и `orders`.
 - Обязательные поля: `name`, `phone`.
 - Новая заявка получает статус `new`.
@@ -46,6 +48,7 @@
 - `src/project-templates.js` содержит шаблоны проектных шагов.
 - `src/calculators-core.js` содержит бизнес-логику калькуляторов, embed token и lead flow.
 - `src/calculators-pricing.js` содержит единые defaults, версию runtime/formula и чистую формулу расчёта для preview/runtime/lead.
+- `src/vps-control.js` содержит безопасный клиент VPS control API и валидацию deploy/reload payload.
 - `src/phone.js` содержит общую нормализацию и проверку телефона для заявок и calculator leads.
 - `tests/orders-core.test.js` проверяет intake flow, список заказов, фильтр, смену статуса, проектные шаги, калькуляторы, негативные embed/lead сценарии, `400` и `404`.
 
@@ -66,11 +69,17 @@ furniture-orders-mvp/
   functions/api/calculators/[id]/pricing.js
   functions/api/calculators/[id]/rules.js
   functions/api/calculators/[id]/preview.js
+  functions/api/vps/health.js
+  functions/api/vps/services.js
+  functions/api/vps/deploy/site.js
+  functions/api/vps/deploy/logs.js
+  functions/api/vps/reload/webserver.js
   src/orders-core.js
   src/order-statuses.js
   src/project-templates.js
   src/calculators-core.js
   src/calculators-pricing.js
+  src/vps-control.js
   src/phone.js
   public/index.html
   public/admin.html
@@ -136,6 +145,11 @@ canceled
 | `/api/calculators/:id/rules` | `GET` | Draft/published правила калькулятора | `ADMIN_TOKEN` |
 | `/api/calculators/:id/rules` | `PUT` | Сохранение draft правил | `ADMIN_TOKEN` |
 | `/api/calculators/:id/preview` | `POST` | Расчёт draft preview без публикации | `ADMIN_TOKEN` |
+| `/api/vps/health` | `GET` | Health внешнего VPS control API | `ADMIN_TOKEN` |
+| `/api/vps/services` | `GET` | Список сервисов VPS control node | `ADMIN_TOKEN` |
+| `/api/vps/deploy/site` | `POST` | Запуск deploy статического сайта через VPS control API | `ADMIN_TOKEN` |
+| `/api/vps/reload/webserver` | `POST` | Reload `nginx` или `caddy` через VPS control API | `ADMIN_TOKEN` |
+| `/api/vps/deploy/logs` | `GET` | Логи deploy worker | `ADMIN_TOKEN` |
 
 ## Контракт калькулятора Stage 4.02
 
@@ -146,6 +160,16 @@ canceled
 - `materialRuleCode` является каноническим способом выбрать материал. `materialMultiplier` остаётся legacy-полем для старых lead payload без кода материала.
 - Неизвестный `materialRuleCode` возвращает `400 validation_error` в preview и lead flow.
 - Единая формула расчёта находится в `src/calculators-pricing.js`: `((basePrice + unitPrice * units) * materialMultiplier + fixedAddons) - discountPercent`.
+
+## Контракт VPS control Stage 4.03
+
+- Текущий Cloudflare app не подключается к VPS по SSH. Он проксирует admin actions во внешний лёгкий VPS control API.
+- Для включения live-интеграции нужны env-переменные `VPS_CONTROL_BASE_URL` и `VPS_CONTROL_TOKEN`.
+- Если env не задан, VPS endpoints возвращают `503 vps_control_not_configured`.
+- `POST /api/vps/deploy/site` принимает `siteSlug`, `sourceUrl`, `targetPath`, `dryRun`; по умолчанию `dryRun: true`.
+- `POST /api/vps/reload/webserver` принимает только `nginx` или `caddy`.
+- Admin UI содержит панель VPS control: health, services, deploy site, reload webserver, logs.
+- Stage 4.03 deliberately не запускает heavy AI на VPS: Ollama, Open WebUI, image generation, STT/OCR остаются вне этого node.
 
 ## Локальная проверка
 
@@ -216,6 +240,8 @@ D1 database: furniture_orders
 ADMIN_TOKEN
 TELEGRAM_BOT_TOKEN
 TELEGRAM_CHAT_ID
+VPS_CONTROL_BASE_URL
+VPS_CONTROL_TOKEN
 ```
 
 ### Вариант B: ручной deploy через Wrangler
@@ -255,6 +281,11 @@ npm run deploy
 - `GET /api/calculators/:id/rules`
 - `PUT /api/calculators/:id/rules`
 - `POST /api/calculators/:id/preview`
+- `GET /api/vps/health`
+- `GET /api/vps/services`
+- `POST /api/vps/deploy/site`
+- `POST /api/vps/reload/webserver`
+- `GET /api/vps/deploy/logs`
 
 Если `ADMIN_TOKEN` не задан, admin endpoints возвращают `503 admin_not_configured`.
 
@@ -463,13 +494,13 @@ npm test
 На момент обновления README тестовый набор:
 
 ```text
-27 tests
-27 pass
+34 tests
+34 pass
 ```
 
 ## Следующий этап
 
 Логичный следующий подэтап Stage 4:
 
-- Stage 4.03: VPS control layer для лендингов и AI routing.
-- Перед production deploy для Stage 4.02 применить D1 migrations к production D1 и затем выполнить `npm run deploy`.
+- Stage 4.03B: поднять реальный VPS control service на Ubuntu 22.04, выдать `VPS_CONTROL_BASE_URL`/`VPS_CONTROL_TOKEN`, проверить live deploy/reload/logs.
+- Stage 4.04: модуль лендингов мебельщиков.

@@ -284,6 +284,37 @@
     .pricing-tools button {
       flex: 1 1 140px;
     }
+    .vps-panel {
+      margin-top: 18px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .vps-grid {
+      display: grid;
+      grid-template-columns: minmax(260px, 0.85fr) minmax(320px, 1.15fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .vps-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(120px, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .vps-output {
+      min-height: 220px;
+      white-space: pre-wrap;
+      font-family: Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.45;
+      border: 1px dashed var(--line);
+      border-radius: 6px;
+      padding: 12px;
+      background: #faf9f6;
+      overflow: auto;
+    }
 
     @media (max-width: 760px) {
       .bar {
@@ -300,12 +331,17 @@
         grid-template-columns: 1fr;
       }
 
-      .calculator-grid {
+      .calculator-grid,
+      .vps-grid {
         grid-template-columns: 1fr;
       }
 
       .pricing-row,
       .rule-row {
+        grid-template-columns: 1fr;
+      }
+
+      .vps-actions {
         grid-template-columns: 1fr;
       }
     }
@@ -396,6 +432,46 @@
         </div>
       </div>
     </section>
+    <section class="vps-panel" aria-labelledby="vps-title">
+      <div class="project-head">
+        <h2 id="vps-title">VPS control</h2>
+        <button id="vps-health" type="button">Health</button>
+      </div>
+      <div class="vps-grid">
+        <form id="vps-deploy-form">
+          <label>
+            Site slug
+            <input name="siteSlug" value="test-site" />
+          </label>
+          <label>
+            Source URL
+            <input name="sourceUrl" placeholder="https://example.com/site.zip" />
+          </label>
+          <label>
+            Target path
+            <input name="targetPath" placeholder="/var/www/test-site" />
+          </label>
+          <label>
+            Webserver
+            <select name="webserver">
+              <option value="nginx">nginx</option>
+              <option value="caddy">caddy</option>
+            </select>
+          </label>
+          <label>
+            <input name="dryRun" type="checkbox" checked />
+            Dry run
+          </label>
+          <div class="vps-actions">
+            <button type="submit">Deploy site</button>
+            <button class="secondary" id="vps-services" type="button">Services</button>
+            <button class="secondary" id="vps-reload" type="button">Reload</button>
+            <button class="secondary" id="vps-logs" type="button">Logs</button>
+          </div>
+        </form>
+        <div id="vps-output" class="vps-output">VPS control output will appear here.</div>
+      </div>
+    </section>
   </main>
 
   <script>
@@ -414,6 +490,12 @@
     const embedCode = document.querySelector("#embed-code");
     const calculatorPreview = document.querySelector("#calculator-preview");
     const pricingEditor = document.querySelector("#pricing-editor");
+    const vpsDeployForm = document.querySelector("#vps-deploy-form");
+    const vpsOutput = document.querySelector("#vps-output");
+    const vpsHealthButton = document.querySelector("#vps-health");
+    const vpsServicesButton = document.querySelector("#vps-services");
+    const vpsReloadButton = document.querySelector("#vps-reload");
+    const vpsLogsButton = document.querySelector("#vps-logs");
     let activeOrderId = null;
     let activeCalculator = null;
     let activePricing = null;
@@ -430,6 +512,11 @@
     refreshButton.addEventListener("click", loadOrders);
     filterInput.addEventListener("change", loadOrders);
     createCalculatorButton.addEventListener("click", createDefaultCalculator);
+    vpsHealthButton.addEventListener("click", loadVpsHealth);
+    vpsServicesButton.addEventListener("click", loadVpsServices);
+    vpsReloadButton.addEventListener("click", reloadVpsWebserver);
+    vpsLogsButton.addEventListener("click", loadVpsLogs);
+    vpsDeployForm.addEventListener("submit", deployVpsSite);
 
     loadOrders();
     loadCalculators();
@@ -1024,6 +1111,92 @@
 
         form.elements.previewResult.value = `${formatMoney(json.estimate)} ${json.currency}`;
         setMessage("Pricing preview calculated.", "ok");
+      } catch (error) {
+        setMessage(error.message, "bad");
+      }
+    }
+
+    async function loadVpsHealth() {
+      await callVpsApi({
+        path: "/api/vps/health",
+        loadingText: "Checking VPS health..."
+      });
+    }
+
+    async function loadVpsServices() {
+      await callVpsApi({
+        path: "/api/vps/services",
+        loadingText: "Loading VPS services..."
+      });
+    }
+
+    async function loadVpsLogs() {
+      const form = vpsDeployForm;
+      const params = new URLSearchParams({
+        siteSlug: form.elements.siteSlug.value,
+        limit: "50"
+      });
+
+      await callVpsApi({
+        path: `/api/vps/deploy/logs?${params}`,
+        loadingText: "Loading deploy logs..."
+      });
+    }
+
+    async function deployVpsSite(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+
+      await callVpsApi({
+        path: "/api/vps/deploy/site",
+        method: "POST",
+        loadingText: "Starting VPS deploy...",
+        payload: {
+          siteSlug: form.elements.siteSlug.value,
+          sourceUrl: form.elements.sourceUrl.value,
+          targetPath: form.elements.targetPath.value,
+          dryRun: form.elements.dryRun.checked
+        }
+      });
+    }
+
+    async function reloadVpsWebserver() {
+      await callVpsApi({
+        path: "/api/vps/reload/webserver",
+        method: "POST",
+        loadingText: "Reloading webserver...",
+        payload: {
+          webserver: vpsDeployForm.elements.webserver.value
+        }
+      });
+    }
+
+    async function callVpsApi({ path, method = "GET", payload, loadingText }) {
+      const token = getToken();
+      if (!token) {
+        setMessage("Введите admin token.", "bad");
+        return;
+      }
+
+      vpsOutput.textContent = loadingText;
+
+      try {
+        const response = await fetch(path, {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Token": token
+          },
+          body: payload ? JSON.stringify(payload) : undefined
+        });
+        const json = await response.json();
+
+        vpsOutput.textContent = JSON.stringify(json, null, 2);
+        if (!response.ok) {
+          throw new Error(json.message || "VPS control request failed.");
+        }
+
+        setMessage("VPS control request completed.", "ok");
       } catch (error) {
         setMessage(error.message, "bad");
       }
