@@ -291,11 +291,32 @@
       border-radius: 8px;
       padding: 16px;
     }
+    .sites-grid,
     .vps-grid {
       display: grid;
       grid-template-columns: minmax(260px, 0.85fr) minmax(320px, 1.15fr);
       gap: 16px;
       align-items: start;
+    }
+    .site-list {
+      display: grid;
+      gap: 10px;
+    }
+    .site-item {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 12px;
+      background: #faf9f6;
+    }
+    .site-item strong,
+    .site-item span {
+      display: block;
+    }
+    .site-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
     }
     .vps-actions {
       display: grid;
@@ -332,6 +353,7 @@
       }
 
       .calculator-grid,
+      .sites-grid,
       .vps-grid {
         grid-template-columns: 1fr;
       }
@@ -341,6 +363,7 @@
         grid-template-columns: 1fr;
       }
 
+      .site-actions,
       .vps-actions {
         grid-template-columns: 1fr;
       }
@@ -432,6 +455,50 @@
         </div>
       </div>
     </section>
+    <section class="vps-panel" aria-labelledby="sites-title">
+      <div class="project-head">
+        <h2 id="sites-title">Landing sites</h2>
+        <button id="refresh-sites" type="button">Refresh sites</button>
+      </div>
+      <div class="sites-grid">
+        <form id="site-form">
+          <label>
+            Site name
+            <input name="name" value="Kitchen landing" />
+          </label>
+          <label>
+            Slug
+            <input name="slug" placeholder="kitchen-landing" />
+          </label>
+          <label>
+            Owner
+            <input name="ownerName" value="Salamat Mebel" />
+          </label>
+          <label>
+            Domain
+            <input name="domain" placeholder="kitchen.salamat-mebel.kz" />
+          </label>
+          <label>
+            Template
+            <select name="templateKey">
+              <option value="default-furniture">default-furniture</option>
+              <option value="kitchen">kitchen</option>
+              <option value="wardrobe">wardrobe</option>
+              <option value="casework">casework</option>
+            </select>
+          </label>
+          <div class="site-actions">
+            <button type="submit">Create site</button>
+          </div>
+        </form>
+        <div>
+          <div id="site-list" class="site-list">
+            <div class="muted">No sites loaded.</div>
+          </div>
+          <pre id="site-output" class="vps-output">Site status will appear here.</pre>
+        </div>
+      </div>
+    </section>
     <section class="vps-panel" aria-labelledby="vps-title">
       <div class="project-head">
         <h2 id="vps-title">VPS control</h2>
@@ -490,6 +557,10 @@
     const embedCode = document.querySelector("#embed-code");
     const calculatorPreview = document.querySelector("#calculator-preview");
     const pricingEditor = document.querySelector("#pricing-editor");
+    const siteForm = document.querySelector("#site-form");
+    const siteList = document.querySelector("#site-list");
+    const siteOutput = document.querySelector("#site-output");
+    const refreshSitesButton = document.querySelector("#refresh-sites");
     const vpsDeployForm = document.querySelector("#vps-deploy-form");
     const vpsOutput = document.querySelector("#vps-output");
     const vpsHealthButton = document.querySelector("#vps-health");
@@ -512,6 +583,8 @@
     refreshButton.addEventListener("click", loadOrders);
     filterInput.addEventListener("change", loadOrders);
     createCalculatorButton.addEventListener("click", createDefaultCalculator);
+    refreshSitesButton.addEventListener("click", loadSites);
+    siteForm.addEventListener("submit", createSite);
     vpsHealthButton.addEventListener("click", loadVpsHealth);
     vpsServicesButton.addEventListener("click", loadVpsServices);
     vpsReloadButton.addEventListener("click", reloadVpsWebserver);
@@ -520,6 +593,7 @@
 
     loadOrders();
     loadCalculators();
+    loadSites();
 
     async function loadOrders() {
       const token = getToken();
@@ -1111,6 +1185,155 @@
 
         form.elements.previewResult.value = `${formatMoney(json.estimate)} ${json.currency}`;
         setMessage("Pricing preview calculated.", "ok");
+      } catch (error) {
+        setMessage(error.message, "bad");
+      }
+    }
+
+    async function loadSites() {
+      const token = getToken();
+      if (!token) {
+        renderSites([]);
+        return;
+      }
+
+      refreshSitesButton.disabled = true;
+
+      try {
+        const response = await fetch("/api/sites", {
+          headers: {
+            "X-Admin-Token": token
+          }
+        });
+        const json = await response.json();
+
+        if (!response.ok) {
+          throw new Error(json.message || "Sites were not loaded.");
+        }
+
+        renderSites(json.items || []);
+      } catch (error) {
+        siteList.innerHTML = `<div class="muted">${escapeHtml(error.message)}</div>`;
+      } finally {
+        refreshSitesButton.disabled = false;
+      }
+    }
+
+    async function createSite(event) {
+      event.preventDefault();
+      const token = getToken();
+      if (!token) {
+        setMessage("Р’РІРµРґРёС‚Рµ admin token.", "bad");
+        return;
+      }
+
+      const button = siteForm.querySelector("button");
+      button.disabled = true;
+
+      try {
+        const response = await fetch("/api/sites", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Token": token
+          },
+          body: JSON.stringify({
+            name: siteForm.elements.name.value,
+            slug: siteForm.elements.slug.value,
+            ownerName: siteForm.elements.ownerName.value,
+            domain: siteForm.elements.domain.value,
+            templateKey: siteForm.elements.templateKey.value
+          })
+        });
+        const json = await response.json();
+
+        if (!response.ok) {
+          throw new Error(json.message || "Site was not created.");
+        }
+
+        setMessage(`Site #${json.item.id} created.`, "ok");
+        siteForm.elements.slug.value = "";
+        await loadSites();
+        await loadSiteStatus(json.item.id);
+      } catch (error) {
+        setMessage(error.message, "bad");
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    function renderSites(items) {
+      if (!items.length) {
+        siteList.innerHTML = '<div class="muted">No landing sites yet.</div>';
+        return;
+      }
+
+      siteList.innerHTML = items.map((item) => `
+        <div class="site-item">
+          <strong>#${escapeHtml(item.id)} ${escapeHtml(item.name)}</strong>
+          <span class="muted">${escapeHtml(item.slug)} В· ${escapeHtml(item.status)} В· SSL ${escapeHtml(item.sslStatus || "unknown")}</span>
+          <span class="muted">${escapeHtml(item.domain || "No domain")}</span>
+          <div class="site-actions">
+            <button type="button" data-site-status="${escapeHtml(item.id)}">Status</button>
+            <button class="secondary" type="button" data-site-deploy="${escapeHtml(item.id)}">Publish dry run</button>
+            ${item.domain ? `<a href="https://${escapeHtml(item.domain)}" target="_blank" rel="noreferrer">Open</a>` : ""}
+          </div>
+        </div>
+      `).join("");
+
+      for (const button of siteList.querySelectorAll("[data-site-status]")) {
+        button.addEventListener("click", () => loadSiteStatus(Number(button.dataset.siteStatus)));
+      }
+      for (const button of siteList.querySelectorAll("[data-site-deploy]")) {
+        button.addEventListener("click", () => deploySite(Number(button.dataset.siteDeploy)));
+      }
+    }
+
+    async function loadSiteStatus(siteId) {
+      await callSiteApi({
+        path: `/api/sites/${siteId}/status`,
+        loadingText: "Loading site status..."
+      });
+    }
+
+    async function deploySite(siteId) {
+      await callSiteApi({
+        path: `/api/sites/${siteId}/deploy`,
+        method: "POST",
+        loadingText: "Starting site publish dry run...",
+        payload: {
+          dryRun: true
+        }
+      });
+      await loadSites();
+    }
+
+    async function callSiteApi({ path, method = "GET", payload, loadingText }) {
+      const token = getToken();
+      if (!token) {
+        setMessage("Р’РІРµРґРёС‚Рµ admin token.", "bad");
+        return;
+      }
+
+      siteOutput.textContent = loadingText;
+
+      try {
+        const response = await fetch(path, {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Token": token
+          },
+          body: payload ? JSON.stringify(payload) : undefined
+        });
+        const json = await response.json();
+
+        siteOutput.textContent = JSON.stringify(json, null, 2);
+        if (!response.ok) {
+          throw new Error(json.message || "Site request failed.");
+        }
+
+        setMessage("Site request completed.", "ok");
       } catch (error) {
         setMessage(error.message, "bad");
       }

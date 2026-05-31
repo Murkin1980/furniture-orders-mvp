@@ -1,0 +1,44 @@
+CREATE TABLE IF NOT EXISTS sites (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  slug TEXT NOT NULL UNIQUE,
+  owner_name TEXT NOT NULL,
+  template_key TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'draft',
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS site_domains (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  site_id INTEGER NOT NULL,
+  domain TEXT NOT NULL,
+  ssl_status TEXT NOT NULL DEFAULT 'unknown',
+  is_primary INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (site_id) REFERENCES sites(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS site_deployments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  site_id INTEGER NOT NULL,
+  status TEXT NOT NULL DEFAULT 'queued',
+  source_url TEXT NOT NULL,
+  target_path TEXT NOT NULL,
+  dry_run INTEGER NOT NULL DEFAULT 1,
+  upstream_status INTEGER,
+  response_json TEXT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (site_id) REFERENCES sites(id) ON DELETE CASCADE
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_sites_slug
+  ON sites(slug);
+
+CREATE INDEX IF NOT EXISTS idx_site_domains_site
+  ON site_domains(site_id);
+
+CREATE INDEX IF NOT EXISTS idx_site_deployments_site
+  ON site_deployments(site_id, created_at DESC);
