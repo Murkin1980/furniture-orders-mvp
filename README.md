@@ -49,7 +49,7 @@
 - Telegram-уведомление отправляется, если заданы `TELEGRAM_BOT_TOKEN` и `TELEGRAM_CHAT_ID`.
 - `public/index.html` даёт тестовую форму для ручной отправки.
 - `public/admin.html` даёт минимальную админку со списком заказов.
-- `public/admin.html` начал переход на общий `adminFetchJson` helper для admin JSON-запросов; первый срез покрывает portfolio, sites и VPS панели.
+- `public/admin.html` использует общий `adminFetchJson` helper для admin JSON-запросов; Stage 4-R slice 1-2 покрывают portfolio, sites, VPS, orders, project steps и calculators/pricing panels.
 - `src/orders-core.js` содержит основную бизнес-логику отдельно от Cloudflare-слоя.
 - `src/order-statuses.js` содержит единый список допустимых статусов.
 - `src/project-templates.js` содержит шаблоны проектных шагов.
@@ -250,8 +250,10 @@ canceled
   - JSON body;
   - JSON parsing;
   - error normalization через `json.message || fallbackMessage`.
-- На helper переведены новые панели `Portfolio gallery`, `Landing sites` и `VPS control`.
-- Старые блоки orders/calculators/project steps пока оставлены без широкой переписки, чтобы не смешивать стабилизацию с рискованным UI-refactor.
+- Slice 1 перевёл на helper новые панели `Portfolio gallery`, `Landing sites` и `VPS control`.
+- Slice 2 перевёл legacy-панели `orders`, `project steps`, `calculators`, pricing draft save и draft preview на тот же request layer.
+- После slice 2 прямой `fetch` в admin inline script остался только внутри `adminFetchJson`.
+- Старые блоки оставлены в том же inline script; разбиение `public/admin.html` на модули вынесено в следующий стабилизационный проход, чтобы не смешивать request-layer cleanup с крупной перестройкой файла.
 
 ## Локальная проверка
 
@@ -589,4 +591,4 @@ npm test
 - Stage 4.03C: установить `vps-control-service/` на Ubuntu 22.04, выдать `VPS_CONTROL_BASE_URL`/`VPS_CONTROL_TOKEN`, проверить live deploy/reload/logs.
 - Stage 4.04B: подключить реальную генерацию/упаковку static landing artifact и заменить текущий publish dry run на live deploy после готовности VPS service.
 - Stage 4.05B: подключить реальную загрузку изображений в Storage/R2 вместо URL-only MVP.
-- Stage 4-R next slice: вынести admin helpers в отдельный JS-модуль и постепенно перевести orders/calculators/project steps на общий request layer.
+- Stage 4-R next slice: вынести admin helper/request utilities из inline script в отдельный JS-модуль и затем уменьшать размер `public/admin.html` без изменения поведения.

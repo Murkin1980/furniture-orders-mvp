@@ -685,16 +685,9 @@
           params.set("status", filterInput.value);
         }
 
-        const response = await fetch(`/api/orders${params.toString() ? `?${params}` : ""}`, {
-          headers: {
-            "X-Admin-Token": token
-          }
+        const json = await adminFetchJson(`/api/orders${params.toString() ? `?${params}` : ""}`, {
+          fallbackMessage: "Не удалось загрузить заказы."
         });
-        const json = await response.json();
-
-        if (!response.ok) {
-          throw new Error(json.message || "Не удалось загрузить заказы.");
-        }
 
         renderOrders(json.items || []);
         setMessage(`Заказов: ${(json.items || []).length}`, "ok");
@@ -759,23 +752,15 @@
       button.disabled = true;
 
       try {
-        const response = await fetch("/api/orders/status", {
+        const json = await adminFetchJson("/api/orders/status", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Admin-Token": token
-          },
-          body: JSON.stringify({
+          payload: {
             orderId: Number(form.dataset.orderId),
             status: form.elements.status.value,
             notes: form.elements.notes.value
-          })
+          },
+          fallbackMessage: "Статус не обновлён."
         });
-        const json = await response.json();
-
-        if (!response.ok) {
-          throw new Error(json.message || "Статус не обновлён.");
-        }
 
         setMessage(`Заказ #${json.item.id} обновлён.`, "ok");
         if (json.projectSteps?.length) {
@@ -803,29 +788,16 @@
       projectSteps.innerHTML = '<div class="muted">Загрузка шагов...</div>';
 
       try {
-        let response = await fetch(`/api/order-steps?orderId=${orderId}`, {
-          headers: { "X-Admin-Token": token }
+        let json = await adminFetchJson(`/api/order-steps?orderId=${orderId}`, {
+          fallbackMessage: "Не удалось загрузить шаги."
         });
-        let json = await response.json();
-
-        if (!response.ok) {
-          throw new Error(json.message || "Не удалось загрузить шаги.");
-        }
 
         if (!json.items.length) {
-          response = await fetch("/api/orders/project/init", {
+          json = await adminFetchJson("/api/orders/project/init", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Admin-Token": token
-            },
-            body: JSON.stringify({ orderId })
+            payload: { orderId },
+            fallbackMessage: "Не удалось создать шаги."
           });
-          json = await response.json();
-
-          if (!response.ok) {
-            throw new Error(json.message || "Не удалось создать шаги.");
-          }
         }
 
         renderSteps(orderId, json.items || []);
@@ -868,30 +840,21 @@
       event.preventDefault();
       const form = event.currentTarget;
       const button = form.querySelector("button");
-      const token = getToken();
 
       button.disabled = true;
 
       try {
-        const response = await fetch("/api/order-steps/update", {
+        const json = await adminFetchJson("/api/order-steps/update", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Admin-Token": token
-          },
-          body: JSON.stringify({
+          payload: {
             orderId: Number(form.dataset.orderId),
             stepId: Number(form.dataset.stepId),
             status: form.elements.status.value,
             notes: form.elements.notes.value,
             completedBy: "manager"
-          })
+          },
+          fallbackMessage: "Шаг не обновлён."
         });
-        const json = await response.json();
-
-        if (!response.ok) {
-          throw new Error(json.message || "Шаг не обновлён.");
-        }
 
         setMessage(`Шаг "${json.item.title}" обновлён.`, "ok");
         await openProject(Number(form.dataset.orderId));
@@ -910,16 +873,9 @@
       }
 
       try {
-        const response = await fetch("/api/calculators", {
-          headers: {
-            "X-Admin-Token": token
-          }
+        const json = await adminFetchJson("/api/calculators", {
+          fallbackMessage: "Calculators were not loaded."
         });
-        const json = await response.json();
-
-        if (!response.ok) {
-          throw new Error(json.message || "Calculators were not loaded.");
-        }
 
         renderCalculators(json.items || []);
       } catch (error) {
@@ -937,25 +893,17 @@
       createCalculatorButton.disabled = true;
 
       try {
-        const response = await fetch("/api/calculators", {
+        const json = await adminFetchJson("/api/calculators", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Admin-Token": token
-          },
-          body: JSON.stringify({
+          payload: {
             ownerName: "Salamat Mebel",
             ownerPhone: "+77000000000",
             title: "Furniture cost calculator",
             description: "Quick estimate for custom furniture orders.",
             currency: "KZT"
-          })
+          },
+          fallbackMessage: "Calculator was not created."
         });
-        const json = await response.json();
-
-        if (!response.ok) {
-          throw new Error(json.message || "Calculator was not created.");
-        }
 
         setMessage(`Calculator #${json.item.id} created.`, "ok");
         await loadCalculators();
@@ -1002,16 +950,9 @@
       calculatorPreview.innerHTML = '<div class="muted">Loading calculator...</div>';
 
       try {
-        const response = await fetch(`/api/calculators/${calculatorId}`, {
-          headers: {
-            "X-Admin-Token": token
-          }
+        const json = await adminFetchJson(`/api/calculators/${calculatorId}`, {
+          fallbackMessage: "Calculator was not loaded."
         });
-        const json = await response.json();
-
-        if (!response.ok) {
-          throw new Error(json.message || "Calculator was not loaded.");
-        }
 
         activeCalculator = json.item;
         renderCalculatorPreview(activeCalculator);
@@ -1030,19 +971,11 @@
       }
 
       try {
-        const response = await fetch(`/api/calculators/${calculatorId}/publish`, {
+        const json = await adminFetchJson(`/api/calculators/${calculatorId}/publish`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Admin-Token": token
-          },
-          body: JSON.stringify({ enabled: true })
+          payload: { enabled: true },
+          fallbackMessage: "Embed code was not generated."
         });
-        const json = await response.json();
-
-        if (!response.ok) {
-          throw new Error(json.message || "Embed code was not generated.");
-        }
 
         embedCode.value = json.embedCode || "";
         setMessage(`Embed code generated for calculator #${calculatorId}.`, "ok");
@@ -1083,16 +1016,9 @@
       pricingEditor.innerHTML = '<div class="muted">Loading pricing...</div>';
 
       try {
-        const response = await fetch(`/api/calculators/${calculatorId}/pricing`, {
-          headers: {
-            "X-Admin-Token": token
-          }
+        const json = await adminFetchJson(`/api/calculators/${calculatorId}/pricing`, {
+          fallbackMessage: "Pricing was not loaded."
         });
-        const json = await response.json();
-
-        if (!response.ok) {
-          throw new Error(json.message || "Pricing was not loaded.");
-        }
 
         activePricing = json;
         renderPricingEditor(json);
@@ -1209,22 +1135,13 @@
 
     async function savePricingDraft(event) {
       event.preventDefault();
-      const token = getToken();
 
       try {
-        const response = await fetch(`/api/calculators/${activeCalculator.id}/pricing`, {
+        const json = await adminFetchJson(`/api/calculators/${activeCalculator.id}/pricing`, {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Admin-Token": token
-          },
-          body: JSON.stringify(collectPricingPayload())
+          payload: collectPricingPayload(),
+          fallbackMessage: "Pricing was not saved."
         });
-        const json = await response.json();
-
-        if (!response.ok) {
-          throw new Error(json.message || "Pricing was not saved.");
-        }
 
         activePricing = json;
         renderPricingEditor(json);
@@ -1235,27 +1152,18 @@
     }
 
     async function previewPricing() {
-      const token = getToken();
       const form = document.querySelector("#pricing-form");
 
       try {
-        const response = await fetch(`/api/calculators/${activeCalculator.id}/preview`, {
+        const json = await adminFetchJson(`/api/calculators/${activeCalculator.id}/preview`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Admin-Token": token
-          },
-          body: JSON.stringify({
+          payload: {
             categoryCode: form.elements.previewCategory.value,
             units: Number(form.elements.previewUnits.value),
             materialRuleCode: form.elements.previewRule.value
-          })
+          },
+          fallbackMessage: "Preview was not calculated."
         });
-        const json = await response.json();
-
-        if (!response.ok) {
-          throw new Error(json.message || "Preview was not calculated.");
-        }
 
         form.elements.previewResult.value = `${formatMoney(json.estimate)} ${json.currency}`;
         setMessage("Pricing preview calculated.", "ok");
