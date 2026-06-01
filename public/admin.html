@@ -1263,6 +1263,7 @@
             <span class="muted">${escapeHtml(item.description || "")}</span>
             <div class="portfolio-actions">
               <button type="button" data-portfolio-publish="${escapeHtml(item.id)}">${item.status === "published" ? "Unpublish" : "Publish"}</button>
+              <button class="secondary" type="button" data-portfolio-upload-image="${escapeHtml(item.id)}">Upload photo</button>
               <button class="secondary" type="button" data-portfolio-add-image="${escapeHtml(item.id)}">Add photos</button>
             </div>
           </div>
@@ -1274,6 +1275,9 @@
       }
       for (const button of portfolioList.querySelectorAll("[data-portfolio-add-image]")) {
         button.addEventListener("click", () => addPortfolioImages(Number(button.dataset.portfolioAddImage)));
+      }
+      for (const button of portfolioList.querySelectorAll("[data-portfolio-upload-image]")) {
+        button.addEventListener("click", () => uploadPortfolioImage(Number(button.dataset.portfolioUploadImage)));
       }
     }
 
@@ -1310,6 +1314,36 @@
       } catch (error) {
         setMessage(error.message, "bad");
       }
+    }
+
+    async function uploadPortfolioImage(itemId) {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/jpeg,image/png,image/webp";
+      input.addEventListener("change", async () => {
+        const file = input.files?.[0];
+        if (!file) {
+          return;
+        }
+
+        const formData = new FormData();
+        formData.set("file", file);
+        formData.set("altText", file.name);
+
+        try {
+          await adminFetchFormData(`/api/portfolio/${itemId}/images/upload`, {
+            method: "POST",
+            formData,
+            fallbackMessage: "Portfolio image was not uploaded."
+          });
+
+          setMessage(`Photo uploaded to portfolio item #${itemId}.`, "ok");
+          await loadPortfolio("");
+        } catch (error) {
+          setMessage(error.message, "bad");
+        }
+      }, { once: true });
+      input.click();
     }
 
     async function loadSites() {
@@ -1530,6 +1564,26 @@
         method,
         headers,
         body: payload !== undefined ? JSON.stringify(payload) : undefined
+      });
+      const json = await response.json();
+
+      if (!response.ok) {
+        throw new Error(json.message || fallbackMessage);
+      }
+
+      return json;
+    }
+
+    async function adminFetchFormData(path, { method = "POST", formData, fallbackMessage = "Admin request failed." } = {}) {
+      const token = getToken();
+      if (!token) {
+        throw new Error("Введите admin token.");
+      }
+
+      const response = await fetch(path, {
+        method,
+        headers: { "X-Admin-Token": token },
+        body: formData
       });
       const json = await response.json();
 

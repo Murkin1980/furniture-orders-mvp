@@ -4,7 +4,8 @@ import {
   createPortfolioItem,
   listPortfolio,
   normalizePortfolioPayload,
-  publishPortfolioItem
+  publishPortfolioItem,
+  uploadPortfolioImage
 } from "../src/portfolio-core.js";
 
 test("normalizes portfolio payload with image URLs", () => {
@@ -109,6 +110,73 @@ test("publishing requires at least one image", async () => {
   assert.equal(published.body.error, "validation_error");
 });
 
+test("uploads portfolio image to configured storage bucket", async () => {
+  const db = createPortfolioMockDb();
+  const bucket = createBucketMock();
+  const env = {
+    RUNTIME_SCHEMA_INIT: "true",
+    PORTFOLIO_MEDIA_BUCKET: bucket,
+    PORTFOLIO_MEDIA_PUBLIC_BASE_URL: "https://media.example.test/assets"
+  };
+  const item = await createPortfolioItem({
+    db,
+    env,
+    payload: {
+      title: "Uploaded kitchen",
+      categoryCode: "kitchens"
+    }
+  });
+  const uploaded = await uploadPortfolioImage({
+    db,
+    env,
+    itemId: item.body.item.id,
+    file: createImageFile("kitchen.webp", "image/webp", 1024),
+    payload: {
+      altText: "Kitchen photo"
+    }
+  });
+
+  assert.equal(uploaded.status, 200);
+  assert.equal(bucket.objects.length, 1);
+  assert.match(bucket.objects[0].key, /^portfolio\/1\/.+\.webp$/);
+  assert.equal(bucket.objects[0].options.httpMetadata.contentType, "image/webp");
+  assert.equal(uploaded.body.item.images.length, 1);
+  assert.equal(uploaded.body.item.images[0].storageKey, bucket.objects[0].key);
+  assert.equal(uploaded.body.item.images[0].mimeType, "image/webp");
+  assert.equal(uploaded.body.item.images[0].sizeBytes, 1024);
+  assert.equal(uploaded.body.item.images[0].imageUrl, `https://media.example.test/assets/${bucket.objects[0].key}`);
+});
+
+test("upload requires configured storage bucket and supported image type", async () => {
+  const db = createPortfolioMockDb();
+  const env = { RUNTIME_SCHEMA_INIT: "true" };
+  const item = await createPortfolioItem({
+    db,
+    env,
+    payload: {
+      title: "Storage missing",
+      categoryCode: "other"
+    }
+  });
+  const missingBucket = await uploadPortfolioImage({
+    db,
+    env,
+    itemId: item.body.item.id,
+    file: createImageFile("photo.jpg", "image/jpeg", 128)
+  });
+  const unsupported = await uploadPortfolioImage({
+    db,
+    env: { ...env, PORTFOLIO_MEDIA_BUCKET: createBucketMock() },
+    itemId: item.body.item.id,
+    file: createImageFile("photo.txt", "text/plain", 128)
+  });
+
+  assert.equal(missingBucket.status, 503);
+  assert.equal(missingBucket.body.error, "portfolio_media_not_configured");
+  assert.equal(unsupported.status, 400);
+  assert.equal(unsupported.body.fields[0].field, "file");
+});
+
 function createPortfolioMockDb() {
   const state = {
     portfolioCategories: [],
@@ -176,7 +244,7 @@ function createStatement(state, sql, values) {
       }
 
       if (sql.includes("INSERT INTO portfolio_images")) {
-        const [portfolioItemId, imageUrl, altText, sortOrder, isCover] = values;
+        const [portfolioItemId, imageUrl, altText, sortOrder, isCover, storageKey, mimeType, sizeBytes] = values;
         const id = state.portfolioImages.length + 1;
         state.portfolioImages.push({
           id,
@@ -185,6 +253,9 @@ function createStatement(state, sql, values) {
           altText,
           sortOrder,
           isCover,
+          storageKey,
+          mimeType,
+          sizeBytes,
           createdAt: now(),
           updatedAt: now()
         });
@@ -274,4 +345,21 @@ function toPortfolioRow(state, item) {
 
 function now() {
   return "2026-05-31 12:00:00";
+}
+
+function createBucketMock() {
+  return {
+    objects: [],
+    async put(key, value, options) {
+      this.objects.push({ key, value, options });
+    }
+  };
+}
+
+function createImageFile(name, type, size) {
+  const file = new Blob([new Uint8Array(size)], { type });
+  Object.defineProperties(file, {
+    name: { value: name }
+  });
+  return file;
 }

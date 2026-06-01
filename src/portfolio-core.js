@@ -12,6 +12,12 @@ export const DEFAULT_PORTFOLIO_CATEGORIES = [
 ];
 
 const PORTFOLIO_STATUSES = new Set(["draft", "published"]);
+const PORTFOLIO_IMAGE_TYPES = new Map([
+  ["image/jpeg", "jpg"],
+  ["image/png", "png"],
+  ["image/webp", "webp"]
+]);
+const MAX_PORTFOLIO_IMAGE_BYTES = 5 * 1024 * 1024;
 
 export function normalizePortfolioPayload(input) {
   const payload = input && typeof input === "object" && !Array.isArray(input) ? input : {};
@@ -233,6 +239,68 @@ export async function addPortfolioImages({ db, env = {}, itemId, payload }) {
   return getPortfolioItem({ db, env, itemId: normalizedItemId, publicOnly: false });
 }
 
+export async function uploadPortfolioImage({ db, env = {}, itemId, file, payload = {} }) {
+  assertDb(db);
+  await ensurePortfolioSchema(db, env);
+
+  const normalizedItemId = normalizePositiveInteger(itemId);
+  if (!normalizedItemId) {
+    return itemIdError();
+  }
+
+  const existing = await selectPortfolioItem(db, normalizedItemId);
+  if (!existing) {
+    return itemNotFound();
+  }
+
+  const bucket = env.PORTFOLIO_MEDIA_BUCKET;
+  if (!bucket || typeof bucket.put !== "function") {
+    return {
+      ok: false,
+      status: 503,
+      body: {
+        success: false,
+        error: "portfolio_media_not_configured",
+        message: "PORTFOLIO_MEDIA_BUCKET is not configured."
+      }
+    };
+  }
+
+  const upload = await normalizeUploadFile(file);
+  if (!upload.ok) {
+    return validationResponse([upload.error]);
+  }
+
+  const current = await listPortfolioImages(db, normalizedItemId);
+  const sortOrder = normalizeInteger(payload.sortOrder, (current.length + 1) * 10);
+  const requestedCover = payload.isCover === true || payload.isCover === "true" || payload.isCover === 1 || payload.isCover === "1";
+  const storageKey = createPortfolioStorageKey(normalizedItemId, upload.extension);
+  const imageUrl = buildPortfolioMediaUrl(env, storageKey);
+  const image = {
+    imageUrl,
+    altText: cleanText(payload.altText || upload.name),
+    sortOrder,
+    isCover: requestedCover || current.length === 0 ? 1 : 0,
+    storageKey,
+    mimeType: upload.type,
+    sizeBytes: upload.size
+  };
+
+  await bucket.put(storageKey, upload.buffer, {
+    httpMetadata: {
+      contentType: upload.type,
+      cacheControl: "public, max-age=31536000, immutable"
+    },
+    customMetadata: {
+      portfolioItemId: String(normalizedItemId)
+    }
+  });
+
+  const next = current.concat(image);
+  await replacePortfolioImages(db, normalizedItemId, next);
+  return getPortfolioItem({ db, env, itemId: normalizedItemId, publicOnly: false });
+}
+
 export async function publishPortfolioItem({ db, env = {}, itemId, published = true }) {
   assertDb(db);
   await ensurePortfolioSchema(db, env);
@@ -300,6 +368,9 @@ async function ensurePortfolioSchema(db, env) {
       alt_text TEXT,
       sort_order INTEGER NOT NULL DEFAULT 0,
       is_cover INTEGER NOT NULL DEFAULT 0,
+      storage_key TEXT,
+      mime_type TEXT,
+      size_bytes INTEGER,
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (portfolio_item_id) REFERENCES portfolio_items(id) ON DELETE CASCADE
@@ -379,6 +450,9 @@ async function listPortfolioImages(db, itemId) {
         alt_text AS altText,
         sort_order AS sortOrder,
         is_cover AS isCover,
+        storage_key AS storageKey,
+        mime_type AS mimeType,
+        size_bytes AS sizeBytes,
         created_at AS createdAt,
         updated_at AS updatedAt
        FROM portfolio_images
@@ -401,15 +475,18 @@ async function replacePortfolioImages(db, itemId, images) {
     await db
       .prepare(
         `INSERT INTO portfolio_images (
-          portfolio_item_id, image_url, alt_text, sort_order, is_cover, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`
+          portfolio_item_id, image_url, alt_text, sort_order, is_cover, storage_key, mime_type, size_bytes, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`
       )
       .bind(
         itemId,
         image.imageUrl,
         image.altText,
         image.sortOrder || (index + 1) * 10,
-        image.isCover || index === 0 ? 1 : 0
+        image.isCover || index === 0 ? 1 : 0,
+        image.storageKey || null,
+        image.mimeType || null,
+        image.sizeBytes || null
       )
       .run();
   }
@@ -469,10 +546,69 @@ function normalizeImagePayloads(value) {
         imageUrl: cleanText(item?.imageUrl || item?.url),
         altText: cleanText(item?.altText),
         sortOrder: normalizeInteger(item?.sortOrder, (index + 1) * 10),
-        isCover: item?.isCover === true || item?.isCover === 1 ? 1 : 0
+        isCover: item?.isCover === true || item?.isCover === 1 ? 1 : 0,
+        storageKey: cleanText(item?.storageKey),
+        mimeType: cleanText(item?.mimeType),
+        sizeBytes: normalizeOptionalInteger(item?.sizeBytes)
       };
     })
     .filter((item) => item.imageUrl);
+}
+
+async function normalizeUploadFile(file) {
+  if (!file || typeof file.arrayBuffer !== "function") {
+    return {
+      ok: false,
+      error: { field: "file", message: "file is required." }
+    };
+  }
+
+  const type = cleanText(file.type).toLowerCase();
+  const extension = PORTFOLIO_IMAGE_TYPES.get(type);
+  if (!extension) {
+    return {
+      ok: false,
+      error: { field: "file", message: "file must be JPEG, PNG, or WebP." }
+    };
+  }
+
+  const size = Number(file.size || 0);
+  if (!Number.isFinite(size) || size <= 0) {
+    return {
+      ok: false,
+      error: { field: "file", message: "file must not be empty." }
+    };
+  }
+
+  if (size > MAX_PORTFOLIO_IMAGE_BYTES) {
+    return {
+      ok: false,
+      error: { field: "file", message: "file must be 5 MB or smaller." }
+    };
+  }
+
+  return {
+    ok: true,
+    name: cleanText(file.name),
+    type,
+    extension,
+    size,
+    buffer: await file.arrayBuffer()
+  };
+}
+
+function createPortfolioStorageKey(itemId, extension) {
+  const randomId = globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  return `portfolio/${itemId}/${randomId}.${extension}`;
+}
+
+function buildPortfolioMediaUrl(env, storageKey) {
+  const baseUrl = cleanText(env.PORTFOLIO_MEDIA_PUBLIC_BASE_URL);
+  if (baseUrl) {
+    return `${baseUrl.replace(/\/+$/g, "")}/${storageKey}`;
+  }
+
+  return `/media/${storageKey}`;
 }
 
 function itemIdError() {
@@ -518,6 +654,15 @@ function normalizePositiveInteger(value) {
 function normalizeInteger(value, fallback) {
   const number = Number(value);
   return Number.isFinite(number) ? Math.round(number) : fallback;
+}
+
+function normalizeOptionalInteger(value) {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  const number = Number(value);
+  return Number.isFinite(number) ? Math.round(number) : null;
 }
 
 function cleanSlug(value) {
