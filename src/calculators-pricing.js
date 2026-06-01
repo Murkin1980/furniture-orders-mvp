@@ -1,5 +1,6 @@
 export const FORMULA_VERSION = 1;
 export const RUNTIME_VERSION = 1;
+export const SCHEMA_VERSION = 1;
 
 export const DEFAULT_RULES = [
   { code: "material_standard", label: "Standard material", ruleType: "multiplier", value: 1, sortOrder: 10 },
@@ -11,9 +12,13 @@ export const DEFAULT_RULES = [
 ];
 
 export const DEFAULT_FIELDS = [
-  { fieldCode: "categoryCode", label: "Category", fieldType: "select", defaultValue: "kitchen", minValue: null, maxValue: null, sortOrder: 10 },
-  { fieldCode: "units", label: "Size", fieldType: "number", defaultValue: "2", minValue: 0.1, maxValue: 100, sortOrder: 20 },
-  { fieldCode: "materialRuleCode", label: "Material", fieldType: "select", defaultValue: "material_standard", minValue: null, maxValue: null, sortOrder: 30 }
+  { fieldCode: "categoryCode", label: "Category", fieldType: "select", role: "pricing_input", binding: "categoryCode", optionsSource: "prices", isRequired: 1, defaultValue: "kitchen", minValue: null, maxValue: null, sortOrder: 10 },
+  { fieldCode: "units", label: "Size", fieldType: "number", role: "pricing_input", binding: "units", optionsSource: null, isRequired: 1, defaultValue: "2", minValue: 0.1, maxValue: 100, sortOrder: 20 },
+  { fieldCode: "materialRuleCode", label: "Material", fieldType: "select", role: "pricing_input", binding: "materialRuleCode", optionsSource: "multiplier_rules", isRequired: 1, defaultValue: "material_standard", minValue: null, maxValue: null, sortOrder: 30 },
+  { fieldCode: "name", label: "Name", fieldType: "text", role: "lead_input", binding: "name", optionsSource: null, isRequired: 1, defaultValue: "", minValue: null, maxValue: null, sortOrder: 40 },
+  { fieldCode: "phone", label: "Phone", fieldType: "tel", role: "lead_input", binding: "phone", optionsSource: null, isRequired: 1, defaultValue: "", minValue: null, maxValue: null, sortOrder: 50 },
+  { fieldCode: "city", label: "City", fieldType: "text", role: "lead_input", binding: "city", optionsSource: null, isRequired: 0, defaultValue: "", minValue: null, maxValue: null, sortOrder: 60 },
+  { fieldCode: "comment", label: "Comment", fieldType: "textarea", role: "lead_input", binding: "comment", optionsSource: null, isRequired: 0, defaultValue: "", minValue: null, maxValue: null, sortOrder: 70 }
 ];
 
 export function estimateCalculatorPrice(category, rawUnits, options = {}) {
@@ -50,7 +55,8 @@ export function buildCalculatorRuntime(calculator) {
   return {
     ...calculator,
     runtimeVersion: RUNTIME_VERSION,
-    formulaVersion: FORMULA_VERSION
+    formulaVersion: FORMULA_VERSION,
+    schemaVersion: SCHEMA_VERSION
   };
 }
 

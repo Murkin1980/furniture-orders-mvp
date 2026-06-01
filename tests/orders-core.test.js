@@ -359,6 +359,7 @@ test("publishes calculator and returns embed data", async () => {
   assert.equal(embed.body.item.isEnabled, 1);
   assert.equal(embed.body.item.runtimeVersion, 1);
   assert.equal(embed.body.item.formulaVersion, 1);
+  assert.equal(embed.body.item.schemaVersion, 1);
 });
 
 test("calculator lead creates an order with estimate budget", async () => {
@@ -414,7 +415,8 @@ test("calculator lead creates an order with estimate budget", async () => {
     materialRuleCode: null,
     materialMultiplier: 1.2,
     estimate: 300000,
-    formulaVersion: 1
+    formulaVersion: 1,
+    schemaVersion: 1
   });
 });
 
@@ -559,9 +561,12 @@ test("updates calculator draft pricing and previews draft total", async () => {
 
   assert.equal(updated.status, 200);
   assert.equal(updated.body.draft.prices[0].basePrice, 120000);
+  assert.equal(updated.body.draft.fields.length > 0, true);
+  assert.equal(updated.body.fields[0].fieldCode, "categoryCode");
   assert.equal(preview.status, 200);
   assert.equal(preview.body.estimate, 414000);
   assert.equal(preview.body.formulaVersion, 1);
+  assert.equal(preview.body.schemaVersion, 1);
 });
 
 test("publish copies draft pricing to published calculator runtime", async () => {
@@ -609,6 +614,64 @@ test("publish copies draft pricing to published calculator runtime", async () =>
   assert.equal(runtime.status, 200);
   assert.equal(runtime.body.item.categories[0].code, "wardrobe");
   assert.equal(runtime.body.item.categories[0].basePrice, 200000);
+  assert.equal(runtime.body.item.fields[0].state, "published");
+});
+
+test("draft schema fields do not affect runtime before publish", async () => {
+  const db = createMockDb();
+  await createCalculator({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    payload: {
+      ownerName: "Salamat Mebel",
+      title: "Furniture calculator"
+    }
+  });
+  const published = await publishCalculator({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1
+  });
+  await updateCalculatorPricing({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1,
+    payload: {
+      fields: [
+        {
+          fieldCode: "units",
+          label: "Draft size label",
+          fieldType: "number",
+          role: "pricing_input",
+          binding: "units",
+          defaultValue: "4",
+          minValue: 1,
+          maxValue: 20,
+          isRequired: 1
+        }
+      ]
+    }
+  });
+  const runtimeBeforePublish = await getPublishedCalculatorRuntime({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1,
+    token: published.body.token
+  });
+  await publishCalculator({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1
+  });
+  const runtimeAfterPublish = await getPublishedCalculatorRuntime({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1,
+    token: published.body.token
+  });
+
+  assert.notEqual(runtimeBeforePublish.body.item.fields[0].label, "Draft size label");
+  assert.equal(runtimeAfterPublish.body.item.fields[0].label, "Draft size label");
 });
 
 test("calculator preview, runtime, and lead use the same pricing formula", async () => {
@@ -774,6 +837,49 @@ test("rejects invalid calculator pricing rules", async () => {
   assert.equal(result.status, 400);
   assert.equal(result.body.error, "validation_error");
   assert.equal(pricing.body.draft.prices.length > 0, true);
+});
+
+test("rejects unsupported calculator schema fields", async () => {
+  const db = createMockDb();
+  await createCalculator({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    payload: {
+      ownerName: "Salamat Mebel",
+      title: "Furniture calculator"
+    }
+  });
+
+  const result = await updateCalculatorPricing({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    calculatorId: 1,
+    payload: {
+      fields: [
+        {
+          fieldCode: "unsafe",
+          label: "Unsafe",
+          fieldType: "script",
+          role: "pricing_input",
+          binding: "unsafeBinding"
+        },
+        {
+          fieldCode: "units",
+          label: "Units",
+          fieldType: "number",
+          role: "dynamic_formula",
+          binding: "units"
+        }
+      ]
+    }
+  });
+
+  assert.equal(result.status, 400);
+  assert.deepEqual(result.body.fields.map((field) => field.field), [
+    "fields.0.fieldType",
+    "fields.0.binding",
+    "fields.1.role"
+  ]);
 });
 
 function createMockDb() {
@@ -1008,24 +1114,44 @@ function createMockDb() {
             }
 
             if (sql.includes("DELETE FROM calculator_fields")) {
-              const [calculatorId] = values;
-              state.calculatorFields = state.calculatorFields.filter((item) => item.calculatorId !== calculatorId);
+              const [calculatorId, fieldState] = values;
+              state.calculatorFields = state.calculatorFields.filter((item) => item.calculatorId !== calculatorId || item.state !== fieldState);
               return { success: true };
             }
 
             if (sql.includes("INSERT INTO calculator_fields")) {
-              const [calculatorId, fieldCode, label, fieldType, defaultValue, minValue, maxValue, sortOrder, isActive] = values;
+              const [
+                calculatorId,
+                fieldCode,
+                label,
+                fieldType,
+                role,
+                binding,
+                optionsSource,
+                defaultValue,
+                minValue,
+                maxValue,
+                sortOrder,
+                isActive,
+                isRequired,
+                fieldState
+              ] = values;
               state.calculatorFields.push({
                 id: state.calculatorFields.length + 1,
                 calculatorId,
                 fieldCode,
                 label,
                 fieldType,
+                role,
+                binding,
+                optionsSource,
                 defaultValue,
                 minValue,
                 maxValue,
                 sortOrder,
-                isActive
+                isActive,
+                isRequired,
+                state: fieldState
               });
               return { success: true };
             }
@@ -1205,10 +1331,10 @@ function createMockDb() {
             }
 
             if (sql.includes("FROM calculator_fields")) {
-              const [calculatorId] = values;
+              const [calculatorId, fieldState] = values;
               return {
                 results: state.calculatorFields
-                  .filter((item) => item.calculatorId === calculatorId)
+                  .filter((item) => item.calculatorId === calculatorId && item.state === fieldState)
                   .sort((a, b) => a.sortOrder - b.sortOrder)
                   .map((item) => ({ ...item }))
               };

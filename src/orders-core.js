@@ -765,7 +765,8 @@ function normalizeCalculatorMeta(value) {
     materialRuleCode: cleanText(value.materialRuleCode),
     materialMultiplier: normalizeNullableNumber(value.materialMultiplier),
     estimate: normalizeNullableInteger(value.estimate),
-    formulaVersion: normalizeNullableInteger(value.formulaVersion)
+    formulaVersion: normalizeNullableInteger(value.formulaVersion),
+    schemaVersion: normalizeNullableInteger(value.schemaVersion)
   };
 }
 

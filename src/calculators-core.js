@@ -4,6 +4,7 @@ import {
   DEFAULT_FIELDS,
   DEFAULT_RULES,
   FORMULA_VERSION,
+  SCHEMA_VERSION,
   buildCalculatorRuntime,
   estimateCalculatorPrice,
   findMaterialRule,
@@ -43,6 +44,10 @@ const DEFAULT_CATEGORIES = [
 ];
 
 const PRICING_STATES = ["draft", "published"];
+const FIELD_TYPES = ["select", "number", "text", "tel", "textarea"];
+const FIELD_ROLES = ["pricing_input", "lead_input", "display_only"];
+const FIELD_BINDINGS = ["categoryCode", "units", "materialRuleCode", "name", "phone", "city", "comment"];
+const FIELD_OPTIONS_SOURCES = ["prices", "multiplier_rules"];
 
 export function normalizeCalculatorPayload(input) {
   const payload = input && typeof input === "object" && !Array.isArray(input) ? input : {};
@@ -153,7 +158,7 @@ export async function getCalculator({ db, env = {}, calculatorId, publicOnly = f
   const pricingState = publicOnly ? "published" : null;
   const categories = await listCalculatorCategories(db, normalizedCalculatorId, pricingState);
   const rules = pricingState ? await listCalculatorRules(db, normalizedCalculatorId, pricingState) : [];
-  const fields = pricingState ? await listCalculatorFields(db, normalizedCalculatorId) : [];
+  const fields = pricingState ? await listCalculatorFields(db, normalizedCalculatorId, pricingState) : [];
 
   return {
     ok: true,
@@ -228,13 +233,15 @@ export async function getCalculatorPricing({ db, env = {}, calculatorId }) {
       calculatorId: normalizedCalculatorId,
       draft: {
         prices: await listCalculatorPrices(db, normalizedCalculatorId, "draft"),
-        rules: await listCalculatorRules(db, normalizedCalculatorId, "draft")
+        rules: await listCalculatorRules(db, normalizedCalculatorId, "draft"),
+        fields: await listCalculatorFields(db, normalizedCalculatorId, "draft")
       },
       published: {
         prices: await listCalculatorPrices(db, normalizedCalculatorId, "published"),
-        rules: await listCalculatorRules(db, normalizedCalculatorId, "published")
+        rules: await listCalculatorRules(db, normalizedCalculatorId, "published"),
+        fields: await listCalculatorFields(db, normalizedCalculatorId, "published")
       },
-      fields: await listCalculatorFields(db, normalizedCalculatorId)
+      fields: await listCalculatorFields(db, normalizedCalculatorId, "draft")
     }
   };
 }
@@ -264,7 +271,7 @@ export async function updateCalculatorPricing({ db, env = {}, calculatorId, payl
 
   await replaceCalculatorPrices(db, normalizedCalculatorId, "draft", normalized.prices);
   await replaceCalculatorRules(db, normalizedCalculatorId, "draft", normalized.rules);
-  await replaceCalculatorFields(db, normalizedCalculatorId, normalized.fields);
+  await replaceCalculatorFields(db, normalizedCalculatorId, "draft", normalized.fields);
 
   return getCalculatorPricing({ db, env, calculatorId: normalizedCalculatorId });
 }
@@ -367,6 +374,7 @@ export async function previewCalculatorPricing({ db, env = {}, calculatorId, pay
       estimate,
       currency: calculator.currency,
       formulaVersion: FORMULA_VERSION,
+      schemaVersion: SCHEMA_VERSION,
       formula: "((basePrice + unitPrice * units) * materialMultiplier + fixedAddons) - discountPercent"
     }
   };
@@ -500,7 +508,8 @@ export async function submitCalculatorLead({ db, env = {}, calculatorId, token, 
         materialRuleCode: lead.materialRuleCode,
         materialMultiplier: materialRule?.value ?? lead.materialMultiplier,
         estimate,
-        formulaVersion: FORMULA_VERSION
+        formulaVersion: FORMULA_VERSION,
+        schemaVersion: SCHEMA_VERSION
       }
     }
   });
@@ -591,11 +600,16 @@ async function ensureCalculatorSchema(db, env) {
       field_code TEXT NOT NULL,
       label TEXT NOT NULL,
       field_type TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'pricing_input',
+      binding TEXT,
+      options_source TEXT,
       default_value TEXT,
       min_value REAL,
       max_value REAL,
       sort_order INTEGER NOT NULL DEFAULT 0,
       is_active INTEGER NOT NULL DEFAULT 1,
+      is_required INTEGER NOT NULL DEFAULT 0,
+      state TEXT NOT NULL DEFAULT 'draft',
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (calculator_id) REFERENCES calculators(id) ON DELETE CASCADE
     )`,
@@ -604,7 +618,7 @@ async function ensureCalculatorSchema(db, env) {
     "CREATE INDEX IF NOT EXISTS idx_calculator_embed_tokens_token ON calculator_embed_tokens(token)",
     "CREATE UNIQUE INDEX IF NOT EXISTS idx_calculator_prices_unique_state ON calculator_prices(calculator_id, category_code, state)",
     "CREATE UNIQUE INDEX IF NOT EXISTS idx_calculator_rules_unique_state ON calculator_rules(calculator_id, code, state)",
-    "CREATE UNIQUE INDEX IF NOT EXISTS idx_calculator_fields_unique ON calculator_fields(calculator_id, field_code)",
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_calculator_fields_unique_state ON calculator_fields(calculator_id, field_code, state)",
     "CREATE INDEX IF NOT EXISTS idx_calculator_prices_calculator_state ON calculator_prices(calculator_id, state)",
     "CREATE INDEX IF NOT EXISTS idx_calculator_rules_calculator_state ON calculator_rules(calculator_id, state)"
   ];
@@ -620,7 +634,9 @@ async function seedCalculatorPricing(db, calculatorId, categories) {
     await replaceCalculatorRules(db, calculatorId, state, DEFAULT_RULES);
   }
 
-  await replaceCalculatorFields(db, calculatorId, DEFAULT_FIELDS);
+  for (const state of PRICING_STATES) {
+    await replaceCalculatorFields(db, calculatorId, state, DEFAULT_FIELDS);
+  }
 }
 
 async function ensureCalculatorPricingSeeded(db, calculatorId) {
@@ -824,7 +840,7 @@ async function listCalculatorRules(db, calculatorId, state) {
   return result?.results || [];
 }
 
-async function listCalculatorFields(db, calculatorId) {
+async function listCalculatorFields(db, calculatorId, state = "draft") {
   const result = await db
     .prepare(
       `SELECT
@@ -833,16 +849,21 @@ async function listCalculatorFields(db, calculatorId) {
         field_code AS fieldCode,
         label,
         field_type AS fieldType,
+        role,
+        binding,
+        options_source AS optionsSource,
         default_value AS defaultValue,
         min_value AS minValue,
         max_value AS maxValue,
         sort_order AS sortOrder,
-        is_active AS isActive
+        is_active AS isActive,
+        is_required AS isRequired,
+        state
        FROM calculator_fields
-       WHERE calculator_id = ?
+       WHERE calculator_id = ? AND state = ?
        ORDER BY sort_order ASC, id ASC`
     )
-    .bind(calculatorId)
+    .bind(calculatorId, state)
     .all();
 
   return result?.results || [];
@@ -888,26 +909,32 @@ async function replaceCalculatorRules(db, calculatorId, state, rules) {
   }
 }
 
-async function replaceCalculatorFields(db, calculatorId, fields) {
-  await db.prepare("DELETE FROM calculator_fields WHERE calculator_id = ?").bind(calculatorId).run();
+async function replaceCalculatorFields(db, calculatorId, state, fields) {
+  await db.prepare("DELETE FROM calculator_fields WHERE calculator_id = ? AND state = ?").bind(calculatorId, state).run();
 
   for (const field of normalizeFields(fields)) {
     await db
       .prepare(
         `INSERT INTO calculator_fields (
-          calculator_id, field_code, label, field_type, default_value, min_value, max_value, sort_order, is_active, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`
+          calculator_id, field_code, label, field_type, role, binding, options_source,
+          default_value, min_value, max_value, sort_order, is_active, is_required, state, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`
       )
       .bind(
         calculatorId,
         field.fieldCode,
         field.label,
         field.fieldType,
+        field.role,
+        field.binding,
+        field.optionsSource,
         field.defaultValue,
         field.minValue,
         field.maxValue,
         field.sortOrder,
-        field.isActive
+        field.isActive,
+        field.isRequired,
+        state
       )
       .run();
   }
@@ -917,9 +944,11 @@ async function publishCalculatorPricing(db, calculatorId) {
   await ensureCalculatorPricingSeeded(db, calculatorId);
   const draftPrices = await listCalculatorPrices(db, calculatorId, "draft");
   const draftRules = await listCalculatorRules(db, calculatorId, "draft");
+  const draftFields = await listCalculatorFields(db, calculatorId, "draft");
 
   await replaceCalculatorPrices(db, calculatorId, "published", draftPrices);
   await replaceCalculatorRules(db, calculatorId, "published", draftRules);
+  await replaceCalculatorFields(db, calculatorId, "published", draftFields);
 }
 
 async function ensureEmbedToken(db, calculatorId) {
@@ -1033,22 +1062,32 @@ function normalizeRules(rules) {
 }
 
 function normalizeFields(fields) {
-  return (Array.isArray(fields) && fields.length ? fields : DEFAULT_FIELDS).map((field, index) => ({
-    fieldCode: cleanSlug(field.fieldCode || field.field_code) || `field-${index + 1}`,
-    label: cleanText(field.label) || `Field ${index + 1}`,
-    fieldType: cleanText(field.fieldType || field.field_type) || "text",
-    defaultValue: cleanText(field.defaultValue || field.default_value),
-    minValue: normalizeOptionalNumber(field.minValue ?? field.min_value),
-    maxValue: normalizeOptionalNumber(field.maxValue ?? field.max_value),
-    sortOrder: normalizeSortOrder(field.sortOrder, (index + 1) * 10),
-    isActive: field.isActive === false || field.is_active === 0 ? 0 : 1
-  }));
+  return (Array.isArray(fields) && fields.length ? fields : DEFAULT_FIELDS).map((field, index) => {
+    const rawFieldCode = cleanText(field.fieldCode || field.field_code);
+    const fieldCode = FIELD_BINDINGS.includes(rawFieldCode) ? rawFieldCode : cleanSlug(rawFieldCode) || `field-${index + 1}`;
+
+    return {
+      fieldCode,
+      label: cleanText(field.label) || `Field ${index + 1}`,
+      fieldType: cleanText(field.fieldType || field.field_type) || "text",
+      role: cleanText(field.role) || inferFieldRole(fieldCode),
+      binding: cleanText(field.binding) || fieldCode,
+      optionsSource: cleanText(field.optionsSource || field.options_source),
+      defaultValue: cleanText(field.defaultValue || field.default_value),
+      minValue: normalizeOptionalNumber(field.minValue ?? field.min_value),
+      maxValue: normalizeOptionalNumber(field.maxValue ?? field.max_value),
+      sortOrder: normalizeSortOrder(field.sortOrder, (index + 1) * 10),
+      isActive: field.isActive === false || field.is_active === 0 ? 0 : 1,
+      isRequired: field.isRequired === true || field.isRequired === 1 || field.is_required === 1 ? 1 : 0
+    };
+  });
 }
 
 function validatePricingPayload(payload) {
   return [
     ...validatePrices(payload.prices),
-    ...validateRules(payload.rules)
+    ...validateRules(payload.rules),
+    ...validateFields(payload.fields)
   ];
 }
 
@@ -1086,6 +1125,45 @@ function validateRules(rules) {
   }
 
   return errors;
+}
+
+function validateFields(fields) {
+  const errors = [];
+  const seen = new Set();
+
+  for (const [index, field] of fields.entries()) {
+    if (seen.has(field.fieldCode)) {
+      errors.push({ field: `fields.${index}.fieldCode`, message: "Field code must be unique." });
+    }
+    seen.add(field.fieldCode);
+
+    if (!FIELD_TYPES.includes(field.fieldType)) {
+      errors.push({ field: `fields.${index}.fieldType`, message: "Field type is not supported." });
+    }
+
+    if (!FIELD_ROLES.includes(field.role)) {
+      errors.push({ field: `fields.${index}.role`, message: "Field role is not supported." });
+    }
+
+    if (!FIELD_BINDINGS.includes(field.binding)) {
+      errors.push({ field: `fields.${index}.binding`, message: "Field binding is not supported." });
+    }
+
+    if (field.optionsSource && !FIELD_OPTIONS_SOURCES.includes(field.optionsSource)) {
+      errors.push({ field: `fields.${index}.optionsSource`, message: "Field options source is not supported." });
+    }
+
+    if (field.minValue !== null && field.maxValue !== null && field.minValue > field.maxValue) {
+      errors.push({ field: `fields.${index}.minValue`, message: "Field minValue cannot be greater than maxValue." });
+    }
+  }
+
+  return errors;
+}
+
+function inferFieldRole(fieldCode) {
+  const code = cleanText(fieldCode);
+  return ["name", "phone", "city", "comment"].includes(code) ? "lead_input" : "pricing_input";
 }
 
 function createEmbedToken() {

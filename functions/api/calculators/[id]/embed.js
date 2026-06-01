@@ -94,6 +94,11 @@ function renderWidgetScript({ calculator, token }) {
   const materialRules = data.calculator.rules.filter((rule) => rule.ruleType === "multiplier");
   const fixedRules = data.calculator.rules.filter((rule) => rule.ruleType === "fixed_addon");
   const discountRules = data.calculator.rules.filter((rule) => rule.ruleType === "percent_discount");
+  const schemaFields = (data.calculator.fields || []).filter((field) => field.isActive !== 0);
+  const fieldByBinding = (binding) => schemaFields.find((field) => field.binding === binding || field.fieldCode === binding) || {};
+  const fieldLabel = (binding, fallback) => fieldByBinding(binding).label || fallback;
+  const fieldDefault = (binding, fallback) => fieldByBinding(binding).defaultValue || fallback;
+  const fieldRequired = (binding) => fieldByBinding(binding).isRequired ? "required" : "";
   const escapeHtml = (value) => String(value ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -126,30 +131,30 @@ function renderWidgetScript({ calculator, token }) {
     <form class="fo-calculator">
       <h3>\${escapeHtml(data.calculator.title)}</h3>
       <p>\${escapeHtml(data.calculator.description || "")}</p>
-      <label>Category
+      <label>\${escapeHtml(fieldLabel("categoryCode", "Category"))}
         <select name="categoryCode">
           \${data.calculator.categories.map((category) => \`<option value="\${escapeHtml(category.code)}">\${escapeHtml(category.name)}</option>\`).join("")}
         </select>
       </label>
-      <label>Size
-        <input name="units" type="number" min="0.1" step="0.1" value="\${escapeHtml(data.calculator.categories[0]?.minUnits || 1)}" />
+      <label>\${escapeHtml(fieldLabel("units", "Size"))}
+        <input name="units" type="number" min="\${escapeHtml(fieldByBinding("units").minValue || 0.1)}" max="\${escapeHtml(fieldByBinding("units").maxValue || "")}" step="0.1" value="\${escapeHtml(fieldDefault("units", data.calculator.categories[0]?.minUnits || 1))}" />
       </label>
-      <label>Material
+      <label>\${escapeHtml(fieldLabel("materialRuleCode", "Material"))}
         <select name="materialRuleCode">
           \${materialRules.map((rule) => \`<option value="\${escapeHtml(rule.code)}">\${escapeHtml(rule.label)}</option>\`).join("")}
         </select>
       </label>
       <div class="fo-estimate" data-estimate></div>
-      <label>Name
-        <input name="name" autocomplete="name" required />
+      <label>\${escapeHtml(fieldLabel("name", "Name"))}
+        <input name="name" autocomplete="name" \${fieldRequired("name")} />
       </label>
-      <label>Phone
-        <input name="phone" autocomplete="tel" required />
+      <label>\${escapeHtml(fieldLabel("phone", "Phone"))}
+        <input name="phone" autocomplete="tel" \${fieldRequired("phone")} />
       </label>
-      <label>City
+      <label>\${escapeHtml(fieldLabel("city", "City"))}
         <input name="city" autocomplete="address-level2" />
       </label>
-      <label>Comment
+      <label>\${escapeHtml(fieldLabel("comment", "Comment"))}
         <textarea name="comment"></textarea>
       </label>
       <button type="submit">Send calculation</button>
