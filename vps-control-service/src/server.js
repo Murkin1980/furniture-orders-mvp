@@ -100,7 +100,7 @@ function registerRoutes(router) {
 
   router.post('/deploy/site', authMiddleware(async ({ body, config, sendJson, res }) => {
     const payload = body || {};
-    const result = handleDeploy(config, payload);
+    const result = await handleDeploy(config, payload);
     sendJson(res, result.status, result.body);
   }));
 

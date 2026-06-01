@@ -1,7 +1,7 @@
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
-import { mkdtempSync, rmSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync, mkdirSync, existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { createApp } from '../src/server.js';
@@ -58,10 +58,25 @@ describe('VPS Control Service', () => {
   let baseUrl;
   let tempDir;
   let app;
+  let artifactServer;
+  let artifactBaseUrl;
 
   before(async () => {
     tempDir = mkdtempSync(join(tmpdir(), 'vps-control-test-'));
     mkdirSync(join(tempDir, 'logs'), { recursive: true });
+
+    artifactServer = http.createServer((req, res) => {
+      if (req.url === '/site.html') {
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end('<!doctype html><html><body><h1>Published landing</h1></body></html>');
+        return;
+      }
+
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('not found');
+    });
+    await new Promise((resolve) => artifactServer.listen(0, '127.0.0.1', resolve));
+    artifactBaseUrl = `http://127.0.0.1:${artifactServer.address().port}`;
 
     app = createApp({
       token: TOKEN,
@@ -70,7 +85,7 @@ describe('VPS Control Service', () => {
       logDir: join(tempDir, 'logs'),
       sitesDir: join(tempDir, 'sites'),
       stagingDir: join(tempDir, 'staging'),
-      allowedSourceHosts: ['github.com', 'raw.githubusercontent.com', 'example.com'],
+      allowedSourceHosts: ['github.com', 'raw.githubusercontent.com', 'example.com', '127.0.0.1'],
     });
 
     server = app.server;
@@ -82,6 +97,7 @@ describe('VPS Control Service', () => {
 
   after(() => {
     if (server) server.close();
+    if (artifactServer) artifactServer.close();
     try { rmSync(tempDir, { recursive: true, force: true }); } catch { /* ok */ }
   });
 
@@ -217,18 +233,21 @@ describe('VPS Control Service', () => {
     assert.equal(res.body.data.dryRun, true);
   });
 
-  it('deploy without dryRun returns 501', async () => {
+  it('deploy without dryRun writes HTML artifact to the site directory', async () => {
     const res = await request(baseUrl, 'POST', '/deploy/site', {
       body: {
         siteSlug: 'test-site',
-        sourceUrl: 'https://example.com/site.zip',
+        sourceUrl: `${artifactBaseUrl}/site.html`,
         dryRun: false,
       },
     });
 
-    assert.equal(res.status, 501);
-    assert.equal(res.body.success, false);
-    assert.equal(res.body.error, 'deploy_not_implemented');
+    assert.equal(res.status, 200);
+    assert.equal(res.body.success, true);
+    assert.equal(res.body.data.dryRun, false);
+    assert.equal(res.body.data.artifactType, 'html');
+    assert.equal(existsSync(join(tempDir, 'sites', 'test-site', 'index.html')), true);
+    assert.match(readFileSync(join(tempDir, 'sites', 'test-site', 'index.html'), 'utf8'), /Published landing/);
   });
 
   it('logs limit is bounded', async () => {

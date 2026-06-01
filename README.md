@@ -10,7 +10,7 @@
 - Этап 4.01: мебельный калькулятор как embeddable widget.
 - Этап 4.02: редактор цен, коэффициентов и формул калькулятора в админке.
 - Этап 4.03: безопасный VPS control layer через внешний лёгкий control API.
-- Этап 4.04A: модуль лендингов мебельщиков как отдельная сущность с доменами, статусом и dry-run publish flow через VPS layer.
+- Этап 4.04A/B: модуль лендингов мебельщиков с доменами, статусом, generated HTML artifact и live single-file deploy через VPS layer.
 - Этап 4.05: портфолио и публичная галерея работ с категориями и publish/unpublish flow.
 - Этап 4-R: начат стабилизационный refactor lane для админки и API-контрактов без изменения продуктового поведения.
 - Этап 4.02B: добавлен schema-driven calculator layer с draft/published fields, `schemaVersion` и безопасными enum-контрактами без arbitrary formulas/user-defined code execution.
@@ -39,7 +39,7 @@
 - `POST /api/calculators/:id/publish` теперь копирует draft pricing/rules в published, и embed использует published-версию.
 - Calculator leads сохраняют `calculatorMeta` в `raw_payload`: `calculatorId`, `categoryCode`, `units`, `materialRuleCode`, `materialMultiplier`, `estimate`, `formulaVersion`, `schemaVersion`.
 - `GET /api/vps/health`, `GET /api/vps/services`, `POST /api/vps/deploy/site`, `POST /api/vps/reload/webserver`, `GET /api/vps/deploy/logs` дают admin proxy к внешнему VPS control API.
-- `GET /api/sites`, `POST /api/sites`, `GET /api/sites/:id`, `POST /api/sites/:id/deploy`, `GET /api/sites/:id/status` управляют лендингами, доменами и статусами публикации.
+- `GET /api/sites`, `POST /api/sites`, `GET /api/sites/:id`, `GET /api/sites/:id/artifact`, `POST /api/sites/:id/deploy`, `GET /api/sites/:id/status` управляют лендингами, доменами, HTML artifact и статусами публикации.
 - `GET /api/portfolio`, `POST /api/portfolio`, `PUT /api/portfolio/:id`, `POST /api/portfolio/:id/images`, `POST /api/portfolio/:id/publish` управляют портфолио работ.
 - `GET /api/portfolio` без admin token отдаёт только опубликованные работы для публичного gallery block на главной странице.
 - D1-схема создаёт таблицы `clients` и `orders`.
@@ -57,12 +57,12 @@
 - `src/calculators-core.js` содержит бизнес-логику калькуляторов, embed token и lead flow.
 - `src/calculators-pricing.js` содержит единые defaults, версии runtime/formula/schema и чистую формулу расчёта для preview/runtime/lead.
 - `src/vps-control.js` содержит безопасный клиент VPS control API и валидацию deploy/reload payload.
-- `src/sites-core.js` содержит бизнес-логику Stage 4.04A для сайтов, доменов и записей публикации.
+- `src/sites-core.js` содержит бизнес-логику Stage 4.04A/B для сайтов, доменов, generated HTML artifact и записей публикации.
 - `src/portfolio-core.js` содержит бизнес-логику Stage 4.05 для категорий, работ портфолио, изображений и публикации.
 - `vps-control-service/` содержит Ubuntu-side MVP сервиса, который принимает запросы Cloudflare proxy и выполняет только allowlisted VPS actions.
 - `src/phone.js` содержит общую нормализацию и проверку телефона для заявок и calculator leads.
 - `tests/orders-core.test.js` проверяет intake flow, список заказов, фильтр, смену статуса, проектные шаги, калькуляторы, негативные embed/lead сценарии, `400` и `404`.
-- `tests/sites-core.test.js` проверяет создание лендинга, уникальность slug, primary domain, publish dry run и статус публикации.
+- `tests/sites-core.test.js` проверяет создание лендинга, уникальность slug, primary domain, generated artifact, publish flow и статус публикации.
 - `tests/portfolio-core.test.js` проверяет создание работ, категории, изображения, публичный список, фильтр и запрет публикации без фото.
 
 ## Структура проекта
@@ -182,7 +182,8 @@ canceled
 | `/api/sites` | `GET` | Список лендингов с primary domain и SSL status | `ADMIN_TOKEN` |
 | `/api/sites` | `POST` | Создание лендинга с optional primary domain | `ADMIN_TOKEN` |
 | `/api/sites/:id` | `GET` | Детали лендинга, домены и история публикаций | `ADMIN_TOKEN` |
-| `/api/sites/:id/deploy` | `POST` | Создание deployment-записи и запуск VPS deploy dry run по умолчанию | `ADMIN_TOKEN` |
+| `/api/sites/:id/artifact` | `GET` | Публичный generated HTML artifact для VPS deploy | Нет |
+| `/api/sites/:id/deploy` | `POST` | Создание deployment-записи и запуск VPS deploy; admin UI отправляет live HTML deploy (`dryRun: false`) | `ADMIN_TOKEN` |
 | `/api/sites/:id/status` | `GET` | Короткий статус сайта, primary domain и последний deployment | `ADMIN_TOKEN` |
 | `/api/portfolio` | `GET` | Публичный список published работ; с admin token возвращает все работы | Нет / `ADMIN_TOKEN` |
 | `/api/portfolio?category=kitchens` | `GET` | Фильтр портфолио по категории | Нет / `ADMIN_TOKEN` |
@@ -218,7 +219,7 @@ canceled
 - Сервис запускается отдельно на Ubuntu 22.04 через `systemd/furniture-vps-control.service`.
 - Все endpoints требуют `Authorization: Bearer <VPS_CONTROL_TOKEN>`.
 - Поддержаны `/health`, `/services`, `/reload/webserver`, `/deploy/site`, `/deploy/logs`.
-- Real deploy пока намеренно не реализован: `dryRun: false` возвращает `501 deploy_not_implemented`.
+- Real deploy для `artifactType: "html"` реализован: сервис скачивает allowlisted HTML artifact, пишет staging `index.html` и атомарно заменяет site directory.
 - Reload webserver использует allowlisted `sudo /bin/systemctl reload nginx|caddy`, поэтому на VPS нужен узкий `sudoers` rule из README сервиса.
 - Router проверяет bearer token до чтения POST body и ограничивает body size через `VPS_CONTROL_MAX_BODY_BYTES`.
 
@@ -228,8 +229,16 @@ canceled
 - `site_domains` хранит домены сайта, primary flag и `sslStatus`. В MVP SSL status начинается как `unknown`.
 - `site_deployments` хранит историю publish-запросов: `status`, `sourceUrl`, `targetPath`, `dryRun`, upstream status и JSON-ответ VPS layer.
 - `POST /api/sites` нормализует `slug` из имени, проверяет уникальность slug и может сразу создать primary domain.
-- `POST /api/sites/:id/deploy` по умолчанию отправляет `dryRun: true` в VPS control layer. Реальная публикация зависит от Stage 4.03C и реализации deploy на Ubuntu-side service.
-- Admin UI содержит блок Landing sites: создание сайта, список сайтов, status, publish dry run и open domain link.
+- `POST /api/sites/:id/deploy` формирует deploy payload с `artifactType: "html"` и source URL на generated artifact.
+- Admin UI содержит блок Landing sites: создание сайта, список сайтов, status, live publish и open domain link.
+
+## Контракт landing sites Stage 4.04B
+
+- `GET /api/sites/:id/artifact` отдаёт generated static HTML artifact из данных сайта.
+- Artifact содержит только безопасно экранированные данные site/domain и не выполняет admin-authored code.
+- Default deploy source теперь указывает на `/api/sites/:id/artifact`.
+- VPS control service поддерживает live single-file HTML deploy для `dryRun: false` и `artifactType: "html"`.
+- Zip/package deploy остаётся follow-up; Stage 4.04B намеренно использует single-file HTML artifact без zip-зависимостей.
 
 ## Контракт portfolio gallery Stage 4.05
 
@@ -593,8 +602,8 @@ npm test
 На момент обновления README тестовый набор:
 
 ```text
-64 tests
-64 pass
+66 tests
+66 pass
 ```
 
 ## Следующий этап
@@ -602,7 +611,7 @@ npm test
 Логичный следующий подэтап Stage 4:
 
 - Stage 4.03C: установить `vps-control-service/` на Ubuntu 22.04, выдать `VPS_CONTROL_BASE_URL`/`VPS_CONTROL_TOKEN`, проверить live deploy/reload/logs.
-- Stage 4.04B: подключить реальную генерацию/упаковку static landing artifact и заменить текущий publish dry run на live deploy после готовности VPS service.
+- Stage 4.04C: расширить artifact pipeline до multi-file package/zip deploy, если потребуется полноценная сборка ассетов.
 - Stage 4.05B: подключить реальную загрузку изображений в Storage/R2 вместо URL-only MVP.
 - Stage 4.02B follow-up: при необходимости расширить admin UI до полноценного schema field editor; backend/runtime слой уже реализован.
 - Stage 4-R next slice: вынести admin helper/request utilities из inline script в отдельный JS-модуль и затем уменьшать размер `public/admin.html` без изменения поведения.

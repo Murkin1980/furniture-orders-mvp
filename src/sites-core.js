@@ -155,6 +155,22 @@ export async function getSiteStatus({ db, env = {}, siteId }) {
   };
 }
 
+export async function getSiteArtifact({ db, env = {}, siteId }) {
+  const result = await getSite({ db, env, siteId });
+  if (!result.ok) {
+    return result;
+  }
+
+  return {
+    ok: true,
+    status: 200,
+    body: {
+      success: true,
+      html: renderSiteArtifact(result.body.item)
+    }
+  };
+}
+
 export async function deploySite({ db, env = {}, siteId, payload = {}, fetchImpl = fetch }) {
   assertDb(db);
   await ensureSitesSchema(db, env);
@@ -223,13 +239,14 @@ export async function deploySite({ db, env = {}, siteId, payload = {}, fetchImpl
 export function normalizeSiteDeployPayload(site, input, env = {}) {
   const payload = input && typeof input === "object" && !Array.isArray(input) ? input : {};
   const siteSlug = cleanSlug(payload.siteSlug || site?.slug);
-  const sourceUrl = cleanText(payload.sourceUrl || env.SITE_DEPLOY_SOURCE_URL || defaultSourceUrl(siteSlug, env));
+  const sourceUrl = cleanText(payload.sourceUrl || env.SITE_DEPLOY_SOURCE_URL || defaultSourceUrl(site, env));
 
   return {
     siteSlug,
     sourceUrl,
     targetPath: cleanText(payload.targetPath || env.SITE_DEPLOY_TARGET_ROOT && `${env.SITE_DEPLOY_TARGET_ROOT}/${siteSlug}` || `/var/www/${siteSlug}`),
-    dryRun: payload.dryRun !== false
+    dryRun: payload.dryRun !== false,
+    artifactType: cleanSlug(payload.artifactType) || "html"
   };
 }
 
@@ -425,6 +442,9 @@ function validateSiteDeployPayload(payload) {
   if (!payload.targetPath) {
     errors.push({ field: "targetPath", message: "targetPath is required." });
   }
+  if (payload.artifactType !== "html") {
+    errors.push({ field: "artifactType", message: "artifactType must be html." });
+  }
 
   return errors;
 }
@@ -464,9 +484,61 @@ function assertDb(db) {
   }
 }
 
-function defaultSourceUrl(siteSlug, env) {
+function defaultSourceUrl(site, env) {
   const origin = cleanText(env.PUBLIC_APP_ORIGIN) || "https://furniture-orders-mvp.pages.dev";
-  return `${origin}/sites/${siteSlug}.zip`;
+  return `${origin}/api/sites/${site.id}/artifact`;
+}
+
+function renderSiteArtifact(site) {
+  const primaryDomain = site.domains?.find((domain) => domain.isPrimary)?.domain || "";
+  const accent = site.templateKey === "kitchen" ? "#116466" : site.templateKey === "wardrobe" ? "#4f5d75" : "#7a4f2a";
+
+  return `<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(site.name)} | ${escapeHtml(site.ownerName)}</title>
+  <meta name="description" content="${escapeHtml(site.ownerName)}: мебель на заказ, замер, проектирование и производство.">
+  <style>
+    :root { color-scheme: light; --accent: ${accent}; --ink: #202624; --paper: #f7f3ec; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; color: var(--ink); background: #fff; }
+    header { min-height: 72vh; display: grid; align-content: center; padding: 48px 7vw; background: linear-gradient(135deg, var(--paper), #ffffff); }
+    nav { position: absolute; top: 24px; left: 7vw; right: 7vw; display: flex; justify-content: space-between; gap: 16px; font-weight: 700; }
+    h1 { max-width: 860px; margin: 0; font-size: clamp(40px, 7vw, 88px); line-height: 1; letter-spacing: 0; }
+    p { max-width: 680px; font-size: 20px; line-height: 1.55; }
+    .cta { display: inline-block; width: fit-content; margin-top: 18px; padding: 14px 20px; border-radius: 6px; color: #fff; background: var(--accent); text-decoration: none; font-weight: 700; }
+    main { padding: 42px 7vw 64px; display: grid; gap: 28px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    section { border-top: 2px solid var(--accent); padding-top: 18px; }
+    h2 { margin: 0 0 10px; font-size: 22px; }
+    footer { padding: 24px 7vw; background: var(--ink); color: #fff; }
+  </style>
+</head>
+<body>
+  <header>
+    <nav><span>${escapeHtml(site.ownerName)}</span><span>${escapeHtml(primaryDomain || site.slug)}</span></nav>
+    <h1>${escapeHtml(site.name)}</h1>
+    <p>Индивидуальная мебель под размеры помещения: кухни, шкафы, гардеробные и корпусные решения с понятным процессом от замера до монтажа.</p>
+    <a class="cta" href="tel:+77000000000">Получить расчёт</a>
+  </header>
+  <main>
+    <section><h2>Проектирование</h2><p>Помогаем уточнить размеры, материалы, наполнение и бюджет до запуска производства.</p></section>
+    <section><h2>Производство</h2><p>Собираем мебель под заказ и контролируем этапы изготовления.</p></section>
+    <section><h2>Монтаж</h2><p>Доставляем, устанавливаем и проверяем результат на объекте.</p></section>
+  </main>
+  <footer>${escapeHtml(site.ownerName)} · ${escapeHtml(primaryDomain || "landing site")}</footer>
+</body>
+</html>`;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 function normalizePositiveInteger(value) {

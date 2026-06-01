@@ -88,7 +88,8 @@ test("vps deploy sends normalized dry-run payload", async () => {
     siteSlug: "test-site",
     sourceUrl: "https://example.com/site.zip",
     targetPath: "/var/www/test-site",
-    dryRun: true
+    dryRun: true,
+    artifactType: "html"
   });
 });
 

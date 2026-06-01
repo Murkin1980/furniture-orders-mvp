@@ -168,3 +168,9 @@ vps-control-service/
   tests/
     vps-control.test.js
 ```
+
+## Stage 4.04B update
+
+- `POST /deploy/site` now keeps dry-run behavior and also supports live single-file HTML deploy when `dryRun: false` and `artifactType: "html"`.
+- Live HTML deploy downloads an allowlisted HTML artifact URL, validates that it is HTML, writes staging `index.html`, then atomically replaces the target site directory.
+- Multi-file/zip deploy remains a future follow-up.

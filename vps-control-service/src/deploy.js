@@ -1,12 +1,14 @@
 import { resolve, join } from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { mkdirSync, rmSync, renameSync, writeFileSync } from 'node:fs';
 import { appendDeployLog } from './logs.js';
 import { validateSiteSlug, validateSourceUrl } from './validation.js';
 
-export function handleDeploy(config, payload) {
+export async function handleDeploy(config, payload) {
   const rawSlug = (payload.siteSlug || '').trim();
   const sourceUrl = (payload.sourceUrl || '').trim();
   const dryRun = payload.dryRun !== false;
+  const artifactType = (payload.artifactType || 'html').trim().toLowerCase();
 
   const slugResult = validateSiteSlug(rawSlug);
   if (!slugResult.valid) {
@@ -18,6 +20,10 @@ export function handleDeploy(config, payload) {
   const urlResult = validateSourceUrl(sourceUrl, config.allowedSourceHosts);
   if (!urlResult.valid) {
     return errorResponse('validation_error', urlResult.error, ['sourceUrl']);
+  }
+
+  if (artifactType !== 'html') {
+    return errorResponse('validation_error', 'artifactType must be html.', ['artifactType']);
   }
 
   const targetDir = join(config.sitesDir, siteSlug);
@@ -68,10 +74,9 @@ export function handleDeploy(config, payload) {
             steps: [
               'validate payload',
               'download artifact from allowed source',
-              'unpack to staging directory',
+              'write HTML artifact to staging index.html',
               'verify index.html exists',
               'atomically replace site directory',
-              'reload webserver',
               'write audit log',
             ],
           },
@@ -80,19 +85,86 @@ export function handleDeploy(config, payload) {
     };
   }
 
-  return {
-    status: 501,
-    body: {
-      success: false,
-      error: 'deploy_not_implemented',
-      message: 'Real deploy is not implemented in this MVP. Use dryRun first.',
-    },
-  };
+  return deployHtmlArtifact({
+    config,
+    sourceUrl,
+    targetDir,
+    stagingDir,
+    siteSlug,
+    deployId,
+  });
 }
 
-function errorResponse(error, message, fields) {
+async function deployHtmlArtifact({ config, sourceUrl, targetDir, stagingDir, siteSlug, deployId }) {
+  try {
+    const response = await fetch(sourceUrl);
+    if (!response.ok) {
+      return errorResponse('artifact_download_failed', `Artifact download failed with status ${response.status}.`, ['sourceUrl'], 502);
+    }
+
+    const html = await response.text();
+    if (!isHtmlArtifact(html)) {
+      return errorResponse('artifact_invalid', 'Artifact must be an HTML document.', ['sourceUrl'], 400);
+    }
+
+    rmSync(stagingDir, { recursive: true, force: true });
+    mkdirSync(stagingDir, { recursive: true });
+    writeFileSync(join(stagingDir, 'index.html'), html, 'utf8');
+
+    rmSync(targetDir, { recursive: true, force: true });
+    mkdirSync(resolve(targetDir, '..'), { recursive: true });
+    renameSync(stagingDir, targetDir);
+
+    const logEntry = {
+      time: new Date().toISOString(),
+      event: 'deploy_completed',
+      siteSlug,
+      status: 'success',
+      source: 'cloudflare-admin-proxy',
+      deployId,
+      targetDir,
+    };
+
+    try {
+      appendDeployLog(config.logDir, logEntry);
+    } catch {
+      // non-fatal
+    }
+
+    return {
+      status: 200,
+      body: {
+        success: true,
+        data: {
+          deployId,
+          siteSlug,
+          dryRun: false,
+          artifactType: 'html',
+          targetDir,
+          indexPath: join(targetDir, 'index.html'),
+        },
+      },
+    };
+  } catch (error) {
+    return {
+      status: 502,
+      body: {
+        success: false,
+        error: 'deploy_failed',
+        message: error?.message || 'Deploy failed.',
+      },
+    };
+  }
+}
+
+function isHtmlArtifact(value) {
+  const html = String(value || '').trim().toLowerCase();
+  return html.startsWith('<!doctype html') || html.startsWith('<html');
+}
+
+function errorResponse(error, message, fields, status = 400) {
   return {
-    status: 400,
+    status,
     body: {
       success: false,
       error,

@@ -67,7 +67,8 @@ export function normalizeDeployPayload(input) {
     siteSlug: cleanSlug(payload.siteSlug),
     sourceUrl: cleanText(payload.sourceUrl),
     targetPath: cleanText(payload.targetPath),
-    dryRun: payload.dryRun !== false
+    dryRun: payload.dryRun !== false,
+    artifactType: cleanSlug(payload.artifactType) || "html"
   };
 }
 
@@ -92,6 +93,9 @@ function validateDeployPayload(payload) {
 
   if (payload.sourceUrl && !isHttpUrl(payload.sourceUrl)) {
     errors.push({ field: "sourceUrl", message: "sourceUrl must be an http or https URL." });
+  }
+  if (payload.artifactType !== "html") {
+    errors.push({ field: "artifactType", message: "artifactType must be html." });
   }
 
   return errors;

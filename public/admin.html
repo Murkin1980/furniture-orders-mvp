@@ -1381,7 +1381,7 @@
           <span class="muted">${escapeHtml(item.domain || "No domain")}</span>
           <div class="site-actions">
             <button type="button" data-site-status="${escapeHtml(item.id)}">Status</button>
-            <button class="secondary" type="button" data-site-deploy="${escapeHtml(item.id)}">Publish dry run</button>
+            <button class="secondary" type="button" data-site-deploy="${escapeHtml(item.id)}">Publish live</button>
             ${item.domain ? `<a href="https://${escapeHtml(item.domain)}" target="_blank" rel="noreferrer">Open</a>` : ""}
           </div>
         </div>
@@ -1406,9 +1406,9 @@
       await callSiteApi({
         path: `/api/sites/${siteId}/deploy`,
         method: "POST",
-        loadingText: "Starting site publish dry run...",
+        loadingText: "Starting live site publish...",
         payload: {
-          dryRun: true
+          dryRun: false
         }
       });
       await loadSites();

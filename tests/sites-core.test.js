@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   createSite,
   deploySite,
+  getSiteArtifact,
   getSiteStatus,
   listSites,
   normalizeSitePayload
@@ -111,6 +112,7 @@ test("deploys a site through the VPS proxy and stores deployment status", async 
   assert.equal(deployed.body.item.dryRun, true);
   assert.equal(fetchCalls.length, 1);
   assert.equal(JSON.parse(fetchCalls[0].options.body).siteSlug, "wardrobe-landing");
+  assert.equal(JSON.parse(fetchCalls[0].options.body).artifactType, "html");
 
   const status = await getSiteStatus({
     db,
@@ -121,6 +123,72 @@ test("deploys a site through the VPS proxy and stores deployment status", async 
   assert.equal(status.body.item.status, "published");
   assert.equal(status.body.item.latestDeployment.status, "succeeded");
   assert.equal(status.body.item.domain.sslStatus, "unknown");
+});
+
+test("generates an HTML landing artifact for a site", async () => {
+  const db = createSitesMockDb();
+  const env = { RUNTIME_SCHEMA_INIT: "true" };
+  const created = await createSite({
+    db,
+    env,
+    payload: {
+      name: "Kitchen Landing",
+      ownerName: "Salamat Mebel",
+      domain: "kitchen.salamat-mebel.kz",
+      templateKey: "kitchen"
+    }
+  });
+
+  const artifact = await getSiteArtifact({
+    db,
+    env,
+    siteId: created.body.item.id
+  });
+
+  assert.equal(artifact.status, 200);
+  assert.match(artifact.body.html, /<!doctype html>/i);
+  assert.match(artifact.body.html, /Kitchen Landing/);
+  assert.match(artifact.body.html, /Salamat Mebel/);
+});
+
+test("default deploy source points to the generated artifact endpoint", async () => {
+  const db = createSitesMockDb();
+  const env = {
+    RUNTIME_SCHEMA_INIT: "true",
+    VPS_CONTROL_BASE_URL: "https://control.example.test",
+    VPS_CONTROL_TOKEN: "secret",
+    PUBLIC_APP_ORIGIN: "https://platform.example.test"
+  };
+  const created = await createSite({
+    db,
+    env,
+    payload: {
+      name: "Default Artifact Landing"
+    }
+  });
+  const fetchCalls = [];
+
+  const deployed = await deploySite({
+    db,
+    env,
+    siteId: created.body.item.id,
+    payload: {
+      dryRun: false
+    },
+    fetchImpl: async (url, options) => {
+      fetchCalls.push({ url, options });
+      return jsonFetchResponse(200, {
+        success: true,
+        data: { dryRun: false, artifactType: "html" }
+      });
+    }
+  });
+
+  const upstreamPayload = JSON.parse(fetchCalls[0].options.body);
+  assert.equal(deployed.status, 200);
+  assert.equal(upstreamPayload.sourceUrl, "https://platform.example.test/api/sites/1/artifact");
+  assert.equal(upstreamPayload.dryRun, false);
+  assert.equal(upstreamPayload.artifactType, "html");
 });
 
 test("failed VPS deploy marks site and deployment as failed", async () => {
