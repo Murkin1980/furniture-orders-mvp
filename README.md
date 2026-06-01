@@ -611,6 +611,7 @@ npm test
 Логичный следующий подэтап Stage 4:
 
 - Stage 4.03C: установить `vps-control-service/` на Ubuntu 22.04, выдать `VPS_CONTROL_BASE_URL`/`VPS_CONTROL_TOKEN`, проверить live deploy/reload/logs.
+- Stage 4.03C ops checklist: `furniture-stage4-03C-ops-checklist.md`.
 - Stage 4.04C: расширить artifact pipeline до multi-file package/zip deploy, если потребуется полноценная сборка ассетов.
 - Stage 4.05B: подключить реальную загрузку изображений в Storage/R2 вместо URL-only MVP.
 - Stage 4.02B follow-up: при необходимости расширить admin UI до полноценного schema field editor; backend/runtime слой уже реализован.
