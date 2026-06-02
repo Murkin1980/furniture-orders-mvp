@@ -278,8 +278,9 @@ canceled
   - error normalization через `json.message || fallbackMessage`.
 - Slice 1 перевёл на helper новые панели `Portfolio gallery`, `Landing sites` и `VPS control`.
 - Slice 2 перевёл legacy-панели `orders`, `project steps`, `calculators`, pricing draft save и draft preview на тот же request layer.
-- После slice 2 прямой `fetch` в admin inline script остался только внутри `adminFetchJson`.
-- Старые блоки оставлены в том же inline script; разбиение `public/admin.html` на модули вынесено в следующий стабилизационный проход, чтобы не смешивать request-layer cleanup с крупной перестройкой файла.
+- После slice 2 прямой `fetch` в admin script остался только внутри request helper-слоя.
+- Slice 3: move admin inline script into `public/admin.js` and group logic by domain (orders, calculators, sites/VPS, portfolio) while keeping behavior unchanged.
+- Slice 4: split admin logic into ES modules (`admin-core`, `admin-orders`, `admin-calculators`, `admin-sites-vps`, `admin-portfolio`).
 
 ## Stage 4.02B schema-driven calculator layer
 
@@ -309,6 +310,52 @@ Runtime-создание схемы включается только в `npm ru
 ```text
 dev-admin-token
 ```
+
+## Рекомендованная инфраструктура (cheap start architecture)
+
+Этот проект изначально спроектирован так, чтобы запускаться и расти с минимальными фиксированными затратами, опираясь на Cloudflare и один недорогой VPS.
+
+### 1. Core backend & hosting (Cloudflare)
+
+- **Cloudflare Pages + Pages Functions (Workers)** — основной слой для публичного сайта, embed-виджетов калькулятора и admin-панели.
+  - Free tier покрывает MVP и ранний рост.
+  - При увеличении нагрузки логичный апгрейд — Workers paid plan.
+- **Cloudflare D1** — SQL-база для клиентов, заказов, статусов, project steps, калькуляторов, landing sites и портфолио. Подходит для MVP с умеренной конкуренцией по записи.
+- **Cloudflare R2** — объектное хранилище для фото, эскизов, статических артефактов сайтов и будущих uploads.
+  - Stage 4.05B уже добавляет R2-ready upload flow для portfolio media.
+  - R2 также может использоваться для будущих статических артефактов и template assets.
+
+### 2. VPS-узел (VPS control, deploy, SketchUp)
+
+- **Минимальная конфигурация:** 1 vCPU / 1 GB RAM / около 20 GB disk, Ubuntu 22.04 LTS. Это совместимо с текущим `vps-control-service`.
+- **Назначение:**
+  - `vps-control-service` для Stage 4.03A-C: health, services, deploy, reload webserver, logs.
+  - Live HTML deploy для landing sites Stage 4.04B через артефакт `/api/sites/:id/artifact`.
+  - В перспективе — узел для SketchUp MCP и других MCP-модулей Stage 4.08/4.09.
+- **Масштабирование:** при росте нагрузки тариф VPS можно увеличить по CPU/RAM через панель провайдера без переустановки системы.
+
+### 3. AI layer (pay-as-you-go)
+
+- **Принцип:** не поднимать тяжёлые модели локально на VPS, а использовать внешние API.
+- **Рекомендуемый роутер:** OpenRouter или аналогичный API-router как единая точка доступа к нескольким LLM/vision/STT-провайдерам.
+- **Оплата:** pay-as-you-go — оплата только за фактические вызовы OCR, STT, классификации сообщений, генерации подсказок и эскизов. Это удобно для экспериментов в рамках Stage 4.07+.
+- **Интеграция:**
+  - вызовы AI идут как HTTP API из Cloudflare Functions или с VPS;
+  - при недоступности модели или исчерпании кредитов платформа продолжает работать в режиме без AI: intake, CRM, landing, portfolio.
+
+### 4. Templates & frontend (Stage 4.06)
+
+- **Источник шаблонов:** бесплатные HTML-шаблоны, например HTML5 UP, BootstrapMade и аналогичные каталоги, используются как исходные `template_assets` для модуля шаблонов Stage 4.06, а не как внешний SaaS-конструктор.
+- **Интеграция в систему:**
+  - шаблон попадает в `site_templates` / `template_versions`;
+  - далее через уже существующий pipeline превращается в артефакт `/api/sites/:id/artifact`;
+  - затем деплоится через `vps-control-service`, как реализовано в Stage 4.04A/B.
+
+### 5. Свойства архитектуры
+
+- **Модульность:** калькулятор, VPS control, landing sites, portfolio, AI, MCP/SketchUp развиваются отдельными этапами, но используют одну базу: Cloudflare Pages + D1 + R2 + единый admin.
+- **Градиент стоимости:** базовые компоненты Pages, D1 и R2 дают долгий период низкой стоимости; VPS и AI добавляют расходы только когда соответствующие фичи реально используются.
+- **Graceful degradation:** даже если AI или SketchUp MCP временно недоступны или не оплачены, ядро платформы остаётся работоспособным: заявки, статусы, project steps, калькулятор, лендинги и портфолио.
 
 ## Рекомендуемый деплой
 
@@ -635,17 +682,23 @@ npm test
 На момент обновления README тестовый набор:
 
 ```text
-66 tests
-66 pass
+68 tests
+68 pass
 ```
 
 ## Следующий этап
 
-Логичный следующий подэтап Stage 4:
+Логичный порядок следующих работ с учётом cheap start architecture:
 
-- Stage 4.03C: установить `vps-control-service/` на Ubuntu 22.04, выдать `VPS_CONTROL_BASE_URL`/`VPS_CONTROL_TOKEN`, проверить live deploy/reload/logs.
-- Stage 4.03C ops checklist: `furniture-stage4-03C-ops-checklist.md`.
-- Stage 4.04C: расширить artifact pipeline до multi-file package/zip deploy, если потребуется полноценная сборка ассетов.
-- Stage 4.05B follow-up: подключить реальный R2 bucket/custom domain в Cloudflare Pages production settings и при необходимости добавить image optimization pipeline.
+1. Stage 4.03C: установить/обновить `vps-control-service/` на Ubuntu 22.04, задать `VPS_CONTROL_BASE_URL`/`VPS_CONTROL_TOKEN`, проверить health/services/live deploy/reload/logs.
+2. Stage 4.05B ops: подключить реальный R2 bucket/custom domain в Cloudflare Pages production settings, задать `PORTFOLIO_MEDIA_BUCKET` и `PORTFOLIO_MEDIA_PUBLIC_BASE_URL`, проверить upload из админки.
+3. Stage 4.06: template import/library на базе статических HTML-шаблонов и текущего artifact pipeline.
+4. Stage 4.07: AI layer через внешние pay-as-you-go API, без тяжёлых моделей на стартовом VPS.
+5. Stage 4.08/4.09: MCP module registry и SketchUp MCP, где VPS сначала остаётся orchestration/control node.
+6. Stage 4.10: integration checklist и consolidation pass.
+
+Опциональные технические ветки между продуктовыми этапами:
+
+- Stage 4.04C: расширить artifact pipeline до multi-file package/zip deploy, если single-file HTML перестанет хватать.
 - Stage 4.02B follow-up: при необходимости расширить admin UI до полноценного schema field editor; backend/runtime слой уже реализован.
 - Stage 4-R next slice: вынести admin helper/request utilities из inline script в отдельный JS-модуль и затем уменьшать размер `public/admin.html` без изменения поведения.
