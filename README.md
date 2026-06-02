@@ -97,6 +97,7 @@ furniture-orders-mvp/
   functions/api/portfolio/[id]/images.js
   functions/api/portfolio/[id]/images/upload.js
   functions/api/portfolio/[id]/publish.js
+  functions/media/[[path]].js
   src/orders-core.js
   src/order-statuses.js
   src/project-templates.js
@@ -261,7 +262,8 @@ canceled
 - Uploads are limited to 5 MB and reject unsupported MIME types before writing to storage.
 - The endpoint writes to the Cloudflare R2-compatible binding `PORTFOLIO_MEDIA_BUCKET`.
 - `portfolio_images` keeps URL compatibility and now also supports nullable uploaded-media metadata: `storageKey`, `mimeType`, `sizeBytes`.
-- Public image URLs for uploaded files use `PORTFOLIO_MEDIA_PUBLIC_BASE_URL` plus the generated storage key.
+- Public image URLs for uploaded files use `PORTFOLIO_MEDIA_PUBLIC_BASE_URL` plus the generated storage key when set; otherwise they use the local `/media/...` read-only Pages route.
+- `GET /media/:path` reads from `PORTFOLIO_MEDIA_BUCKET`, serves only keys under `portfolio/`, and rejects path traversal.
 - If `PORTFOLIO_MEDIA_BUCKET` is not configured, upload returns `503 portfolio_media_not_configured`; URL-based portfolio images still work.
 - `public/admin.html` now has both `Upload photo` and URL-based `Add photos` actions.
 - Migration `0010_portfolio_media.sql` adds the storage metadata columns and a storage-key index.
@@ -488,20 +490,20 @@ Telegram-сообщение отправляется в прикладном ф�
 
 ### Stage 4.05B media environment
 
-For portfolio uploads in production, configure a Cloudflare R2 binding in the Pages project:
+For portfolio uploads in production, configure a Cloudflare R2 binding in the Pages project. Current bucket:
 
 ```text
 Variable name: PORTFOLIO_MEDIA_BUCKET
-R2 bucket: <portfolio-media-bucket>
+R2 bucket: furniture-portfolio-media
 ```
 
-Also set:
+Optional custom public media URL:
 
 ```text
 PORTFOLIO_MEDIA_PUBLIC_BASE_URL=https://<public-r2-or-cdn-host>
 ```
 
-Without `PORTFOLIO_MEDIA_BUCKET`, the upload endpoint returns `503 portfolio_media_not_configured`; URL-only portfolio flows remain available.
+If `PORTFOLIO_MEDIA_PUBLIC_BASE_URL` is not set, uploaded image URLs use `/media/<storage-key>` and are served through `functions/media/[[path]].js`. Without `PORTFOLIO_MEDIA_BUCKET`, the upload and media endpoints return `503 portfolio_media_not_configured`; URL-only portfolio flows remain available.
 
 ## Definition of Done для Этапа 1
 

@@ -6,3 +6,7 @@ pages_build_output_dir = "public"
 binding = "DB"
 database_name = "furniture_orders"
 database_id = "2f5eddec-b27c-4a05-a1aa-18c18e95ae5b"
+
+[[r2_buckets]]
+binding = "PORTFOLIO_MEDIA_BUCKET"
+bucket_name = "furniture-portfolio-media"
