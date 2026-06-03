@@ -1,19 +1,19 @@
 import { readFileSync, appendFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-export function appendDeployLog(logDir, entry) {
+export function appendAuditLog(logDir, entry) {
   if (!existsSync(logDir)) {
     mkdirSync(logDir, { recursive: true });
   }
 
-  const logPath = join(logDir, 'deploy.jsonl');
+  const logPath = join(logDir, 'audit.jsonl');
   entry.time = entry.time || new Date().toISOString();
 
   appendFileSync(logPath, JSON.stringify(entry) + '\n', 'utf-8');
 }
 
-export function readDeployLogs(logDir, siteSlug, limit) {
-  const logPath = join(logDir, 'deploy.jsonl');
+export function readAuditLogs(logDir, siteSlug, limit) {
+  const logPath = join(logDir, 'audit.jsonl');
 
   if (!existsSync(logPath)) {
     return [];

@@ -8,9 +8,9 @@ const RELOAD_COMMANDS = {
 };
 
 const STATUS_COMMANDS = {
-  nginx: { cmd: 'systemctl', args: ['is-active', 'nginx'] },
-  caddy: { cmd: 'systemctl', args: ['is-active', 'caddy'] },
-  'furniture-vps-control': { cmd: 'systemctl', args: ['is-active', 'furniture-vps-control'] },
+  nginx: { cmd: 'sudo', args: ['/bin/systemctl', 'is-active', 'nginx'] },
+  caddy: { cmd: 'sudo', args: ['/bin/systemctl', 'is-active', 'caddy'] },
+  'furniture-vps-control': { cmd: 'sudo', args: ['/bin/systemctl', 'is-active', 'furniture-vps-control'] },
 };
 
 function execAllowlisted(cmd, args, timeout) {

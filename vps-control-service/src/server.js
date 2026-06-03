@@ -5,7 +5,7 @@ import { checkAuth } from './auth.js';
 import { createRouter } from './http.js';
 import { getAllServiceStatuses, reloadWebserver } from './services.js';
 import { handleDeploy } from './deploy.js';
-import { readDeployLogs, appendDeployLog } from './logs.js';
+import { readAuditLogs, appendAuditLog } from './logs.js';
 import { validateWebserver, validateLimit } from './validation.js';
 
 function unauthorizedResponse(sendJson, res) {
@@ -72,7 +72,7 @@ function registerRoutes(router) {
     const result = await reloadWebserver(webserver);
 
     try {
-      appendDeployLog(config.logDir, {
+      appendAuditLog(config.logDir, {
         time: new Date().toISOString(),
         event: 'reload_webserver',
         webserver,
@@ -118,7 +118,7 @@ function registerRoutes(router) {
       return;
     }
 
-    const logs = readDeployLogs(config.logDir, siteSlug, limitValidation.value);
+    const logs = readAuditLogs(config.logDir, siteSlug, limitValidation.value);
 
     sendJson(res, 200, {
       success: true,
@@ -136,6 +136,14 @@ export function createApp(customConfig) {
   const server = createServer(async (req, res) => {
     await router.handle(req, res, config);
   });
+
+  function shutdown() {
+    server.close(() => {});
+    setTimeout(() => {}, 5000).unref();
+  }
+
+  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', shutdown);
 
   return { server, config };
 }

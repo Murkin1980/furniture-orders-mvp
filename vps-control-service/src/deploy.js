@@ -1,7 +1,7 @@
 import { resolve, join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { mkdirSync, rmSync, renameSync, writeFileSync } from 'node:fs';
-import { appendDeployLog } from './logs.js';
+import { appendAuditLog } from './logs.js';
 import { validateSiteSlug, validateSourceUrl } from './validation.js';
 
 export async function handleDeploy(config, payload) {
@@ -53,7 +53,7 @@ export async function handleDeploy(config, payload) {
   };
 
   try {
-    appendDeployLog(config.logDir, logEntry);
+    appendAuditLog(config.logDir, logEntry);
   } catch {
     // non-fatal
   }
@@ -126,7 +126,7 @@ async function deployHtmlArtifact({ config, sourceUrl, targetDir, stagingDir, si
     };
 
     try {
-      appendDeployLog(config.logDir, logEntry);
+      appendAuditLog(config.logDir, logEntry);
     } catch {
       // non-fatal
     }

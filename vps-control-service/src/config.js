@@ -32,26 +32,60 @@ function int(name, fallback) {
   return Number.isFinite(val) ? val : fallback;
 }
 
+const ALLOWED_WEBSERVERS = new Set(['nginx', 'caddy']);
+
 export function createConfig(overrides = {}) {
   const token = overrides.token || str('VPS_CONTROL_TOKEN');
   if (!token) {
     throw new Error('VPS_CONTROL_TOKEN is required');
   }
+  if (token.length < 8) {
+    throw new Error('VPS_CONTROL_TOKEN must be at least 8 characters.');
+  }
+
+  const port = overrides.port !== undefined ? overrides.port : int('VPS_CONTROL_PORT', 8789);
+  if (!Number.isFinite(port) || !Number.isInteger(port) || port < 0 || port > 65535) {
+    throw new Error('VPS_CONTROL_PORT must be an integer between 0 and 65535.');
+  }
+
+  const host = overrides.host || str('VPS_CONTROL_HOST', '127.0.0.1');
+  if (!host) {
+    throw new Error('VPS_CONTROL_HOST must be a non-empty string.');
+  }
+
+  const webserver = str('VPS_CONTROL_WEBSERVER', 'nginx');
+  if (!ALLOWED_WEBSERVERS.has(webserver)) {
+    throw new Error('VPS_CONTROL_WEBSERVER must be "nginx" or "caddy".');
+  }
+
+  const sitesDir = overrides.sitesDir || str('VPS_CONTROL_SITES_DIR', '/srv/sites');
+  const stagingDir = overrides.stagingDir || str('VPS_CONTROL_STAGING_DIR', '/srv/deploy-staging');
+  const logDir = overrides.logDir || str('VPS_CONTROL_LOG_DIR', '/var/log/furniture-control');
+  for (const [name, dir] of [['VPS_CONTROL_SITES_DIR', sitesDir], ['VPS_CONTROL_STAGING_DIR', stagingDir], ['VPS_CONTROL_LOG_DIR', logDir]]) {
+    if (!dir) {
+      throw new Error(`${name} must be a non-empty string.`);
+    }
+  }
+
+  const allowedSourceHosts = overrides.allowedSourceHosts || (
+    str('VPS_CONTROL_ALLOWED_SOURCE_HOSTS', 'github.com,raw.githubusercontent.com,example.com')
+      .split(',')
+      .map(h => h.trim())
+      .filter(Boolean)
+  );
+  if (!Array.isArray(allowedSourceHosts) || allowedSourceHosts.length === 0) {
+    throw new Error('VPS_CONTROL_ALLOWED_SOURCE_HOSTS must contain at least one host.');
+  }
 
   return {
-    host: overrides.host || str('VPS_CONTROL_HOST', '127.0.0.1'),
-    port: overrides.port !== undefined ? overrides.port : int('VPS_CONTROL_PORT', 8789),
+    host,
+    port,
     token,
-    webserver: str('VPS_CONTROL_WEBSERVER', 'nginx'),
-    sitesDir: overrides.sitesDir || str('VPS_CONTROL_SITES_DIR', '/srv/sites'),
-    stagingDir: overrides.stagingDir || str('VPS_CONTROL_STAGING_DIR', '/srv/deploy-staging'),
-    logDir: overrides.logDir || str('VPS_CONTROL_LOG_DIR', '/var/log/furniture-control'),
+    webserver,
+    sitesDir,
+    stagingDir,
+    logDir,
     maxBodyBytes: overrides.maxBodyBytes || int('VPS_CONTROL_MAX_BODY_BYTES', 262144),
-    allowedSourceHosts: overrides.allowedSourceHosts || (
-      str('VPS_CONTROL_ALLOWED_SOURCE_HOSTS', 'github.com,raw.githubusercontent.com,example.com')
-        .split(',')
-        .map(h => h.trim())
-        .filter(Boolean)
-    ),
+    allowedSourceHosts,
   };
 }
