@@ -151,3 +151,26 @@ Do not call external AI APIs in this first step.
 
 ### Next
 - Build a pure `analyze-lead` orchestration module with an injected transport before adding a real endpoint or external API call.
+
+## 2026-06-07 - Safe AI analyzeLead orchestration
+
+### What changed
+- Added `analyzeLead` orchestration connecting the qualification prompt, provider request builder, injected transport, and strict response parser.
+- Added safe fallback results with provider/model/timing/request metadata when the transport is missing or throws.
+- Added support for raw string, `{ content }`, and OpenAI-like choices fake-client responses.
+- The module performs no fetch, external API call, endpoint integration, UI work, D1 migration, or deployment change.
+
+### Files changed
+- `src/ai/analyze-lead.js`
+- `tests/ai-analyze-lead.test.js`
+- `package.json`
+- `SESSION_NOTES.md`
+
+### Checks
+- `node --test tests/ai-analyze-lead.test.js` - 11 tests passed.
+- `npm.cmd test` - 107 tests passed.
+- `npm.cmd run check` - passed.
+- `git diff --check` - passed.
+
+### Next
+- Define the D1 AI result schema and manual analyze endpoint contract before enabling any real provider transport.
