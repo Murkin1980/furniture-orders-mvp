@@ -298,3 +298,23 @@ Do not call external AI APIs in this first step.
 
 ### Next
 - Configure one provider key in local `.dev.vars`, apply migration `0011` to the chosen non-production D1 database, and verify one manual analysis when explicitly approved.
+
+## 2026-06-07 - Local manual AI smoke test
+
+Manual endpoint tested locally:
+
+- Endpoint: `POST /api/orders/1/ai/analyze`
+- Result: `200 OK`
+- `ai_status`: `failed`
+- provider: `openai`
+- model: `gpt-4o-mini`
+- `ai_error`: `AI provider authorization failed. Check the API key.`
+
+Conclusion:
+
+- Manual AI endpoint works.
+- Failed provider authorization is handled safely.
+- Order data remains intact.
+- Production was not touched.
+- AI autorun is still disabled.
+- Local D1 note: `npm run dev --d1 DB` may create or use a separate local D1; the test used configured `furniture_orders` with migration `0011` applied locally.
