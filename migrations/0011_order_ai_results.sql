@@ -1,0 +1,16 @@
+ALTER TABLE orders ADD COLUMN ai_status TEXT;
+ALTER TABLE orders ADD COLUMN ai_score INTEGER;
+ALTER TABLE orders ADD COLUMN ai_temperature TEXT;
+ALTER TABLE orders ADD COLUMN ai_furniture_type TEXT;
+ALTER TABLE orders ADD COLUMN ai_qualified INTEGER;
+ALTER TABLE orders ADD COLUMN ai_summary TEXT;
+ALTER TABLE orders ADD COLUMN ai_next_question TEXT;
+ALTER TABLE orders ADD COLUMN ai_missing_info_json TEXT;
+ALTER TABLE orders ADD COLUMN ai_urgency TEXT;
+ALTER TABLE orders ADD COLUMN ai_potential_value TEXT;
+ALTER TABLE orders ADD COLUMN ai_recommended_status TEXT;
+ALTER TABLE orders ADD COLUMN ai_provider TEXT;
+ALTER TABLE orders ADD COLUMN ai_model TEXT;
+ALTER TABLE orders ADD COLUMN ai_processing_time_ms INTEGER;
+ALTER TABLE orders ADD COLUMN ai_error TEXT;
+ALTER TABLE orders ADD COLUMN ai_analyzed_at TEXT;

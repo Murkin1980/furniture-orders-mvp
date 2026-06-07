@@ -174,3 +174,28 @@ Do not call external AI APIs in this first step.
 
 ### Next
 - Define the D1 AI result schema and manual analyze endpoint contract before enabling any real provider transport.
+
+## 2026-06-07 - Safe order AI result storage preparation
+
+### What changed
+- Added D1 migration `0011_order_ai_results.sql` with nullable AI analysis fields on `orders`.
+- Synchronized the fresh local `RUNTIME_SCHEMA_INIT` orders schema with the new AI fields.
+- Added a pure order-update mapper that serializes missing information, maps normalized AI results and metadata to D1 column names, and derives safe `success`/`failed` statuses.
+- No endpoint, external API call, UI, production migration application, or deployment was performed.
+
+### Files changed
+- `migrations/0011_order_ai_results.sql`
+- `src/ai/order-ai-result.js`
+- `tests/order-ai-result.test.js`
+- `src/orders-core.js`
+- `package.json`
+- `SESSION_NOTES.md`
+
+### Checks
+- `node --test tests/order-ai-result.test.js` - 9 tests passed.
+- `npm.cmd test` - 116 tests passed.
+- `npm.cmd run check` - passed.
+- `git diff --check` - passed.
+
+### Next
+- Add a tested order AI persistence core function, then build the manual analyze endpoint with an explicitly injected network transport.
