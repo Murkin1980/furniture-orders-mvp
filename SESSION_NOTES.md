@@ -267,7 +267,7 @@ Do not call external AI APIs in this first step.
 - `tests/order-ai-core.test.js`
 - `package.json`
 - `SESSION_NOTES.md`
-- `furniture-ai-slice8-implementation-summary.md`
+- `docs/sessions/furniture-ai-slice8-implementation-summary.md`
 
 ### Checks
 - `node --test tests/send-ai-request.test.js tests/order-ai-core.test.js tests/ai-analyze-lead.test.js` - 29 tests passed.
@@ -277,3 +277,24 @@ Do not call external AI APIs in this first step.
 
 ### Next
 - Configure one provider API key and apply migration `0011` only in an explicit operations/deployment step before production AI analysis.
+
+## 2026-06-07 - AI setup documentation
+
+### What changed
+- Added a secret-free `.env.example` with provider selection, optional model override, and all supported provider API key variable names.
+- Added `AI_SETUP.md` covering manual-only AI behavior, supported providers, local Wrangler setup, migration `0011`, verification, and safe failure behavior.
+- No UI, endpoint logic, deployment configuration, migration, dependency, production migration application, or donor-repository change was made.
+
+### Files changed
+- `.env.example`
+- `AI_SETUP.md`
+- `SESSION_NOTES.md`
+- `docs/sessions/furniture-ai-slice9-implementation-summary.md`
+
+### Checks
+- `npm.cmd test` - 137 tests passed.
+- `npm.cmd run check` - passed.
+- `git diff --check` - passed.
+
+### Next
+- Configure one provider key in local `.dev.vars`, apply migration `0011` to the chosen non-production D1 database, and verify one manual analysis when explicitly approved.
