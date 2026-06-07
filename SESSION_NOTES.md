@@ -86,3 +86,24 @@ tests/ai-parse-response.test.js
 ```
 
 Do not call external AI APIs in this first step.
+
+## 2026-06-07 - Safe AI JSON parser
+
+### What changed
+- Added the first safe AI slice as a pure JSON parser with no external API, UI, endpoint, or D1 changes.
+- Added markdown code-fence removal, required-field validation, enum normalization, lead score clamping, missing-info normalization, and safe fallback behavior.
+- Added focused parser tests for valid, fenced, invalid, incomplete, and normalized responses.
+
+### Files changed
+- `src/ai/parse-ai-response.js`
+- `tests/ai-parse-response.test.js`
+- `package.json`
+- `SESSION_NOTES.md`
+
+### Checks
+- `node --test tests/ai-parse-response.test.js`
+- `npm.cmd run check`
+- `npm.cmd test`
+
+### Next
+- Add the qualification prompt as another pure, testable AI module before introducing provider APIs or endpoints.
