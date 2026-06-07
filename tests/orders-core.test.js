@@ -1384,6 +1384,18 @@ function toOrderRow(state, order) {
     description: order.description,
     notes: order.notes,
     status: order.status,
+    aiStatus: order.ai_status || null,
+    aiScore: order.ai_score ?? null,
+    aiTemperature: order.ai_temperature || null,
+    aiFurnitureType: order.ai_furniture_type || null,
+    aiQualified: order.ai_qualified ?? null,
+    aiSummary: order.ai_summary || null,
+    aiNextQuestion: order.ai_next_question || null,
+    aiMissingInfoJson: order.ai_missing_info_json || null,
+    aiUrgency: order.ai_urgency || null,
+    aiPotentialValue: order.ai_potential_value || null,
+    aiRecommendedStatus: order.ai_recommended_status || null,
+    aiError: order.ai_error || null,
     createdAt: order.createdAt,
     updatedAt: order.updatedAt
   };

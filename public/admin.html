@@ -156,6 +156,15 @@
     .money { white-space: nowrap; }
     .actions { min-width: 230px; }
     .actions form { display: grid; gap: 8px; }
+    .order-ai {
+      min-width: 210px;
+      display: grid;
+      gap: 4px;
+      font-size: 12px;
+    }
+    .order-ai span { display: block; }
+    .order-ai.bad,
+    .ai-error { color: var(--danger); }
     .project-panel {
       margin-top: 18px;
       border: 1px solid var(--line);
@@ -430,12 +439,13 @@
             <th>РЎРѕР·РґР°РЅ</th>
             <th>РћР±РЅРѕРІР»С‘РЅ</th>
             <th>Р—Р°РјРµС‚РєР°</th>
+            <th>AI</th>
             <th>Р”РµР№СЃС‚РІРёРµ</th>
           </tr>
         </thead>
         <tbody id="orders-body">
           <tr>
-            <td colspan="11" class="muted">Р—Р°РіСЂСѓР·РєР°...</td>
+            <td colspan="12" class="muted">Р—Р°РіСЂСѓР·РєР°...</td>
           </tr>
         </tbody>
       </table>

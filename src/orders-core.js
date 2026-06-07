@@ -306,6 +306,18 @@ export async function listOrders({ db, env = {}, status = null }) {
       orders.description,
       orders.notes,
       orders.status,
+      orders.ai_status AS aiStatus,
+      orders.ai_score AS aiScore,
+      orders.ai_temperature AS aiTemperature,
+      orders.ai_furniture_type AS aiFurnitureType,
+      orders.ai_qualified AS aiQualified,
+      orders.ai_summary AS aiSummary,
+      orders.ai_next_question AS aiNextQuestion,
+      orders.ai_missing_info_json AS aiMissingInfoJson,
+      orders.ai_urgency AS aiUrgency,
+      orders.ai_potential_value AS aiPotentialValue,
+      orders.ai_recommended_status AS aiRecommendedStatus,
+      orders.ai_error AS aiError,
       orders.created_at AS createdAt,
       COALESCE(orders.updated_at, orders.created_at) AS updatedAt
     FROM orders

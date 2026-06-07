@@ -199,3 +199,55 @@ Do not call external AI APIs in this first step.
 
 ### Next
 - Add a tested order AI persistence core function, then build the manual analyze endpoint with an explicitly injected network transport.
+
+## 2026-06-07 - Safe manual order AI analyze endpoint
+
+### What changed
+- Added `analyzeOrderWithAiCore` to load an order, run the existing injected-transport AI orchestration, map the result to D1 columns, and persist the AI fields.
+- Added admin-protected `POST /api/orders/:id/ai/analyze` using the existing Bearer/X-Admin-Token convention.
+- The endpoint accepts only an injected sender from `context.data` for tests; it contains no fetch, SDK, or real provider transport.
+- Added tests for missing orders, success persistence, invalid JSON defaults, transport failures, admin auth, no-fetch behavior, and preservation of normal order fields.
+- No UI, production migration application, external AI call, or deployment was performed.
+
+### Files changed
+- `src/ai/order-ai-core.js`
+- `functions/api/orders/[id]/ai/analyze.js`
+- `tests/order-ai-core.test.js`
+- `package.json`
+- `SESSION_NOTES.md`
+
+### Checks
+- `node --test tests/order-ai-core.test.js` - 6 tests passed.
+- `npm.cmd test` - 122 tests passed.
+- `npm.cmd run check` - passed.
+- `git diff --check` - passed.
+
+### Next
+- Decide and implement the real provider transport boundary before enabling the endpoint outside injected tests; apply migration `0011` only in an explicit operations step.
+
+## 2026-06-07 - Safe admin AI analysis controls
+
+### What changed
+- Added an `AI` column to the admin orders table with a compact persisted-analysis summary and visible error state.
+- Added per-order `AI-анализ` / `Повторить AI-анализ` controls with loading state, existing `adminFetchJson` usage, error handling, and order-list refresh after completion.
+- Extended the admin orders list query with persisted AI fields without changing public order intake.
+- Added pure admin AI view-model helpers and focused tests for analyzed, empty, and malformed stored data.
+- No real provider transport, direct UI fetch, dependency, migration change, deployment, calculator, or public-form change was made.
+
+### Files changed
+- `src/orders-core.js`
+- `public/admin.html`
+- `public/admin.js`
+- `public/admin-orders.js`
+- `tests/admin-orders-ai.test.js`
+- `tests/orders-core.test.js`
+- `SESSION_NOTES.md`
+
+### Checks
+- `node --test tests/admin-orders-ai.test.js tests/orders-core.test.js tests/order-ai-core.test.js` - 38 tests passed.
+- `npm.cmd test` - 125 tests passed.
+- `npm.cmd run check` - passed.
+- `git diff --check` - passed.
+
+### Next
+- Implement and explicitly approve a real provider transport, then apply migration `0011` before enabling production AI analysis.

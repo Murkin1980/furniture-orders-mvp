@@ -1,4 +1,6 @@
 ﻿    const statuses = ["new", "in_review", "quoted", "in_production", "completed", "canceled"];
+    import { getOrderAiViewModel } from "./admin-orders.js";
+
     const stepStatuses = ["pending", "done", "skipped"];
     const tokenInput = document.querySelector("#token");
     const filterInput = document.querySelector("#status-filter");
@@ -108,6 +110,7 @@
           <td>${escapeHtml(item.createdAt || "")}</td>
           <td>${escapeHtml(item.updatedAt || "")}</td>
           <td>${escapeHtml(item.notes || "")}</td>
+          <td>${renderOrderAi(item)}</td>
           <td class="actions">
             <form data-order-id="${escapeHtml(item.id)}">
               <select name="status">
@@ -116,6 +119,7 @@
               <textarea name="notes" placeholder="Р—Р°РјРµС‚РєР° РјРµРЅРµРґР¶РµСЂР°">${escapeHtml(item.notes || "")}</textarea>
               <button type="submit">РћР±РЅРѕРІРёС‚СЊ</button>
               <button class="secondary" type="button" data-project-id="${escapeHtml(item.id)}">РћС‚РєСЂС‹С‚СЊ РїСЂРѕРµРєС‚</button>
+              <button class="secondary" type="button" data-ai-order-id="${escapeHtml(item.id)}">${escapeHtml(getOrderAiViewModel(item).buttonLabel)}</button>
             </form>
           </td>
         </tr>
@@ -126,6 +130,50 @@
       }
       for (const button of tbody.querySelectorAll("[data-project-id]")) {
         button.addEventListener("click", () => openProject(Number(button.dataset.projectId)));
+      }
+      for (const button of tbody.querySelectorAll("[data-ai-order-id]")) {
+        button.addEventListener("click", () => analyzeOrderWithAi(Number(button.dataset.aiOrderId), button));
+      }
+    }
+
+    function renderOrderAi(item) {
+      const ai = getOrderAiViewModel(item);
+      if (!ai.hasAnalysis) {
+        return '<span class="muted">Не запускался</span>';
+      }
+
+      return `
+        <div class="order-ai ${ai.error ? "bad" : ""}">
+          <strong>${escapeHtml(ai.status || "unknown")} · ${escapeHtml(ai.score ?? "")}</strong>
+          <span>${escapeHtml(ai.temperature)} · ${escapeHtml(ai.furnitureType)} · ${ai.qualified ? "qualified" : "not qualified"}</span>
+          <span>${escapeHtml(ai.summary)}</span>
+          <span>${escapeHtml(ai.nextQuestion)}</span>
+          <span>Missing: ${escapeHtml(ai.missingInfo.join(", ") || "—")}</span>
+          <span>${escapeHtml(ai.urgency)} · ${escapeHtml(ai.potentialValue)} · ${escapeHtml(ai.recommendedStatus)}</span>
+          ${ai.error ? `<span class="ai-error">${escapeHtml(ai.error)}</span>` : ""}
+        </div>
+      `;
+    }
+
+    async function analyzeOrderWithAi(orderId, button) {
+      const originalLabel = button.textContent;
+      button.disabled = true;
+      button.textContent = "AI-анализ...";
+      setMessage(`Запуск AI-анализа заказа #${orderId}...`);
+
+      try {
+        const json = await adminFetchJson(`/api/orders/${orderId}/ai/analyze`, {
+          method: "POST",
+          fallbackMessage: "AI-анализ не выполнен."
+        });
+
+        setMessage(`AI-анализ заказа #${json.orderId} завершён.`, json.update?.ai_status === "failed" ? "bad" : "ok");
+        await loadOrders();
+      } catch (error) {
+        setMessage(error.message, "bad");
+      } finally {
+        button.disabled = false;
+        button.textContent = originalLabel;
       }
     }
 
@@ -1012,7 +1060,7 @@
     }
 
     function renderEmpty(text) {
-      tbody.innerHTML = `<tr><td colspan="11" class="muted">${escapeHtml(text)}</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="12" class="muted">${escapeHtml(text)}</td></tr>`;
     }
 
     function setMessage(text, kind = "") {
