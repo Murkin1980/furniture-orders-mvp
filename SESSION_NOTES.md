@@ -128,3 +128,26 @@ Do not call external AI APIs in this first step.
 
 ### Next
 - Design the provider abstraction as a separate tested slice before adding external AI calls or order endpoints.
+
+## 2026-06-07 - Safe AI provider abstraction
+
+### What changed
+- Added provider configuration for OpenAI, Groq, Gemini, OpenRouter, and NVIDIA NIM.
+- Added safe provider selection, environment API-key lookup, unknown-provider fallback, and pure OpenAI-compatible request-object construction.
+- The provider module performs no fetch, external API call, endpoint integration, UI work, or deployment change.
+- Empty prompts now throw a clear `TypeError` before a request object can be built.
+
+### Files changed
+- `src/ai/providers.js`
+- `tests/ai-providers.test.js`
+- `package.json`
+- `SESSION_NOTES.md`
+
+### Checks
+- `node --test tests/ai-providers.test.js` - 11 tests passed.
+- `npm.cmd test` - 96 tests passed.
+- `npm.cmd run check` - passed.
+- `git diff --check` - passed.
+
+### Next
+- Build a pure `analyze-lead` orchestration module with an injected transport before adding a real endpoint or external API call.
