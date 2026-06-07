@@ -107,3 +107,24 @@ Do not call external AI APIs in this first step.
 
 ### Next
 - Add the qualification prompt as another pure, testable AI module before introducing provider APIs or endpoints.
+
+## 2026-06-07 - Safe AI qualification prompt builder
+
+### What changed
+- Added a pure qualification prompt builder with no external API, UI, endpoint, D1, or deploy integration.
+- Added safe order-field formatting with camelCase and snake_case aliases, `calculatorMeta` support, furniture-business context, strict JSON output instructions, and required result enums.
+- Added focused tests for complete and empty orders, required JSON fields, furniture context, field aliases, and calculator metadata.
+
+### Files changed
+- `src/ai/qualification-prompt.js`
+- `tests/qualification-prompt.test.js`
+- `package.json`
+- `SESSION_NOTES.md`
+
+### Checks
+- `node --test tests/qualification-prompt.test.js` - 6 tests passed.
+- `npm.cmd run check` - passed.
+- `npm.cmd test` - 85 tests passed.
+
+### Next
+- Design the provider abstraction as a separate tested slice before adding external AI calls or order endpoints.
