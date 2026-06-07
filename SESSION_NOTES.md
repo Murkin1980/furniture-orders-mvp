@@ -251,3 +251,29 @@ Do not call external AI APIs in this first step.
 
 ### Next
 - Implement and explicitly approve a real provider transport, then apply migration `0011` before enabling production AI analysis.
+
+## 2026-06-07 - OpenAI-compatible AI sender
+
+### What changed
+- Added a real OpenAI-compatible sender with injected/global fetch selection, strict response validation, and clear HTTP, network, and JSON errors.
+- Integrated the sender into the manual admin AI analyze endpoint while preserving fake sender injection for tests.
+- Missing provider API keys fail before network access and are persisted as `ai_status=failed`.
+- AI remains manual-only; no UI, migration, public-form, calculator, dependency, deployment, or donor-repository changes were made.
+
+### Files changed
+- `src/ai/send-ai-request.js`
+- `tests/send-ai-request.test.js`
+- `functions/api/orders/[id]/ai/analyze.js`
+- `tests/order-ai-core.test.js`
+- `package.json`
+- `SESSION_NOTES.md`
+- `furniture-ai-slice8-implementation-summary.md`
+
+### Checks
+- `node --test tests/send-ai-request.test.js tests/order-ai-core.test.js tests/ai-analyze-lead.test.js` - 29 tests passed.
+- `npm.cmd test` - 137 tests passed.
+- `npm.cmd run check` - passed.
+- `git diff --check` - passed.
+
+### Next
+- Configure one provider API key and apply migration `0011` only in an explicit operations/deployment step before production AI analysis.

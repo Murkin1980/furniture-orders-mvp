@@ -115,6 +115,34 @@ test("endpoint does not call fetch and preserves normal order fields", async () 
   }
 });
 
+test("endpoint without API key saves failed status before network call", async () => {
+  const db = createDb(createOrder());
+  let fetchCalls = 0;
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => {
+    fetchCalls += 1;
+  };
+
+  try {
+    const response = await onRequestPost({
+      request: new Request("https://example.test/api/orders/1/ai/analyze", {
+        method: "POST",
+        headers: { Authorization: "Bearer secret" }
+      }),
+      env: { ADMIN_TOKEN: "secret", DB: db },
+      params: { id: "1" },
+      data: {}
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(db.order.ai_status, "failed");
+    assert.match(db.order.ai_error, /API key is missing/i);
+    assert.equal(fetchCalls, 0);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 function createOrder() {
   return {
     id: 1,

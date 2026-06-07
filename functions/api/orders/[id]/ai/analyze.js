@@ -1,4 +1,5 @@
 import { analyzeOrderWithAiCore } from "../../../../../src/ai/order-ai-core.js";
+import { sendOpenAiCompatibleRequest } from "../../../../../src/ai/send-ai-request.js";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -27,7 +28,7 @@ export async function onRequestPost(context) {
         providerName: context.env.AI_PROVIDER,
         model: context.env.AI_MODEL,
         env: context.env,
-        sendAiRequest: context.data?.sendAiRequest
+        sendAiRequest: context.data?.sendAiRequest || ((request) => sendOpenAiCompatibleRequest(request))
       }
     );
 
