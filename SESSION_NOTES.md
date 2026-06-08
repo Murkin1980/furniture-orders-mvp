@@ -318,3 +318,85 @@ Conclusion:
 - Production was not touched.
 - AI autorun is still disabled.
 - Local D1 note: `npm run dev --d1 DB` may create or use a separate local D1; the test used configured `furniture_orders` with migration `0011` applied locally.
+
+## 2026-06-08 - README synchronized with AI layer
+
+### What changed
+- Updated `README.md` with the implemented manual-only AI flow, endpoint, source modules, tests, supported providers, environment variables, and migration `0011`.
+- Documented verified safe failure behavior and the current pending successful smoke test blocked by OpenAI HTTP 429 quota/rate limit.
+- Clarified that production AI, production migration `0011`, and AI autorun remain disabled.
+- Corrected `AI_SETUP.md` so manual AI smoke tests use configured local D1 `furniture_orders` without the `--d1 DB` override.
+
+### Files changed
+- `README.md`
+- `AI_SETUP.md`
+- `SESSION_NOTES.md`
+- `docs/sessions/furniture-readme-ai-update-summary.md`
+
+### Checks
+- `npm.cmd test` - 137 tests passed.
+- `npm.cmd run check` - passed.
+- `git diff --check` - passed.
+
+### Next
+- Restore OpenAI project quota or billing, then repeat one local manual AI analysis and confirm the first stable `ai_status=success` result before any production enablement.
+
+## 2026-06-08 - AI infrastructure stage 1
+
+### What changed
+- Added missing project-control documents, a compact reviewed knowledge base, and repeatable project skills.
+- Verified official MarkItDown, CodeGraph, Supermemory, and Headroom repositories and recorded staged adoption decisions.
+- Installed MarkItDown 0.1.6 in ignored `.tools/markitdown-venv/`.
+- Built an ignored local CodeGraph index with 73 JavaScript files, 767 nodes, and 1,893 edges.
+- Kept Supermemory and Headroom out of runtime until memory/privacy contracts and token measurements justify them.
+- MarkItDown offline conversion of the architecture PDF returned empty output; no empty artifact was retained.
+
+### Files changed
+- `.gitignore`
+- `AGENTS.md`
+- `DESIGN.md`
+- `DATA_SOURCES.md`
+- `AI_INFRA_DECISION.md`
+- `README.md`
+- `SESSION_NOTES.md`
+- `docs/raw/README.md`
+- `docs/markdown/README.md`
+- `knowledge/*.md`
+- `skills/*.md`
+- `docs/sessions/furniture-ai-infra-stage1-coding-brief.md`
+- `docs/sessions/furniture-ai-infra-stage1-implementation-summary.md`
+
+### Checks
+- CodeGraph status/query - passed.
+- MarkItDown CLI/help - passed.
+- MarkItDown architecture PDF conversion - no extractable text; recorded for OCR/manual review.
+- MarkItDown HTML smoke test - produced non-empty output, but Cyrillic was misdecoded on this Windows environment; manual encoding review remains mandatory.
+- `npm.cmd test` - 137 tests passed.
+- `npm.cmd run check` - passed.
+- `git diff --check` - passed.
+
+### Next
+- Add only approved source documents to `docs/raw/`, convert them individually, review exact values, and record them in `DATA_SOURCES.md`.
+
+## 2026-06-08 - Stage 2 controlled knowledge conversion started
+
+### What changed
+- Added a documentation-only Stage 2 plan for controlled source intake, conversion, manual review, approval, promotion, and deprecation.
+- Defined a mandatory per-document checklist covering source metadata, encoding, Cyrillic, tables, numbers, legal/payment terms, approval, and reviewer notes.
+- Added initial knowledge categories and mapped them to target `knowledge/` files.
+- Added the source statuses `raw`, `converted`, `reviewed`, `approved`, and `deprecated` to `DATA_SOURCES.md`.
+- No source document was converted or promoted, and no production behavior was changed.
+
+### Files changed
+- `STAGE_2_KNOWLEDGE_CONVERSION_PLAN.md`
+- `DATA_SOURCES.md`
+- `SESSION_NOTES.md`
+
+### Checks
+- `npm.cmd test` - 137 tests passed.
+- `npm.cmd run check` - passed.
+- `git diff --check` - passed.
+- Production-path diff check - passed; no modified or untracked production files.
+
+### Next
+- Select the first authorized, privacy-reviewed business source and record it as `raw` before conversion.

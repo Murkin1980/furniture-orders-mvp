@@ -59,13 +59,19 @@ AI_MODEL=llama-3.3-70b-versatile
 GROQ_API_KEY=replace-with-local-secret
 ```
 
-Start the local Pages application:
+For an ordinary non-AI local run, use:
 
 ```powershell
 npm.cmd run dev
 ```
 
-Open `/admin`, enter the configured local admin token (`dev-admin-token` with the current `npm run dev` script), load an existing order, and manually start AI analysis.
+The current `npm run dev` script passes `--d1 DB`, which may create or use a separate local D1 without migration `0011`. For a manual AI smoke test, start Pages with the configured `furniture_orders` binding instead:
+
+```powershell
+npx.cmd wrangler pages dev public --binding RUNTIME_SCHEMA_INIT=true --binding ADMIN_TOKEN=dev-admin-token --compatibility-date=2026-05-29 --persist-to=.wrangler/state
+```
+
+Open `/admin`, enter `dev-admin-token`, load an existing order, and manually start AI analysis.
 
 ## Expected failure behavior
 
@@ -88,4 +94,4 @@ npm.cmd run check
 git diff --check
 ```
 
-To verify a real provider locally, configure `.dev.vars`, ensure migration `0011` is applied to the local D1 database, start the app, and trigger analysis manually from the admin order list.
+To verify a real provider locally, configure `.dev.vars`, ensure migration `0011` is applied to configured local D1 `furniture_orders`, start Pages without the `--d1 DB` override, and trigger analysis manually from the admin order list.

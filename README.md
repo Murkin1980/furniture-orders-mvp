@@ -14,6 +14,7 @@
 - Этап 4.05: портфолио и публичная галерея работ с категориями и publish/unpublish flow.
 - Этап 4-R: начат стабилизационный refactor lane для админки и API-контрактов без изменения продуктового поведения.
 - Этап 4.02B: добавлен schema-driven calculator layer с draft/published fields, `schemaVersion` и безопасными enum-контрактами без arbitrary formulas/user-defined code execution.
+- AI layer: добавлены строгий parser, qualification prompt, provider abstraction, OpenAI-compatible sender, ручной admin endpoint и сохранение AI-результата в заказ. AI запускается только вручную; autorun для новых заявок отключён.
 
 ## Production
 
@@ -30,6 +31,7 @@
 - `GET /api/order-steps` возвращает шаги проекта заказа.
 - `POST /api/order-steps/update` обновляет статус и заметку шага.
 - `POST /api/orders/project/init` создаёт проектные шаги для заказа вручную.
+- `POST /api/orders/:id/ai/analyze` вручную запускает AI-квалификацию заказа из admin flow и сохраняет нормализованный success/failed результат.
 - `GET /api/calculators` и `POST /api/calculators` управляют калькуляторами.
 - `GET /api/calculators/:id/embed` генерирует embed-код для админки или отдаёт публичный widget script по token.
 - `POST /api/calculators/:id/lead` сохраняет расчёт из виджета как обычную заявку.
@@ -62,6 +64,10 @@
 - `src/portfolio-core.js` содержит бизнес-логику Stage 4.05 для категорий, работ портфолио, изображений и публикации.
 - `vps-control-service/` содержит Ubuntu-side MVP сервиса, который принимает запросы Cloudflare proxy и выполняет только allowlisted VPS actions.
 - `src/phone.js` содержит общую нормализацию и проверку телефона для заявок и calculator leads.
+- `src/ai/` содержит безопасный AI layer: prompt builder, provider abstraction, request sender, parser, orchestration и mapping результата в поля заказа.
+- AI-анализ поддерживает `openai`, `groq`, `gemini`, `openrouter` и `nvidia` через OpenAI-compatible request contract.
+- Ошибки provider, rate limit, invalid JSON и отсутствующие ключи сохраняются как `ai_status=failed`, не ломая заказ.
+- Подробная настройка AI описана в `AI_SETUP.md`; реальные API keys не хранятся в репозитории.
 - `tests/orders-core.test.js` проверяет intake flow, список заказов, фильтр, смену статуса, проектные шаги, калькуляторы, негативные embed/lead сценарии, `400` и `404`.
 - `tests/sites-core.test.js` проверяет создание лендинга, уникальность slug, primary domain, generated artifact, publish flow и статус публикации.
 - `tests/portfolio-core.test.js` проверяет создание работ, категории, изображения, публичный список, фильтр и запрет публикации без фото.
@@ -73,6 +79,7 @@ furniture-orders-mvp/
   functions/api/orders.js
   functions/api/orders/status.js
   functions/api/orders/project/init.js
+  functions/api/orders/[id]/ai/analyze.js
   functions/api/order-steps.js
   functions/api/order-steps/update.js
   functions/api/calculators.js
@@ -107,6 +114,13 @@ furniture-orders-mvp/
   src/sites-core.js
   src/portfolio-core.js
   src/phone.js
+  src/ai/parse-ai-response.js
+  src/ai/qualification-prompt.js
+  src/ai/providers.js
+  src/ai/send-ai-request.js
+  src/ai/analyze-lead.js
+  src/ai/order-ai-result.js
+  src/ai/order-ai-core.js
   vps-control-service/
   public/index.html
   public/admin.html
@@ -120,9 +134,19 @@ furniture-orders-mvp/
   migrations/0008_portfolio.sql
   migrations/0009_calculator_schema_fields.sql
   migrations/0010_portfolio_media.sql
+  migrations/0011_order_ai_results.sql
   tests/orders-core.test.js
   tests/sites-core.test.js
   tests/portfolio-core.test.js
+  tests/ai-parse-response.test.js
+  tests/qualification-prompt.test.js
+  tests/ai-providers.test.js
+  tests/send-ai-request.test.js
+  tests/ai-analyze-lead.test.js
+  tests/order-ai-result.test.js
+  tests/order-ai-core.test.js
+  AI_SETUP.md
+  .env.example
   wrangler.toml
   package.json
 ```
@@ -167,6 +191,7 @@ canceled
 | `/api/order-steps?orderId=1` | `GET` | Шаги проекта заказа | `ADMIN_TOKEN` |
 | `/api/order-steps/update` | `POST` | Смена статуса шага проекта | `ADMIN_TOKEN` |
 | `/api/orders/project/init` | `POST` | Ручное создание шагов проекта | `ADMIN_TOKEN` |
+| `/api/orders/:id/ai/analyze` | `POST` | Ручной AI-анализ заказа и сохранение результата | `ADMIN_TOKEN` |
 | `/api/calculators` | `GET` | Список калькуляторов | `ADMIN_TOKEN` |
 | `/api/calculators` | `POST` | Создание калькулятора | `ADMIN_TOKEN` |
 | `/api/calculators/:id` | `GET` | Детали калькулятора с категориями | `ADMIN_TOKEN` |
@@ -294,6 +319,22 @@ canceled
 - Runtime возвращает `schemaVersion` рядом с существующими `runtimeVersion` и `formulaVersion` как additive field без удаления текущих `categories`, `rules` и `fields`.
 - Widget использует published field labels/defaults/required flags, но по-прежнему работает через безопасную hardcoded rendering model без arbitrary formulas, user-defined JavaScript, SQL, templates, expressions или admin-authored runtime code.
 
+## AI layer: текущий статус
+
+- AI-квалификация является дополнительным слоем над существующим заказом и запускается только вручную из админки.
+- Автоматический AI-анализ при создании новой заявки не включён.
+- Ручной endpoint: `POST /api/orders/:id/ai/analyze`.
+- Результат сохраняется в nullable `orders.ai_*` fields из migration `0011_order_ai_results.sql`.
+- Поддерживаемые providers: `openai`, `groq`, `gemini`, `openrouter`, `nvidia`.
+- Provider выбирается через `AI_PROVIDER`; `AI_MODEL` опционально переопределяет default model.
+- Для выбранного provider нужен соответствующий key: `OPENAI_API_KEY`, `GROQ_API_KEY`, `GEMINI_API_KEY`, `OPENROUTER_API_KEY` или `NVIDIA_API_KEY`.
+- Parser принимает только структурированный JSON-контракт и безопасно возвращает default result при неправильном ответе.
+- При missing key, authorization error, rate limit, provider error или invalid response заказ остаётся целым, а результат сохраняется с `ai_status=failed` и `ai_error`.
+- Локальные smoke tests подтвердили ручной endpoint и безопасные failure paths для authorization error и HTTP 429.
+- Successful provider path ещё не подтверждён: текущий OpenAI project key дошёл до provider, но получил HTTP 429 из-за quota/rate limit.
+- Production AI пока не включён; migration `0011` не применялась к production D1.
+- Полная настройка и команды проверки находятся в `AI_SETUP.md`.
+
 ## Локальная проверка
 
 ```bash
@@ -306,6 +347,8 @@ npm run dev
 После запуска форма будет доступна на локальном адресе Wrangler, обычно `http://127.0.0.1:8788`. В локальном режиме API сам создаёт таблицы заказов, проектных шагов и калькуляторов, чтобы ручная проверка не зависела от отдельного шага миграции.
 
 Runtime-создание схемы включается только в `npm run dev` через `RUNTIME_SCHEMA_INIT=true`. Для production используйте D1 migrations; это основной способ закреплять схему базы.
+
+Для ручного AI smoke test используйте configured local D1 `furniture_orders` с migration `0011`. Команда `npm run dev` содержит override `--d1 DB` и может создать или использовать отдельную local D1 без AI-полей. Точная команда запуска AI smoke test приведена в `AI_SETUP.md`.
 
 Локальная админка доступна по адресу `http://127.0.0.1:8788/admin`. Dev token по умолчанию:
 
@@ -431,6 +474,10 @@ npm run deploy
 - `TELEGRAM_BOT_TOKEN`
 - `TELEGRAM_CHAT_ID`
 
+AI variables не нужны для обычного intake flow. Для ручного AI-анализа задайте `AI_PROVIDER`, опциональный `AI_MODEL` и key выбранного provider. До успешного локального smoke test эти variables и migration `0011` не включаются в production.
+
+Список AI variables и безопасный local setup находятся в `AI_SETUP.md` и `.env.example`.
+
 Если Telegram-переменные не заданы, заявка всё равно сохраняется, а в ответе будет `telegramSent: false`.
 
 `ADMIN_TOKEN` защищает операционные endpoints:
@@ -440,6 +487,7 @@ npm run deploy
 - `GET /api/order-steps`
 - `POST /api/order-steps/update`
 - `POST /api/orders/project/init`
+- `POST /api/orders/:id/ai/analyze`
 - `GET /api/calculators`
 - `POST /api/calculators`
 - `GET /api/calculators/:id`
@@ -542,6 +590,7 @@ If `PORTFOLIO_MEDIA_PUBLIC_BASE_URL` is not set, uploaded image URLs use `/media
 0008_portfolio.sql           Добавляет portfolio_categories, portfolio_items и portfolio_images для Этапа 4.05.
 0009_calculator_schema_fields.sql  Добавляет draft/published schema metadata для calculator_fields.
 0010_portfolio_media.sql     Добавляет storage metadata к portfolio_images для Stage 4.05B uploads.
+0011_order_ai_results.sql    Добавляет nullable AI analysis fields к orders для ручного AI flow.
 ```
 
 Применить миграции к production D1:
@@ -681,11 +730,25 @@ npm run check
 npm test
 ```
 
+## Локальная AI-инфраструктура
+
+Первый безопасный этап описан в `AI_INFRA_DECISION.md`.
+
+Добавлены `DESIGN.md`, `DATA_SOURCES.md`, проверяемая база `knowledge/`, повторяемые процессы в `skills/`, локальный CodeGraph в игнорируемой `.codegraph/` и локальный MarkItDown в игнорируемой `.tools/markitdown-venv/`.
+
+```powershell
+npx.cmd --yes @colbymchenry/codegraph status .
+npx.cmd --yes @colbymchenry/codegraph query analyzeLead
+.\.tools\markitdown-venv\Scripts\markitdown.exe docs\raw\source.docx -o docs\markdown\source.md
+```
+
+После конвертации документа обязательно проверить таблицы, числа и юридические формулировки, затем добавить источник в `DATA_SOURCES.md`. Supermemory и Headroom намеренно не подключены к runtime до появления стабильной схемы клиентской памяти, правил приватности и измерений токенов/стоимости.
+
 На момент обновления README тестовый набор:
 
 ```text
-68 tests
-68 pass
+137 tests
+137 pass
 ```
 
 ## Следующий этап
