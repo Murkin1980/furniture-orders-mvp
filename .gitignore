@@ -1,5 +1,12 @@
 node_modules/
 .wrangler/
+.codegraph/
+.tools/
+.cache/
+.tmp/
 wrangler-dev.*.log
 .dev.vars
+.env
+.env.local
 output/
+*.zip

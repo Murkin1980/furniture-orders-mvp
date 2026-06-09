@@ -1,5 +1,16 @@
 # Furniture Orders MVP
 
+Visual roadmap and current readiness: [`PROJECT_PROGRESS.md`](PROJECT_PROGRESS.md).
+
+## Twenty CRM integration
+
+Twenty CRM is planned as a separate optional CRM service. `furniture-orders-mvp` remains the source of truth for lead intake and furniture-specific workflows.
+
+- CRM Slice 1: architecture and safety decision in `CRM_INTEGRATION_DECISION.md`.
+- CRM Slice 2: pure person, opportunity, note, and sync payload mapping in `src/crm/twenty-mapper.js`.
+
+The mapper performs no network calls. Manual sync endpoint, UI, migrations, credentials, and production integration are not implemented yet.
+
 Минимальный backend + тестовый frontend для приёма заявок мебельной мастерской. Проект сделан под Cloudflare Pages Functions и D1: сайт отдаёт форму, Function принимает заявку, сохраняет клиента и заказ, а затем при наличии переменных окружения отправляет уведомление менеджеру в Telegram.
 
 Проект сейчас закрывает Этап 1, Этап 2, рабочий проход Этапа 3 и подэтап 4.01:
@@ -330,8 +341,8 @@ canceled
 - Для выбранного provider нужен соответствующий key: `OPENAI_API_KEY`, `GROQ_API_KEY`, `GEMINI_API_KEY`, `OPENROUTER_API_KEY` или `NVIDIA_API_KEY`.
 - Parser принимает только структурированный JSON-контракт и безопасно возвращает default result при неправильном ответе.
 - При missing key, authorization error, rate limit, provider error или invalid response заказ остаётся целым, а результат сохраняется с `ai_status=failed` и `ai_error`.
-- Локальные smoke tests подтвердили ручной endpoint и безопасные failure paths для authorization error и HTTP 429.
-- Successful provider path ещё не подтверждён: текущий OpenAI project key дошёл до provider, но получил HTTP 429 из-за quota/rate limit.
+- Локальные smoke tests подтвердили ручной endpoint, безопасные failure paths для authorization error/HTTP 429 и successful OpenAI path.
+- Successful OpenAI smoke test вернул `ai_status=success`, score `75`, temperature `warm`, заполненные summary/next question, валидный missing-info JSON и пустой `ai_error`.
 - Production AI пока не включён; migration `0011` не применялась к production D1.
 - Полная настройка и команды проверки находятся в `AI_SETUP.md`.
 

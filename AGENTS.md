@@ -28,17 +28,14 @@ Before making changes, read these files:
 
 ```text
 PRODUCT.md
+DESIGN.md
 SESSION_NOTES.md
+DATA_SOURCES.md
 LIVE_SITES.md
 CALCULATOR_DECISION.md
 AI_LAYER_DECISION.md
+AI_INFRA_DECISION.md
 OPS_AND_LEGACY_DECISION.md
-```
-
-When the task touches UI/UX, also read or create/update:
-
-```text
-DESIGN.md
 ```
 
 ## Work style
@@ -118,6 +115,7 @@ Do not merge it into this platform until there is a clear product reason.
 ## Coding rules
 
 - Keep changes small and reviewable.
+- Use the local CodeGraph index for impact analysis before touching core JavaScript logic.
 - Prefer pure functions and tests for business logic.
 - Do not add dependencies without explaining why.
 - Do not change deployment settings unless the task is specifically about deployment.
@@ -129,6 +127,16 @@ Do not merge it into this platform until there is a clear product reason.
 ## Documentation rules
 
 When you make meaningful changes, update `SESSION_NOTES.md`.
+
+Keep `PROJECT_PROGRESS.md` synchronized after every completed stage or slice. Perform a broader progress review, recalculate estimates, and add a checkpoint-history entry after every 5 completed slices.
+
+Use `knowledge/` for reviewed project/business facts and `skills/` for repeatable workflows. Do not add unverified prices, legal terms, client personal data, or generated claims to either folder.
+
+Local AI infrastructure is documented in `AI_INFRA_DECISION.md`. Keep `.codegraph/`, `.tools/`, temporary conversion output, secrets, and client source documents out of Git.
+
+Do not use `docs/raw/` directly in application logic. Convert, review, and record approved source material before using it as project knowledge.
+
+Do not add hosted memory, context compression, production migrations, or automatic AI analysis unless the task explicitly requests it.
 
 Use this format:
 

@@ -442,3 +442,106 @@ Conclusion:
 
 ### Next
 - Implement CRM Slice 2 as a pure `src/crm/twenty-mapper.js` module with focused tests only after explicit approval.
+
+## 2026-06-09 - Twenty CRM pure mapper
+
+### What changed
+- Added a pure Twenty CRM mapper for person, opportunity, manager note, and combined sync payloads.
+- Added snake_case/camelCase aliases, safe `raw_payload` parsing, calculator metadata extraction, readable AI note formatting, and payload cleanup without input mutation.
+- Added focused mapper tests and included the new module in the existing syntax-check command.
+- No fetch, API client, endpoint, UI, migration, deploy, production setting, dependency, credential, or donor repository was changed.
+
+### Files changed
+- `src/crm/twenty-mapper.js`
+- `tests/twenty-mapper.test.js`
+- `package.json`
+- `README.md`
+- `SESSION_NOTES.md`
+- `docs/sessions/furniture-crm-slice2-implementation-summary.md`
+
+### Checks
+- `node --test tests/twenty-mapper.test.js` - 13 tests passed.
+- `npm.cmd test` - 150 tests passed.
+- `npm.cmd run check` - passed.
+- `git diff --check` - passed.
+
+### Next
+- CRM Slice 3: create a pure Twenty request builder without `fetch` or external API calls.
+
+## 2026-06-09 - Visual project progress dashboard
+
+### What changed
+- Added `PROJECT_PROGRESS.md` as the canonical visual tracker for commercial readiness, AI-assisted readiness, and the complete vision through SketchUp and 3D rendering.
+- Added workstream progress bars, dependency map, delivery sequence, detailed CRM progress, and checkpoint history.
+- Added a rule to update the dashboard after every completed slice and perform a broader review every 5 completed slices.
+- No application code, UI, endpoint, migration, dependency, deploy, or production setting was changed.
+
+### Files changed
+- `PROJECT_PROGRESS.md`
+- `AGENTS.md`
+- `README.md`
+- `SESSION_NOTES.md`
+
+### Checks
+- `git diff --check` - passed.
+
+### Next
+- Keep the dashboard current while completing CRM Slice 3 and record the next broader checkpoint after 5 completed slices.
+
+## 2026-06-09 - Landings and calculators focus handoff
+
+### What changed
+- Recorded the current progress and changed the immediate product focus to completing landings and calculators for paid landing-page orders.
+- Defined the commercial end-to-end completion flow from customer brief through calculator embed, live publication, and verified lead intake.
+- Paused CRM Slice 3, new AI work, OCR, SketchUp MCP, and 3D rendering until this focused workstream is complete.
+- No application code, UI, endpoint, migration, deploy, production setting, or dependency was changed.
+
+### Files changed
+- `docs/sessions/furniture-landings-calculators-wip-handoff.md`
+- `PROJECT_PROGRESS.md`
+- `SESSION_NOTES.md`
+
+### Checks
+- `git diff --check` - passed.
+
+### Next
+- Start LC Slice 1: audit only landing/calculator code, UI, tests, and operational gaps, then define the smallest completion backlog.
+
+## 2026-06-09 - External editor landing brief task prepared
+
+### What changed
+- Added a self-contained external-editor task for the first safe landing completion slice.
+- Scoped parallel work to a pure structured landing brief module and tests, without UI, persistence, endpoints, migrations, deploy, CRM, or AI changes.
+- Included exact contracts, tests, restrictions, checks, and review handoff requirements.
+
+### Files changed
+- `docs/sessions/external-editor-landings-calculators-task.md`
+- `SESSION_NOTES.md`
+
+### Checks
+- `git diff --check` - passed.
+
+### Next
+- Give the instruction file to the external editor, then review its resulting diff before integrating it.
+
+## 2026-06-09 - External runtime archive review
+
+### What changed
+- Inventoried and ordered the cumulative external-editor archive chain through Phase 6.
+- Reviewed the final cumulative Phase 6 source, tests, runtime security boundaries, persistence behavior, and embedded Git state.
+- Confirmed the package is a separate Node/JSON runtime donor branch and must not overwrite the current Cloudflare/D1 application.
+- Recorded critical security findings and a selective-port recommendation.
+- No archive code was merged and no application, UI, endpoint, migration, deploy, dependency, or production setting was changed.
+
+### Files changed
+- `docs/sessions/external-runtime-archives-code-review.md`
+- `SESSION_NOTES.md`
+
+### Checks
+- External Phase 6 `npm.cmd test` - 227 tests passed.
+- External Phase 6 `npm.cmd run check` - passed.
+- External Phase 6 `git diff --check` - passed.
+- Main repository `git diff --check` - passed.
+
+### Next
+- Keep Phase 6 as a donor archive and selectively port only reviewed landing/calculator pure modules into the main repository.
