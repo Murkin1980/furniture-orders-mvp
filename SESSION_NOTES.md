@@ -545,3 +545,24 @@ Conclusion:
 
 ### Next
 - Keep Phase 6 as a donor archive and selectively port only reviewed landing/calculator pure modules into the main repository.
+
+## 2026-06-10 - Repository update and Cloudflare deployment
+
+### What changed
+- Committed and pushed the Twenty CRM pure mapper, project knowledge base, progress dashboard, architecture documents, and external runtime archive review.
+- Added `*.zip` to `.gitignore` so donor archives cannot be committed accidentally.
+- Deployed the current application to Cloudflare Pages.
+- Kept external instructions and unfinished handoff files local and uncommitted.
+
+### Checks
+- `npm.cmd test` - 150 tests passed.
+- `npm.cmd run check` - passed.
+- `git diff --check` - passed.
+- Cloudflare deployment URL returned HTTP 200.
+
+### Deployment
+- GitHub commit: `615af80`
+- Cloudflare Pages: `https://d881f37e.furniture-orders-mvp.pages.dev`
+
+### Next
+- Continue the landing and calculator completion plan using reviewed donor modules only.
