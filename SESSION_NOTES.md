@@ -323,7 +323,7 @@ Conclusion:
 
 ### What changed
 - Updated `README.md` with the implemented manual-only AI flow, endpoint, source modules, tests, supported providers, environment variables, and migration `0011`.
-- Documented verified safe failure behavior and the current pending successful smoke test blocked by OpenAI HTTP 429 quota/rate limit.
+- Documented verified safe failure behavior and the successful local OpenAI smoke test.
 - Clarified that production AI, production migration `0011`, and AI autorun remain disabled.
 - Corrected `AI_SETUP.md` so manual AI smoke tests use configured local D1 `furniture_orders` without the `--d1 DB` override.
 
@@ -339,7 +339,29 @@ Conclusion:
 - `git diff --check` - passed.
 
 ### Next
-- Restore OpenAI project quota or billing, then repeat one local manual AI analysis and confirm the first stable `ai_status=success` result before any production enablement.
+- Decide explicitly whether to apply migration `0011` and configure AI secrets in production; keep AI autorun disabled until a separate approved stage.
+
+## 2026-06-09 - Successful local OpenAI smoke test
+
+### What changed
+- Added API credits and ran one local manual AI analysis against configured D1 `furniture_orders`.
+- Confirmed `POST /api/orders/1/ai/analyze` returns `200 OK` with `ai_status=success`.
+- Confirmed score `75`, temperature `warm`, populated summary and next question, valid missing-info JSON, and empty `ai_error`.
+- Updated README AI status from pending HTTP 429 to a confirmed successful provider path.
+- Production, production migration `0011`, AI autorun, endpoint logic, and application code were not changed.
+
+### Files changed
+- `README.md`
+- `SESSION_NOTES.md`
+- `docs/sessions/ai-success-smoke-wip-handoff.md`
+
+### Checks
+- One manual OpenAI request completed successfully; no retry was needed.
+- Local Wrangler server was stopped after the test.
+- `git diff --check` - passed.
+
+### Next
+- Decide explicitly whether to apply migration `0011` and configure AI secrets in production; keep AI autorun disabled until a separate approved stage.
 
 ## 2026-06-08 - AI infrastructure stage 1
 
@@ -400,3 +422,23 @@ Conclusion:
 
 ### Next
 - Select the first authorized, privacy-reviewed business source and record it as `raw` before conversion.
+
+## 2026-06-09 - Twenty CRM integration decision
+
+### What changed
+- Added the future Twenty CRM integration decision.
+- Confirmed that Twenty CRM will remain a separate, optional service while `furniture-orders-mvp` remains the source of truth for lead intake and furniture-specific workflows.
+- Defined one-way manual sync as the first integration mode and a pure Twenty mapper as the first technical step.
+- No code, UI, endpoint, migration, deploy, production setting, dependency, or donor repository was changed.
+
+### Files changed
+- `CRM_INTEGRATION_DECISION.md`
+- `SESSION_NOTES.md`
+
+### Checks
+- `npm.cmd test` - 137 tests passed.
+- `npm.cmd run check` - passed.
+- `git diff --check` - passed.
+
+### Next
+- Implement CRM Slice 2 as a pure `src/crm/twenty-mapper.js` module with focused tests only after explicit approval.
