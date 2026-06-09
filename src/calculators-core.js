@@ -1156,6 +1156,16 @@ function validateFields(fields) {
     if (field.minValue !== null && field.maxValue !== null && field.minValue > field.maxValue) {
       errors.push({ field: `fields.${index}.minValue`, message: "Field minValue cannot be greater than maxValue." });
     }
+
+    if (field.binding === "units" && field.fieldType !== "number") {
+      errors.push({ field: `fields.${index}.fieldType`, message: "Units binding must use number field type." });
+    }
+    if (["categoryCode", "materialRuleCode"].includes(field.binding) && field.fieldType !== "select") {
+      errors.push({ field: `fields.${index}.fieldType`, message: "Category and material bindings must use select field type." });
+    }
+    if (field.binding === "phone" && field.fieldType !== "tel") {
+      errors.push({ field: `fields.${index}.fieldType`, message: "Phone binding must use tel field type." });
+    }
   }
 
   return errors;

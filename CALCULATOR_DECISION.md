@@ -17,6 +17,7 @@ The calculator inside the main platform is the current primary implementation.
 - It stores calculator leads as normal orders.
 - It has draft/published pricing and rules.
 - It has schema-driven calculator fields.
+- Its admin editor now manages the safe field schema, and the published embed honors active/required fields on desktop and mobile.
 - It is part of the main platform architecture, not a separate one-off prototype.
 
 ## Keep as donor module
@@ -57,3 +58,10 @@ furniture-orders-mvp/tests/*calculator*
 ```
 
 Visual configurator ideas may be ported from `furniture-configurator` later, but the source of truth stays in `furniture-orders-mvp`.
+
+## LC Slice 5 completion
+
+- The existing safe field types, roles, bindings, and option sources remain hardcoded contracts.
+- Admin users can edit labels, allowed types/roles/bindings, required flags, and active flags.
+- Publish continues to copy draft prices, rules, and fields into the published runtime.
+- The embed widget uses the published schema and remains free of arbitrary formulas or user-defined code.

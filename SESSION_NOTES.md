@@ -566,3 +566,32 @@ Conclusion:
 
 ### Next
 - Continue the landing and calculator completion plan using reviewed donor modules only.
+
+## 2026-06-10 - LC Slices 1-5 landing and calculator completion
+
+### What changed
+- Completed the commercial workflow audit, structured landing content model, allowlisted template library, admin landing editor/exact preview, and calculator field schema editor.
+- Landing artifacts now render structured business content and can include a selected published calculator.
+- Calculator embed now honors published active/required fields and includes mobile controls.
+- Repaired mojibake in the main admin HTML/JS interface.
+- Added migration `0012_site_content.sql`; production migration and deploy were not performed.
+
+### Files changed
+- `src/site-brief.js`, `src/site-templates.js`, `src/sites-core.js`, `src/calculators-core.js`
+- `functions/api/sites/[id].js`, `functions/api/calculators/[id]/embed.js`
+- `public/admin.html`, `public/admin.js`
+- `migrations/0012_site_content.sql`
+- `tests/site-brief.test.js`, `tests/sites-core.test.js`, `tests/calculator-embed.test.js`
+- `README.md`, `CALCULATOR_DECISION.md`, `PROJECT_PROGRESS.md`
+- `docs/sessions/furniture-lc-slice1-audit.md`
+- `docs/sessions/furniture-lc-slices1-5-implementation-summary.md`
+
+### Checks
+- `npm.cmd test` - 156 tests passed.
+- `npm.cmd run check` - passed.
+- `git diff --check` - passed.
+- Browser desktop/mobile commercial flow - passed.
+- Local default D1 migration apply exposed an existing migration-history replay problem at `0002`; isolated clean local D1 QA passed.
+
+### Next
+- LC Slice 6: prepare and apply the production-safe `0012` migration, then verify VPS/domain/SSL/live publishing.

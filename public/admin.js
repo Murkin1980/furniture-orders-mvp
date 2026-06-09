@@ -1,4 +1,4 @@
-﻿    const statuses = ["new", "in_review", "quoted", "in_production", "completed", "canceled"];
+    const statuses = ["new", "in_review", "quoted", "in_production", "completed", "canceled"];
     import { getOrderAiViewModel } from "./admin-orders.js";
 
     const stepStatuses = ["pending", "done", "skipped"];
@@ -23,6 +23,8 @@
     const siteForm = document.querySelector("#site-form");
     const siteList = document.querySelector("#site-list");
     const siteOutput = document.querySelector("#site-output");
+    const sitePreview = document.querySelector("#site-preview");
+    const siteResetButton = document.querySelector("#site-reset");
     const refreshSitesButton = document.querySelector("#refresh-sites");
     const vpsDeployForm = document.querySelector("#vps-deploy-form");
     const vpsOutput = document.querySelector("#vps-output");
@@ -33,12 +35,13 @@
     let activeOrderId = null;
     let activeCalculator = null;
     let activePricing = null;
+    let activeSite = null;
 
     tokenInput.value = localStorage.getItem("furnitureAdminToken") || "";
 
     document.querySelector("#save-token").addEventListener("click", () => {
       localStorage.setItem("furnitureAdminToken", tokenInput.value.trim());
-      setMessage("РўРѕРєРµРЅ СЃРѕС…СЂР°РЅС‘РЅ.", "ok");
+      setMessage("Токен сохранён.", "ok");
       loadOrders();
       loadCalculators();
     });
@@ -50,6 +53,7 @@
     portfolioForm.addEventListener("submit", createPortfolioItem);
     refreshSitesButton.addEventListener("click", loadSites);
     siteForm.addEventListener("submit", createSite);
+    siteResetButton.addEventListener("click", resetSiteForm);
     vpsHealthButton.addEventListener("click", loadVpsHealth);
     vpsServicesButton.addEventListener("click", loadVpsServices);
     vpsReloadButton.addEventListener("click", reloadVpsWebserver);
@@ -65,12 +69,12 @@
     async function loadOrders() {
       const token = getToken();
       if (!token) {
-        renderEmpty("Р’РІРµРґРёС‚Рµ admin token.");
+        renderEmpty("Введите admin token.");
         return;
       }
 
       refreshButton.disabled = true;
-      setMessage("Р—Р°РіСЂСѓР·РєР° Р·Р°РєР°Р·РѕРІ...");
+      setMessage("Загрузка заказов...");
 
       try {
         const params = new URLSearchParams();
@@ -79,11 +83,11 @@
         }
 
         const json = await adminFetchJson(`/api/orders${params.toString() ? `?${params}` : ""}`, {
-          fallbackMessage: "РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ Р·Р°РєР°Р·С‹."
+          fallbackMessage: "Не удалось загрузить заказы."
         });
 
         renderOrders(json.items || []);
-        setMessage(`Р—Р°РєР°Р·РѕРІ: ${(json.items || []).length}`, "ok");
+        setMessage(`Заказов: ${(json.items || []).length}`, "ok");
       } catch (error) {
         renderEmpty(error.message);
         setMessage(error.message, "bad");
@@ -94,7 +98,7 @@
 
     function renderOrders(items) {
       if (!items.length) {
-        renderEmpty("Р—Р°РєР°Р·РѕРІ РЅРµС‚.");
+        renderEmpty("Заказов нет.");
         return;
       }
 
@@ -116,9 +120,9 @@
               <select name="status">
                 ${statuses.map((status) => `<option value="${status}" ${status === item.status ? "selected" : ""}>${status}</option>`).join("")}
               </select>
-              <textarea name="notes" placeholder="Р—Р°РјРµС‚РєР° РјРµРЅРµРґР¶РµСЂР°">${escapeHtml(item.notes || "")}</textarea>
-              <button type="submit">РћР±РЅРѕРІРёС‚СЊ</button>
-              <button class="secondary" type="button" data-project-id="${escapeHtml(item.id)}">РћС‚РєСЂС‹С‚СЊ РїСЂРѕРµРєС‚</button>
+              <textarea name="notes" placeholder="Заметка менеджера">${escapeHtml(item.notes || "")}</textarea>
+              <button type="submit">Обновить</button>
+              <button class="secondary" type="button" data-project-id="${escapeHtml(item.id)}">Открыть проект</button>
               <button class="secondary" type="button" data-ai-order-id="${escapeHtml(item.id)}">${escapeHtml(getOrderAiViewModel(item).buttonLabel)}</button>
             </form>
           </td>
@@ -184,7 +188,7 @@
       const token = getToken();
 
       if (!token) {
-        setMessage("Р’РІРµРґРёС‚Рµ admin token.", "bad");
+        setMessage("Введите admin token.", "bad");
         return;
       }
 
@@ -198,10 +202,10 @@
             status: form.elements.status.value,
             notes: form.elements.notes.value
           },
-          fallbackMessage: "РЎС‚Р°С‚СѓСЃ РЅРµ РѕР±РЅРѕРІР»С‘РЅ."
+          fallbackMessage: "Статус не обновлён."
         });
 
-        setMessage(`Р—Р°РєР°Р· #${json.item.id} РѕР±РЅРѕРІР»С‘РЅ.`, "ok");
+        setMessage(`Заказ #${json.item.id} обновлён.`, "ok");
         if (json.projectSteps?.length) {
           activeOrderId = json.item.id;
           renderSteps(activeOrderId, json.projectSteps);
@@ -217,25 +221,25 @@
     async function openProject(orderId) {
       const token = getToken();
       if (!token) {
-        setMessage("Р’РІРµРґРёС‚Рµ admin token.", "bad");
+        setMessage("Введите admin token.", "bad");
         return;
       }
 
       activeOrderId = orderId;
-      projectTitle.textContent = `РЁР°РіРё Р·Р°РєР°Р·Р° #${orderId}`;
+      projectTitle.textContent = `Шаги заказа #${orderId}`;
       projectProgress.textContent = "";
-      projectSteps.innerHTML = '<div class="muted">Р—Р°РіСЂСѓР·РєР° С€Р°РіРѕРІ...</div>';
+      projectSteps.innerHTML = '<div class="muted">Загрузка шагов...</div>';
 
       try {
         let json = await adminFetchJson(`/api/order-steps?orderId=${orderId}`, {
-          fallbackMessage: "РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ С€Р°РіРё."
+          fallbackMessage: "Не удалось загрузить шаги."
         });
 
         if (!json.items.length) {
           json = await adminFetchJson("/api/orders/project/init", {
             method: "POST",
             payload: { orderId },
-            fallbackMessage: "РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕР·РґР°С‚СЊ С€Р°РіРё."
+            fallbackMessage: "Не удалось создать шаги."
           });
         }
 
@@ -248,11 +252,11 @@
 
     function renderSteps(orderId, items) {
       const doneCount = items.filter((item) => item.status === "done").length;
-      projectTitle.textContent = `РЁР°РіРё Р·Р°РєР°Р·Р° #${orderId}`;
-      projectProgress.textContent = `${doneCount}/${items.length} РІС‹РїРѕР»РЅРµРЅРѕ`;
+      projectTitle.textContent = `Шаги заказа #${orderId}`;
+      projectProgress.textContent = `${doneCount}/${items.length} выполнено`;
 
       if (!items.length) {
-        projectSteps.innerHTML = '<div class="muted">РЁР°РіРё РµС‰С‘ РЅРµ СЃРѕР·РґР°РЅС‹.</div>';
+        projectSteps.innerHTML = '<div class="muted">Шаги ещё не созданы.</div>';
         return;
       }
 
@@ -265,8 +269,8 @@
           <select name="status">
             ${stepStatuses.map((status) => `<option value="${status}" ${status === item.status ? "selected" : ""}>${status}</option>`).join("")}
           </select>
-          <textarea name="notes" placeholder="Р—Р°РјРµС‚РєР° РїРѕ С€Р°РіСѓ">${escapeHtml(item.notes || "")}</textarea>
-          <button type="submit">РЎРѕС…СЂР°РЅРёС‚СЊ</button>
+          <textarea name="notes" placeholder="Заметка по шагу">${escapeHtml(item.notes || "")}</textarea>
+          <button type="submit">Сохранить</button>
         </form>
       `).join("");
 
@@ -292,10 +296,10 @@
             notes: form.elements.notes.value,
             completedBy: "manager"
           },
-          fallbackMessage: "РЁР°Рі РЅРµ РѕР±РЅРѕРІР»С‘РЅ."
+          fallbackMessage: "Шаг не обновлён."
         });
 
-        setMessage(`РЁР°Рі "${json.item.title}" РѕР±РЅРѕРІР»С‘РЅ.`, "ok");
+        setMessage(`Шаг "${json.item.title}" обновлён.`, "ok");
         await openProject(Number(form.dataset.orderId));
       } catch (error) {
         setMessage(error.message, "bad");
@@ -326,7 +330,7 @@
     async function createDefaultCalculator() {
       const token = getToken();
       if (!token) {
-        setMessage("Р’РІРµРґРёС‚Рµ admin token.", "bad");
+        setMessage("Введите admin token.", "bad");
         return;
       }
 
@@ -356,6 +360,13 @@
     }
 
     function renderCalculators(items) {
+      const siteCalculatorSelect = siteForm.elements.calculatorId;
+      const selectedCalculatorId = siteCalculatorSelect.value;
+      siteCalculatorSelect.innerHTML = `<option value="">No calculator</option>${items.map((item) =>
+        `<option value="${escapeHtml(item.id)}">${escapeHtml(item.title)}</option>`
+      ).join("")}`;
+      siteCalculatorSelect.value = selectedCalculatorId;
+
       if (!items.length) {
         calculatorList.innerHTML = '<div class="muted">No calculators yet.</div>';
         return;
@@ -364,7 +375,7 @@
       calculatorList.innerHTML = items.map((item) => `
         <div class="calculator-item">
           <strong>#${escapeHtml(item.id)} ${escapeHtml(item.title)}</strong>
-          <span class="muted">${escapeHtml(item.ownerName || "")} В· ${item.isEnabled ? "enabled" : "disabled"}</span>
+          <span class="muted">${escapeHtml(item.ownerName || "")} · ${item.isEnabled ? "enabled" : "disabled"}</span>
           <div class="calculator-actions">
             <button type="button" data-calculator-open="${escapeHtml(item.id)}">Preview</button>
             <button class="secondary" type="button" data-calculator-publish="${escapeHtml(item.id)}">Publish/embed</button>
@@ -383,7 +394,7 @@
     async function openCalculator(calculatorId) {
       const token = getToken();
       if (!token) {
-        setMessage("Р’РІРµРґРёС‚Рµ admin token.", "bad");
+        setMessage("Введите admin token.", "bad");
         return;
       }
 
@@ -406,7 +417,7 @@
     async function publishCalculator(calculatorId) {
       const token = getToken();
       if (!token) {
-        setMessage("Р’РІРµРґРёС‚Рµ admin token.", "bad");
+        setMessage("Введите admin token.", "bad");
         return;
       }
 
@@ -439,7 +450,7 @@
           <label>
             Category
             <select>
-              ${(calculator.categories || []).map((category) => `<option>${escapeHtml(category.name)} В· ${formatMoney(category.basePrice + category.unitPrice * Math.max(category.minUnits, 1))}</option>`).join("")}
+              ${(calculator.categories || []).map((category) => `<option>${escapeHtml(category.name)} · ${formatMoney(category.basePrice + category.unitPrice * Math.max(category.minUnits, 1))}</option>`).join("")}
             </select>
           </label>
           <label>
@@ -470,6 +481,7 @@
     function renderPricingEditor(pricing) {
       const prices = pricing.draft?.prices || [];
       const rules = pricing.draft?.rules || [];
+      const fields = pricing.draft?.fields || [];
       const firstPrice = prices[0];
       const materialRule = rules.find((rule) => rule.ruleType === "multiplier") || rules[0];
 
@@ -516,6 +528,33 @@
               </div>
             `).join("")}
           </div>
+          <div>
+            <strong>Published form fields</strong>
+            ${fields.map((field) => `
+              <div class="field-row" data-field-code="${escapeHtml(field.fieldCode)}">
+                <label>Label
+                  <input name="label" value="${escapeHtml(field.label)}" />
+                </label>
+                <label>Type
+                  <select name="fieldType">
+                    ${["select", "number", "text", "tel", "textarea"].map((type) => `<option value="${type}" ${type === field.fieldType ? "selected" : ""}>${type}</option>`).join("")}
+                  </select>
+                </label>
+                <label>Role
+                  <select name="role">
+                    ${["pricing_input", "lead_input", "display_only"].map((role) => `<option value="${role}" ${role === field.role ? "selected" : ""}>${role}</option>`).join("")}
+                  </select>
+                </label>
+                <label>Binding
+                  <select name="binding">
+                    ${["categoryCode", "units", "materialRuleCode", "name", "phone", "city", "comment"].map((binding) => `<option value="${binding}" ${binding === field.binding ? "selected" : ""}>${binding}</option>`).join("")}
+                  </select>
+                </label>
+                <label class="checkbox-label"><input name="isRequired" type="checkbox" ${field.isRequired ? "checked" : ""} />Required</label>
+                <label class="checkbox-label"><input name="isActive" type="checkbox" ${field.isActive !== 0 ? "checked" : ""} />Active</label>
+              </div>
+            `).join("")}
+          </div>
           <div class="pricing-row">
             <label>Preview category
               <select name="previewCategory">
@@ -551,6 +590,7 @@
     function collectPricingPayload() {
       const priceRows = [...pricingEditor.querySelectorAll("[data-price-code]")];
       const ruleRows = [...pricingEditor.querySelectorAll("[data-rule-code]")];
+      const fieldRows = [...pricingEditor.querySelectorAll("[data-field-code]")];
 
       return {
         prices: priceRows.map((row, index) => ({
@@ -569,7 +609,24 @@
           value: Number(row.querySelector('[name="value"]').value),
           sortOrder: activePricing.draft.rules[index]?.sortOrder || (index + 1) * 10
         })),
-        fields: activePricing.fields || []
+        fields: fieldRows.map((row, index) => {
+          const previous = activePricing.draft.fields[index] || {};
+          const binding = row.querySelector('[name="binding"]').value;
+          return {
+            fieldCode: row.dataset.fieldCode,
+            label: row.querySelector('[name="label"]').value,
+            fieldType: row.querySelector('[name="fieldType"]').value,
+            role: row.querySelector('[name="role"]').value,
+            binding,
+            optionsSource: binding === "categoryCode" ? "prices" : binding === "materialRuleCode" ? "multiplier_rules" : null,
+            defaultValue: previous.defaultValue || "",
+            minValue: previous.minValue,
+            maxValue: previous.maxValue,
+            sortOrder: previous.sortOrder || (index + 1) * 10,
+            isRequired: row.querySelector('[name="isRequired"]').checked,
+            isActive: row.querySelector('[name="isActive"]').checked
+          };
+        })
       };
     }
 
@@ -642,7 +699,7 @@
       event.preventDefault();
       const token = getToken();
       if (!token) {
-        setMessage("Р вЂ™Р Р†Р ВµР Т‘Р С‘РЎвЂљР Вµ admin token.", "bad");
+        setMessage("Введите admin token.", "bad");
         return;
       }
 
@@ -700,7 +757,7 @@
           <div class="portfolio-item">
             ${image ? `<img class="portfolio-thumb" src="${escapeHtml(image.imageUrl)}" alt="${escapeHtml(image.altText || item.title)}" loading="lazy" />` : ""}
             <strong>#${escapeHtml(item.id)} ${escapeHtml(item.title)}</strong>
-            <span class="muted">${escapeHtml(item.categoryName || item.categoryCode)} Р’В· ${escapeHtml(item.status)} Р’В· ${(item.images || []).length} photos</span>
+            <span class="muted">${escapeHtml(item.categoryName || item.categoryCode)} · ${escapeHtml(item.status)} · ${(item.images || []).length} photos</span>
             <span class="muted">${escapeHtml(item.description || "")}</span>
             <div class="portfolio-actions">
               <button type="button" data-portfolio-publish="${escapeHtml(item.id)}">${item.status === "published" ? "Unpublish" : "Publish"}</button>
@@ -813,7 +870,7 @@
       event.preventDefault();
       const token = getToken();
       if (!token) {
-        setMessage("Р вЂ™Р Р†Р ВµР Т‘Р С‘РЎвЂљР Вµ admin token.", "bad");
+        setMessage("Введите admin token.", "bad");
         return;
       }
 
@@ -821,22 +878,25 @@
       button.disabled = true;
 
       try {
-        const json = await adminFetchJson("/api/sites", {
-          method: "POST",
+        const siteId = Number(siteForm.elements.siteId.value) || null;
+        const json = await adminFetchJson(siteId ? `/api/sites/${siteId}` : "/api/sites", {
+          method: siteId ? "PUT" : "POST",
           payload: {
             name: siteForm.elements.name.value,
             slug: siteForm.elements.slug.value,
             ownerName: siteForm.elements.ownerName.value,
             domain: siteForm.elements.domain.value,
-            templateKey: siteForm.elements.templateKey.value
+            templateKey: siteForm.elements.templateKey.value,
+            brief: collectSiteBrief()
           },
-          fallbackMessage: "Site was not created."
+          fallbackMessage: siteId ? "Site was not updated." : "Site was not created."
         });
 
-        setMessage(`Site #${json.item.id} created.`, "ok");
-        siteForm.elements.slug.value = "";
+        activeSite = json.item;
+        setMessage(`Site #${json.item.id} ${siteId ? "updated" : "created"}.`, "ok");
+        fillSiteForm(json.item);
         await loadSites();
-        await loadSiteStatus(json.item.id);
+        previewSite(json.item.id);
       } catch (error) {
         setMessage(error.message, "bad");
       } finally {
@@ -853,22 +913,100 @@
       siteList.innerHTML = items.map((item) => `
         <div class="site-item">
           <strong>#${escapeHtml(item.id)} ${escapeHtml(item.name)}</strong>
-          <span class="muted">${escapeHtml(item.slug)} Р’В· ${escapeHtml(item.status)} Р’В· SSL ${escapeHtml(item.sslStatus || "unknown")}</span>
+          <span class="muted">${escapeHtml(item.slug)} · ${escapeHtml(item.status)} · SSL ${escapeHtml(item.sslStatus || "unknown")}</span>
           <span class="muted">${escapeHtml(item.domain || "No domain")}</span>
           <div class="site-actions">
-            <button type="button" data-site-status="${escapeHtml(item.id)}">Status</button>
+            <button type="button" data-site-edit="${escapeHtml(item.id)}">Edit</button>
+            <button class="secondary" type="button" data-site-preview="${escapeHtml(item.id)}">Preview</button>
+            <button class="secondary" type="button" data-site-status="${escapeHtml(item.id)}">Status</button>
             <button class="secondary" type="button" data-site-deploy="${escapeHtml(item.id)}">Publish live</button>
             ${item.domain ? `<a href="https://${escapeHtml(item.domain)}" target="_blank" rel="noreferrer">Open</a>` : ""}
           </div>
         </div>
       `).join("");
 
+      for (const button of siteList.querySelectorAll("[data-site-edit]")) {
+        button.addEventListener("click", () => editSite(Number(button.dataset.siteEdit)));
+      }
+      for (const button of siteList.querySelectorAll("[data-site-preview]")) {
+        button.addEventListener("click", () => previewSite(Number(button.dataset.sitePreview)));
+      }
       for (const button of siteList.querySelectorAll("[data-site-status]")) {
         button.addEventListener("click", () => loadSiteStatus(Number(button.dataset.siteStatus)));
       }
       for (const button of siteList.querySelectorAll("[data-site-deploy]")) {
         button.addEventListener("click", () => deploySite(Number(button.dataset.siteDeploy)));
       }
+    }
+
+    function collectSiteBrief() {
+      return {
+        businessName: siteForm.elements.businessName.value,
+        ownerName: siteForm.elements.ownerName.value,
+        phone: siteForm.elements.phone.value,
+        whatsapp: siteForm.elements.whatsapp.value,
+        city: siteForm.elements.city.value,
+        primaryOffer: siteForm.elements.primaryOffer.value,
+        audience: siteForm.elements.audience.value,
+        furnitureTypes: lines(siteForm.elements.furnitureTypes.value),
+        advantages: lines(siteForm.elements.advantages.value),
+        sections: ["services", "advantages", "contacts"],
+        accentColor: siteForm.elements.accentColor.value,
+        ctaLabel: siteForm.elements.ctaLabel.value,
+        portfolioRequired: siteForm.elements.portfolioRequired.checked,
+        calculatorRequired: siteForm.elements.calculatorRequired.checked,
+        calculatorId: Number(siteForm.elements.calculatorId.value) || null,
+        notes: siteForm.elements.notes.value
+      };
+    }
+
+    async function editSite(siteId) {
+      try {
+        const json = await adminFetchJson(`/api/sites/${siteId}`, { fallbackMessage: "Site was not loaded." });
+        activeSite = json.item;
+        fillSiteForm(json.item);
+        previewSite(siteId);
+        siteForm.scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (error) {
+        setMessage(error.message, "bad");
+      }
+    }
+
+    function fillSiteForm(site) {
+      const brief = site.brief || {};
+      siteForm.elements.siteId.value = site.id || "";
+      siteForm.elements.name.value = site.name || "";
+      siteForm.elements.slug.value = site.slug || "";
+      siteForm.elements.ownerName.value = site.ownerName || "";
+      siteForm.elements.domain.value = site.domains?.find((item) => item.isPrimary)?.domain || "";
+      siteForm.elements.templateKey.value = site.templateKey || "default-furniture";
+      for (const field of ["businessName", "city", "phone", "whatsapp", "primaryOffer", "audience", "accentColor", "ctaLabel", "notes"]) {
+        siteForm.elements[field].value = brief[field] || (field === "accentColor" ? "#116466" : "");
+      }
+      siteForm.elements.furnitureTypes.value = (brief.furnitureTypes || []).join("\n");
+      siteForm.elements.advantages.value = (brief.advantages || []).join("\n");
+      siteForm.elements.portfolioRequired.checked = brief.portfolioRequired !== false;
+      siteForm.elements.calculatorRequired.checked = Boolean(brief.calculatorRequired);
+      siteForm.elements.calculatorId.value = brief.calculatorId || "";
+      document.querySelector("#site-save").textContent = "Save site";
+    }
+
+    function resetSiteForm() {
+      activeSite = null;
+      siteForm.reset();
+      siteForm.elements.siteId.value = "";
+      siteForm.elements.accentColor.value = "#116466";
+      document.querySelector("#site-save").textContent = "Create site";
+      sitePreview.removeAttribute("src");
+    }
+
+    function previewSite(siteId) {
+      sitePreview.src = `/api/sites/${siteId}/artifact?preview=${Date.now()}`;
+      siteOutput.textContent = `Exact artifact preview for site #${siteId}`;
+    }
+
+    function lines(value) {
+      return String(value || "").split(/\r?\n/).map((item) => item.trim()).filter(Boolean);
     }
 
     async function loadSiteStatus(siteId) {
@@ -893,7 +1031,7 @@
     async function callSiteApi({ path, method = "GET", payload, loadingText }) {
       const token = getToken();
       if (!token) {
-        setMessage("Р вЂ™Р Р†Р ВµР Т‘Р С‘РЎвЂљР Вµ admin token.", "bad");
+        setMessage("Введите admin token.", "bad");
         return;
       }
 
@@ -971,7 +1109,7 @@
     async function callVpsApi({ path, method = "GET", payload, loadingText }) {
       const token = getToken();
       if (!token) {
-        setMessage("Р’РІРµРґРёС‚Рµ admin token.", "bad");
+        setMessage("Введите admin token.", "bad");
         return;
       }
 
@@ -995,7 +1133,7 @@
     async function adminFetchJson(path, { method = "GET", payload, fallbackMessage = "Admin request failed." } = {}) {
       const token = readAdminToken();
       if (!token) {
-        throw new Error("Р’РІРµРґРёС‚Рµ admin token.");
+        throw new Error("Введите admin token.");
       }
 
       const headers = { "X-Admin-Token": token };
@@ -1020,7 +1158,7 @@
     async function adminFetchFormData(path, { method = "POST", formData, fallbackMessage = "Admin request failed." } = {}) {
       const token = readAdminToken();
       if (!token) {
-        throw new Error("Р’РІРµРґРёС‚Рµ admin token.");
+        throw new Error("Введите admin token.");
       }
 
       const response = await adminFetchRequest(path, {

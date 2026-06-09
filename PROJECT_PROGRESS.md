@@ -1,10 +1,10 @@
 # Project Progress Dashboard
 
-Last reviewed: 2026-06-09
-Current checkpoint: 1
+Last reviewed: 2026-06-10
+Current checkpoint: 2
 Next checkpoint review: after 5 more completed slices
 
-Current product focus: finish landings and calculators for paid landing-page orders. CRM, new AI work, OCR, SketchUp MCP, and 3D rendering are temporarily paused.
+Current product focus: LC Slice 6 production publishing completion. CRM, new AI work, OCR, SketchUp MCP, and 3D rendering remain paused.
 
 This is the canonical visual progress tracker for the complete furniture platform. Percentages are engineering estimates based on implemented, tested, deployed, and operationally verified behavior. A feature is not considered complete only because code exists.
 
@@ -12,7 +12,7 @@ This is the canonical visual progress tracker for the complete furniture platfor
 
 | Target | Progress | Meaning |
 |---|---:|---|
-| Commercial platform | `[#######---] 70%` | Landings, orders, calculators, portfolio, CRM, and stable operations |
+| Commercial platform | `[########--] 75%` | Landings, orders, calculators, portfolio, CRM, and stable operations |
 | AI-assisted platform | `[####------] 40%` | AI qualification, communication assistance, OCR, and controlled agents |
 | Complete vision | `[###-------] 30%` | Commercial platform plus vision, SketchUp MCP, and 3D render pipeline |
 
@@ -21,8 +21,8 @@ This is the canonical visual progress tracker for the complete furniture platfor
 | Workstream | Progress | Status | Next meaningful result |
 |---|---:|---|---|
 | Lead intake and order workflow | `[########--] 80%` | Working | Production hardening and deeper manager workflow |
-| Calculators | `[########--] 80%` | Active focus | Complete editor, embed QA, and lead flow verification |
-| Landing platform | `[#######---] 70%` | Active focus | Paid-order workflow, template library, preview, and live deploy |
+| Calculators | `[#########-] 95%` | LC Slice 5 complete | Production embed smoke test with a real landing |
+| Landing platform | `[#########-] 85%` | LC Slices 1-5 complete | Production migration, domain, SSL, and live deploy |
 | Portfolio and media | `[######----] 60%` | Working | Complete production R2 operations |
 | Production infrastructure | `[#####-----] 50%` | Active | VPS production path, monitoring, backups |
 | Manual AI analysis | `[#######---] 70%` | Working locally | Explicit production enablement decision |
@@ -56,8 +56,8 @@ flowchart LR
 
 | Order | Stage group | Completion rule | State |
 |---:|---|---|---|
-| 1 | Landings and calculators completion | Paid landing order can move from brief to live lead | Active |
-| 2 | Landing production infrastructure | VPS/domain/SSL/deploy path verified for customer sites | Active dependency |
+| 1 | Landings and calculators completion | Paid landing order can move from brief to preview lead | Complete through LC Slice 5 |
+| 2 | Landing production infrastructure | VPS/domain/SSL/deploy path verified for customer sites | Next: LC Slice 6 |
 | 3 | Twenty CRM Slices 3-7 | Manual order-to-CRM sync works from admin | Paused |
 | 4 | Communication channels | Customer conversations are attached to order/contact history | Planned |
 | 5 | Controlled AI agents | Agents can suggest or perform approved actions with audit history | Planned |
@@ -94,3 +94,4 @@ flowchart LR
 |---:|---|---|---|
 | 1 | 2026-06-09 | Twenty CRM decision and pure mapper | Finish manual CRM sync before agent automation |
 | Focus change | 2026-06-09 | Progress handoff created | Finish landings and calculators before resuming CRM |
+| 2 | 2026-06-10 | LC Slices 1-5 | Structured landing editor and calculator flow are locally complete; move to production publishing |

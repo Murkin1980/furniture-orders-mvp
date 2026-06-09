@@ -78,7 +78,7 @@ export async function onRequest() {
   );
 }
 
-function renderWidgetScript({ calculator, token }) {
+export function renderWidgetScript({ calculator, token }) {
   const data = JSON.stringify({
     calculator,
     token
@@ -99,6 +99,7 @@ function renderWidgetScript({ calculator, token }) {
   const fieldLabel = (binding, fallback) => fieldByBinding(binding).label || fallback;
   const fieldDefault = (binding, fallback) => fieldByBinding(binding).defaultValue || fallback;
   const fieldRequired = (binding) => fieldByBinding(binding).isRequired ? "required" : "";
+  const fieldVisible = (binding) => Boolean(schemaFields.find((field) => field.binding === binding || field.fieldCode === binding));
   const escapeHtml = (value) => String(value ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -127,35 +128,41 @@ function renderWidgetScript({ calculator, token }) {
       .fo-calculator .fo-estimate { margin: 12px 0; padding: 10px; border-radius: 6px; background: #f5f3ee; font-weight: 700; }
       .fo-calculator .fo-message { min-height: 22px; margin-top: 10px; color: #2f6e3e; }
       .fo-calculator .fo-message.bad { color: #9f2d23; }
+      .fo-calculator .fo-hidden { display: none; }
+      @media (max-width: 560px) {
+        .fo-calculator { max-width: none; padding: 14px; }
+        .fo-calculator h3 { font-size: 20px; }
+        .fo-calculator input, .fo-calculator select, .fo-calculator textarea, .fo-calculator button { min-height: 44px; font-size: 16px; }
+      }
     </style>
     <form class="fo-calculator">
       <h3>\${escapeHtml(data.calculator.title)}</h3>
       <p>\${escapeHtml(data.calculator.description || "")}</p>
-      <label>\${escapeHtml(fieldLabel("categoryCode", "Category"))}
-        <select name="categoryCode">
+      <label class="\${fieldVisible("categoryCode") ? "" : "fo-hidden"}">\${escapeHtml(fieldLabel("categoryCode", "Category"))}
+        <select name="categoryCode" \${fieldRequired("categoryCode")}>
           \${data.calculator.categories.map((category) => \`<option value="\${escapeHtml(category.code)}">\${escapeHtml(category.name)}</option>\`).join("")}
         </select>
       </label>
-      <label>\${escapeHtml(fieldLabel("units", "Size"))}
-        <input name="units" type="number" min="\${escapeHtml(fieldByBinding("units").minValue || 0.1)}" max="\${escapeHtml(fieldByBinding("units").maxValue || "")}" step="0.1" value="\${escapeHtml(fieldDefault("units", data.calculator.categories[0]?.minUnits || 1))}" />
+      <label class="\${fieldVisible("units") ? "" : "fo-hidden"}">\${escapeHtml(fieldLabel("units", "Size"))}
+        <input name="units" type="number" min="\${escapeHtml(fieldByBinding("units").minValue || 0.1)}" max="\${escapeHtml(fieldByBinding("units").maxValue || "")}" step="0.1" value="\${escapeHtml(fieldDefault("units", data.calculator.categories[0]?.minUnits || 1))}" \${fieldRequired("units")} />
       </label>
-      <label>\${escapeHtml(fieldLabel("materialRuleCode", "Material"))}
-        <select name="materialRuleCode">
+      <label class="\${fieldVisible("materialRuleCode") ? "" : "fo-hidden"}">\${escapeHtml(fieldLabel("materialRuleCode", "Material"))}
+        <select name="materialRuleCode" \${fieldRequired("materialRuleCode")}>
           \${materialRules.map((rule) => \`<option value="\${escapeHtml(rule.code)}">\${escapeHtml(rule.label)}</option>\`).join("")}
         </select>
       </label>
       <div class="fo-estimate" data-estimate></div>
-      <label>\${escapeHtml(fieldLabel("name", "Name"))}
-        <input name="name" autocomplete="name" \${fieldRequired("name")} />
+      <label class="\${fieldVisible("name") ? "" : "fo-hidden"}">\${escapeHtml(fieldLabel("name", "Name"))}
+        <input name="name" autocomplete="name" value="\${escapeHtml(fieldDefault("name", ""))}" \${fieldRequired("name")} />
       </label>
-      <label>\${escapeHtml(fieldLabel("phone", "Phone"))}
-        <input name="phone" autocomplete="tel" \${fieldRequired("phone")} />
+      <label class="\${fieldVisible("phone") ? "" : "fo-hidden"}">\${escapeHtml(fieldLabel("phone", "Phone"))}
+        <input name="phone" type="tel" autocomplete="tel" value="\${escapeHtml(fieldDefault("phone", ""))}" \${fieldRequired("phone")} />
       </label>
-      <label>\${escapeHtml(fieldLabel("city", "City"))}
-        <input name="city" autocomplete="address-level2" />
+      <label class="\${fieldVisible("city") ? "" : "fo-hidden"}">\${escapeHtml(fieldLabel("city", "City"))}
+        <input name="city" autocomplete="address-level2" value="\${escapeHtml(fieldDefault("city", ""))}" \${fieldRequired("city")} />
       </label>
-      <label>\${escapeHtml(fieldLabel("comment", "Comment"))}
-        <textarea name="comment"></textarea>
+      <label class="\${fieldVisible("comment") ? "" : "fo-hidden"}">\${escapeHtml(fieldLabel("comment", "Comment"))}
+        <textarea name="comment" \${fieldRequired("comment")}>\${escapeHtml(fieldDefault("comment", ""))}</textarea>
       </label>
       <button type="submit">Send calculation</button>
       <div class="fo-message" data-message></div>

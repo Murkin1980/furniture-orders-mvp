@@ -25,6 +25,7 @@ The mapper performs no network calls. Manual sync endpoint, UI, migrations, cred
 - Этап 4.05: портфолио и публичная галерея работ с категориями и publish/unpublish flow.
 - Этап 4-R: начат стабилизационный refactor lane для админки и API-контрактов без изменения продуктового поведения.
 - Этап 4.02B: добавлен schema-driven calculator layer с draft/published fields, `schemaVersion` и безопасными enum-контрактами без arbitrary formulas/user-defined code execution.
+- LC Slices 1-5: добавлены structured landing brief/content model, allowlisted furniture templates, редактирование и exact artifact preview в админке, выбор calculator для лендинга, полноценный field schema editor и mobile-verified calculator embed.
 - AI layer: добавлены строгий parser, qualification prompt, provider abstraction, OpenAI-compatible sender, ручной admin endpoint и сохранение AI-результата в заказ. AI запускается только вручную; autorun для новых заявок отключён.
 
 ## Production
@@ -72,6 +73,8 @@ The mapper performs no network calls. Manual sync endpoint, UI, migrations, cred
 - `src/calculators-pricing.js` содержит единые defaults, версии runtime/formula/schema и чистую формулу расчёта для preview/runtime/lead.
 - `src/vps-control.js` содержит безопасный клиент VPS control API и валидацию deploy/reload payload.
 - `src/sites-core.js` содержит бизнес-логику Stage 4.04A/B для сайтов, доменов, generated HTML artifact и записей публикации.
+- `src/site-brief.js` нормализует и проверяет структурированный коммерческий бриф лендинга.
+- `src/site-templates.js` содержит allowlisted библиотеку мебельных шаблонов без admin-authored HTML/JavaScript.
 - `src/portfolio-core.js` содержит бизнес-логику Stage 4.05 для категорий, работ портфолио, изображений и публикации.
 - `vps-control-service/` содержит Ubuntu-side MVP сервиса, который принимает запросы Cloudflare proxy и выполняет только allowlisted VPS actions.
 - `src/phone.js` содержит общую нормализацию и проверку телефона для заявок и calculator leads.
@@ -272,6 +275,19 @@ canceled
 - `POST /api/sites` нормализует `slug` из имени, проверяет уникальность slug и может сразу создать primary domain.
 - `POST /api/sites/:id/deploy` формирует deploy payload с `artifactType: "html"` и source URL на generated artifact.
 - Admin UI содержит блок Landing sites: создание сайта, список сайтов, status, live publish и open domain link.
+
+## LC Slices 1-5: коммерческий редактор лендингов и калькуляторов
+
+- `sites.content_json` хранит нормализованный structured brief: бренд, контакты, город, offer, аудитория, направления мебели, преимущества, секции, CTA, цвет и выбранный calculator.
+- `PUT /api/sites/:id` обновляет существующий landing без редактирования исходного HTML.
+- Allowlisted templates: `default-furniture`, `kitchen`, `wardrobe`, `casework`.
+- Admin Landing sites поддерживает создание, редактирование и exact preview generated artifact.
+- Artifact использует structured content и подключает опубликованный calculator embed при выборе calculator.
+- Admin pricing editor теперь редактирует разрешённые published form fields: label, type, role, binding, required и active.
+- Calculator embed уважает active/required schema fields и проверен на mobile viewport.
+- Публикация incomplete landing brief блокируется validation error.
+- Migration `0012_site_content.sql` должна быть применена перед production-использованием нового content model.
+- LC Slice 6 остаётся отдельным ops-этапом: production migration, VPS/domain/SSL/live deploy verification.
 
 ## Контракт landing sites Stage 4.04B
 
@@ -602,6 +618,7 @@ If `PORTFOLIO_MEDIA_PUBLIC_BASE_URL` is not set, uploaded image URLs use `/media
 0009_calculator_schema_fields.sql  Добавляет draft/published schema metadata для calculator_fields.
 0010_portfolio_media.sql     Добавляет storage metadata к portfolio_images для Stage 4.05B uploads.
 0011_order_ai_results.sql    Добавляет nullable AI analysis fields к orders для ручного AI flow.
+0012_site_content.sql        Добавляет structured content_json к sites для коммерческого landing editor.
 ```
 
 Применить миграции к production D1:
@@ -776,5 +793,5 @@ npx.cmd --yes @colbymchenry/codegraph query analyzeLead
 Опциональные технические ветки между продуктовыми этапами:
 
 - Stage 4.04C: расширить artifact pipeline до multi-file package/zip deploy, если single-file HTML перестанет хватать.
-- Stage 4.02B follow-up: при необходимости расширить admin UI до полноценного schema field editor; backend/runtime слой уже реализован.
+- LC Slice 6: применить migration `0012`, завершить production VPS/domain/SSL path и проверить live publish.
 - Stage 4-R next slice: вынести admin helper/request utilities из inline script в отдельный JS-модуль и затем уменьшать размер `public/admin.html` без изменения поведения.

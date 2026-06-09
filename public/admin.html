@@ -1,9 +1,9 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Р—Р°РєР°Р·С‹ РјРµР±РµР»Рё</title>
+  <title>Заказы мебели</title>
   <style>
     :root {
       --bg: #f5f3ee;
@@ -275,6 +275,16 @@
       border-radius: 6px;
       background: #fff;
     }
+    .field-row {
+      display: grid;
+      grid-template-columns: minmax(120px, 1fr) 110px 120px 130px 90px 90px;
+      gap: 8px;
+      align-items: end;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+    }
     .rule-row {
       display: grid;
       grid-template-columns: minmax(140px, 1fr) 130px 100px;
@@ -360,6 +370,24 @@
       background: #faf9f6;
       overflow: auto;
     }
+    .site-preview {
+      width: 100%;
+      min-height: 680px;
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+    }
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+    }
+    .checkbox-label input {
+      min-height: auto;
+      width: auto;
+    }
 
     @media (max-width: 760px) {
       .bar {
@@ -384,7 +412,8 @@
       }
 
       .pricing-row,
-      .rule-row {
+      .rule-row,
+      .field-row {
         grid-template-columns: 1fr;
       }
 
@@ -399,16 +428,16 @@
 <body>
   <header>
     <div class="bar">
-      <h1>Р—Р°РєР°Р·С‹ РјРµР±РµР»Рё</h1>
+      <h1>Заказы мебели</h1>
       <div class="controls">
         <label>
           Admin token
           <input id="token" type="password" autocomplete="current-password" />
         </label>
         <label>
-          РЎС‚Р°С‚СѓСЃ
+          Статус
           <select id="status-filter">
-            <option value="">Р’СЃРµ</option>
+            <option value="">Все</option>
             <option value="new">new</option>
             <option value="in_review">in_review</option>
             <option value="quoted">quoted</option>
@@ -417,8 +446,8 @@
             <option value="canceled">canceled</option>
           </select>
         </label>
-        <button id="save-token" class="secondary" type="button">РЎРѕС…СЂР°РЅРёС‚СЊ</button>
-        <button id="refresh" type="button">РћР±РЅРѕРІРёС‚СЊ</button>
+        <button id="save-token" class="secondary" type="button">Сохранить</button>
+        <button id="refresh" type="button">Обновить</button>
       </div>
     </div>
   </header>
@@ -430,33 +459,33 @@
         <thead>
           <tr>
             <th>ID</th>
-            <th>РљР»РёРµРЅС‚</th>
-            <th>РўРµР»РµС„РѕРЅ</th>
-            <th>РўРёРї</th>
-            <th>Р“РѕСЂРѕРґ</th>
-            <th>Р‘СЋРґР¶РµС‚</th>
-            <th>РЎС‚Р°С‚СѓСЃ</th>
-            <th>РЎРѕР·РґР°РЅ</th>
-            <th>РћР±РЅРѕРІР»С‘РЅ</th>
-            <th>Р—Р°РјРµС‚РєР°</th>
+            <th>Клиент</th>
+            <th>Телефон</th>
+            <th>Тип</th>
+            <th>Город</th>
+            <th>Бюджет</th>
+            <th>Статус</th>
+            <th>Создан</th>
+            <th>Обновлён</th>
+            <th>Заметка</th>
             <th>AI</th>
-            <th>Р”РµР№СЃС‚РІРёРµ</th>
+            <th>Действие</th>
           </tr>
         </thead>
         <tbody id="orders-body">
           <tr>
-            <td colspan="12" class="muted">Р—Р°РіСЂСѓР·РєР°...</td>
+            <td colspan="12" class="muted">Загрузка...</td>
           </tr>
         </tbody>
       </table>
     </div>
     <section class="project-panel" aria-labelledby="project-title">
       <div class="project-head">
-        <h2 id="project-title">РЁР°РіРё Р·Р°РєР°Р·Р°</h2>
+        <h2 id="project-title">Шаги заказа</h2>
         <div id="project-progress" class="progress"></div>
       </div>
       <div id="project-steps" class="steps">
-        <div class="muted">РћС‚РєСЂРѕР№С‚Рµ РїСЂРѕРµРєС‚ РёР· С‚Р°Р±Р»РёС†С‹ Р·Р°РєР°Р·РѕРІ.</div>
+        <div class="muted">Откройте проект из таблицы заказов.</div>
       </div>
     </section>
     <section class="calculator-panel" aria-labelledby="calculator-title">
@@ -538,6 +567,7 @@
       </div>
       <div class="sites-grid">
         <form id="site-form">
+          <input name="siteId" type="hidden" />
           <label>
             Site name
             <input name="name" value="Kitchen landing" />
@@ -563,8 +593,71 @@
               <option value="casework">casework</option>
             </select>
           </label>
+          <label>
+            Business name
+            <input name="businessName" value="Salamat Mebel" />
+          </label>
+          <label>
+            City
+            <input name="city" value="Алматы" />
+          </label>
+          <label>
+            Phone
+            <input name="phone" value="+77000000000" />
+          </label>
+          <label>
+            WhatsApp
+            <input name="whatsapp" value="+77000000000" />
+          </label>
+          <label>
+            Main offer
+            <textarea name="primaryOffer">Кухни и мебель на заказ по размерам помещения</textarea>
+          </label>
+          <label>
+            Audience
+            <textarea name="audience" placeholder="Для владельцев квартир и домов"></textarea>
+          </label>
+          <label>
+            Furniture types, one per line
+            <textarea name="furnitureTypes">Кухни
+Шкафы
+Гардеробные</textarea>
+          </label>
+          <label>
+            Advantages, one per line
+            <textarea name="advantages">Замер и проект
+Подбор материалов
+Монтаж под ключ</textarea>
+          </label>
+          <label>
+            Accent color
+            <input name="accentColor" type="color" value="#116466" />
+          </label>
+          <label>
+            CTA label
+            <input name="ctaLabel" value="Получить расчет" />
+          </label>
+          <label class="checkbox-label">
+            <input name="portfolioRequired" type="checkbox" checked />
+            Portfolio section
+          </label>
+          <label class="checkbox-label">
+            <input name="calculatorRequired" type="checkbox" />
+            Calculator section
+          </label>
+          <label>
+            Calculator
+            <select name="calculatorId">
+              <option value="">No calculator</option>
+            </select>
+          </label>
+          <label>
+            Internal notes
+            <textarea name="notes"></textarea>
+          </label>
           <div class="site-actions">
-            <button type="submit">Create site</button>
+            <button type="submit" id="site-save">Create site</button>
+            <button type="button" class="secondary" id="site-reset">New site</button>
           </div>
         </form>
         <div>
@@ -572,6 +665,7 @@
             <div class="muted">No sites loaded.</div>
           </div>
           <pre id="site-output" class="vps-output">Site status will appear here.</pre>
+          <iframe id="site-preview" class="site-preview" title="Landing preview"></iframe>
         </div>
       </div>
     </section>

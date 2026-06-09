@@ -6,7 +6,8 @@ import {
   getSiteArtifact,
   getSiteStatus,
   listSites,
-  normalizeSitePayload
+  normalizeSitePayload,
+  updateSite
 } from "../src/sites-core.js";
 
 test("normalizes the site contract", () => {
@@ -19,7 +20,7 @@ test("normalizes the site contract", () => {
   assert.equal(payload.name, "Salamat Kitchen Landing");
   assert.equal(payload.slug, "salamat-kitchen-landing");
   assert.equal(payload.domain, "salamat-mebel.kz");
-  assert.equal(payload.templateKey, "kitchen-premium");
+  assert.equal(payload.templateKey, "default-furniture");
   assert.equal(payload.status, "draft");
 });
 
@@ -86,6 +87,7 @@ test("deploys a site through the VPS proxy and stores deployment status", async 
     payload: {
       name: "Wardrobe Landing",
       domain: "wardrobe.salamat-mebel.kz"
+      ,brief: completeBrief()
     }
   });
   const fetchCalls = [];
@@ -136,6 +138,7 @@ test("generates an HTML landing artifact for a site", async () => {
       ownerName: "Salamat Mebel",
       domain: "kitchen.salamat-mebel.kz",
       templateKey: "kitchen"
+      ,brief: completeBrief({ primaryOffer: "Кухни для вашего дома" })
     }
   });
 
@@ -149,6 +152,31 @@ test("generates an HTML landing artifact for a site", async () => {
   assert.match(artifact.body.html, /<!doctype html>/i);
   assert.match(artifact.body.html, /Kitchen Landing/);
   assert.match(artifact.body.html, /Salamat Mebel/);
+  assert.match(artifact.body.html, /Кухни для вашего дома/);
+});
+
+test("updates structured landing content and renders exact artifact", async () => {
+  const db = createSitesMockDb();
+  const created = await createSite({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    payload: { name: "Editable Landing", brief: completeBrief() }
+  });
+  const updated = await updateSite({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    siteId: created.body.item.id,
+    payload: {
+      templateKey: "wardrobe",
+      brief: completeBrief({ primaryOffer: "Шкафы до потолка", accentColor: "#445566" })
+    }
+  });
+  const artifact = await getSiteArtifact({ db, env: { RUNTIME_SCHEMA_INIT: "true" }, siteId: created.body.item.id });
+
+  assert.equal(updated.body.item.templateKey, "wardrobe");
+  assert.equal(updated.body.item.brief.primaryOffer, "Шкафы до потолка");
+  assert.match(artifact.body.html, /Шкафы до потолка/);
+  assert.match(artifact.body.html, /#445566/);
 });
 
 test("default deploy source points to the generated artifact endpoint", async () => {
@@ -164,6 +192,7 @@ test("default deploy source points to the generated artifact endpoint", async ()
     env,
     payload: {
       name: "Default Artifact Landing"
+      ,brief: completeBrief()
     }
   });
   const fetchCalls = [];
@@ -199,6 +228,7 @@ test("failed VPS deploy marks site and deployment as failed", async () => {
     env,
     payload: {
       name: "Casework Landing"
+      ,brief: completeBrief()
     }
   });
 
@@ -244,6 +274,16 @@ function createSitesMockDb() {
   return state;
 }
 
+function completeBrief(overrides = {}) {
+  return {
+    businessName: "Salamat Mebel",
+    city: "Алматы",
+    phone: "+77000000000",
+    primaryOffer: "Мебель на заказ",
+    ...overrides
+  };
+}
+
 function createStatement(state, sql, values) {
   return {
     run: async () => {
@@ -252,7 +292,7 @@ function createStatement(state, sql, values) {
       }
 
       if (sql.includes("INSERT INTO sites")) {
-        const [name, slug, ownerName, templateKey, status] = values;
+        const [name, slug, ownerName, templateKey, status, contentJson] = values;
         const id = state.sites.length + 1;
         state.sites.push({
           id,
@@ -261,6 +301,7 @@ function createStatement(state, sql, values) {
           ownerName,
           templateKey,
           status,
+          contentJson,
           createdAt: now(),
           updatedAt: now()
         });
@@ -312,6 +353,13 @@ function createStatement(state, sql, values) {
         return { success: true };
       }
 
+      if (sql.includes("UPDATE sites") && sql.includes("SET name = ?")) {
+        const [name, slug, ownerName, templateKey, contentJson, siteId] = values;
+        const site = state.sites.find((item) => item.id === siteId);
+        Object.assign(site, { name, slug, ownerName, templateKey, contentJson, updatedAt: now() });
+        return { success: true };
+      }
+
       if (sql.includes("UPDATE sites")) {
         const [status, siteId] = values;
         const site = state.sites.find((item) => item.id === siteId);
@@ -322,13 +370,26 @@ function createStatement(state, sql, values) {
         return { success: true };
       }
 
+      if (sql.includes("UPDATE site_domains")) {
+        const [domain, sslStatus, domainId] = values;
+        const record = state.siteDomains.find((item) => item.id === domainId);
+        Object.assign(record, { domain, sslStatus, updatedAt: now() });
+        return { success: true };
+      }
+
       throw new Error(`Unexpected run SQL: ${sql}`);
     },
     first: async () => {
       if (sql.includes("SELECT id FROM sites WHERE slug = ?")) {
-        const [slug] = values;
-        const site = state.sites.find((item) => item.slug === slug);
+        const [slug, excludedId] = values;
+        const site = state.sites.find((item) => item.slug === slug && item.id !== excludedId);
         return site ? { id: site.id } : null;
+      }
+
+      if (sql.includes("SELECT id FROM site_domains WHERE site_id = ?")) {
+        const [siteId] = values;
+        const domain = state.siteDomains.find((item) => item.siteId === siteId && item.isPrimary === 1);
+        return domain ? { id: domain.id } : null;
       }
 
       if (sql.includes("FROM sites") && sql.includes("WHERE id = ?")) {

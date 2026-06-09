@@ -1,8 +1,8 @@
-import { getSite } from "../../../src/sites-core.js";
+import { getSite, updateSite } from "../../../src/sites-core.js";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, PUT, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Admin-Token"
 };
 
@@ -40,16 +40,41 @@ export async function onRequestGet(context) {
   }
 }
 
+export async function onRequestPut(context) {
+  const auth = requireAdminToken(context.request, context.env);
+  if (auth) return auth;
+
+  let payload;
+  try {
+    payload = await context.request.json();
+  } catch {
+    return jsonResponse({ success: false, error: "invalid_json", message: "Request body must be valid JSON." }, 400);
+  }
+
+  try {
+    const result = await updateSite({
+      db: context.env.DB,
+      env: context.env,
+      siteId: context.params.id,
+      payload
+    });
+    return jsonResponse(result.body, result.status);
+  } catch (error) {
+    console.error("Site update API failed", error);
+    return jsonResponse({ success: false, error: "server_error", message: "Site was not updated. Please try again later." }, 500);
+  }
+}
+
 export async function onRequest() {
   return jsonResponse(
     {
       success: false,
       error: "method_not_allowed",
-      message: "Use GET /api/sites/:id."
+      message: "Use GET or PUT /api/sites/:id."
     },
     405,
     {
-      Allow: "GET, OPTIONS"
+      Allow: "GET, PUT, OPTIONS"
     }
   );
 }
