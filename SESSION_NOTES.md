@@ -688,3 +688,38 @@ Conclusion:
 ### Follow-up
 - Prefer a Cloudflare Origin Certificate and `Full (strict)` for long-term origin hardening.
 - Preserve `NoNewPrivileges=true`; normal HTML deploy does not require nginx reload.
+
+## 2026-06-11 - LC Slice 7 production calculator verification
+
+### What changed
+- Created and published production calculator `1`.
+- Enabled calculator `1` in the structured brief for production demo site `1`.
+- Redeployed `lc6-production-landing` through the existing Pages/VPS control path.
+- Confirmed the public demo artifact contains the calculator container and
+  public embed script.
+- Submitted one successful smoke lead, which created production order `5`.
+
+### Files changed
+- `README.md`
+- `CALCULATOR_DECISION.md`
+- `PROJECT_PROGRESS.md`
+- `SESSION_NOTES.md`
+- `docs/sessions/furniture-lc-slice7-implementation-summary.md`
+
+### Checks
+- Public demo and embed script: HTTP 200.
+- Embed includes schema-driven fields, lead endpoint, mobile media rule, and
+  44px mobile controls.
+- Invalid material rule was rejected safely.
+- Successful lead estimate: `615000 KZT`.
+- Production D1 order `5` contains `calculatorMeta` with `formulaVersion: 1`
+  and `schemaVersion: 1`.
+- `npm.cmd test`: 156 passed.
+- `npm.cmd run check`: passed.
+- In-app visual browser test was blocked by enterprise network policy; public
+  HTML, embed JavaScript, API, VPS deploy, and D1 were verified directly.
+
+### Next
+- Use the verified landing/calculator procedure for the first paid landing.
+- Select the next product layer; Twenty CRM manual sync remains the planned
+  continuation.

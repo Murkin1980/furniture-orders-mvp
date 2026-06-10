@@ -65,3 +65,15 @@ Visual configurator ideas may be ported from `furniture-configurator` later, but
 - Admin users can edit labels, allowed types/roles/bindings, required flags, and active flags.
 - Publish continues to copy draft prices, rules, and fields into the published runtime.
 - The embed widget uses the published schema and remains free of arbitrary formulas or user-defined code.
+
+## LC Slice 7 production verification
+
+- Production calculator `1` is published and connected to
+  `https://demo.salamat-mebel.kz`.
+- The public embed script returns JavaScript with schema-driven fields, the
+  lead endpoint, and mobile controls.
+- A production smoke submission created order `5` with estimate `615000 KZT`.
+- Production D1 preserved `calculatorMeta`, including calculator/category/rule,
+  estimate, `formulaVersion: 1`, and `schemaVersion: 1`.
+- Unknown material rule validation was confirmed before the successful smoke
+  submission.

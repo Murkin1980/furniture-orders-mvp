@@ -4,7 +4,7 @@ Last reviewed: 2026-06-11
 Current checkpoint: 2
 Next checkpoint review: after 5 more completed slices
 
-Current product focus: select the next product layer after completing LC Slice 6 landing production publishing and HTTPS verification.
+Current product focus: prepare the first paid landing while selecting the next product layer after completing landing and calculator production verification.
 
 This is the canonical visual progress tracker for the complete furniture platform. Percentages are engineering estimates based on implemented, tested, deployed, and operationally verified behavior. A feature is not considered complete only because code exists.
 
@@ -21,7 +21,7 @@ This is the canonical visual progress tracker for the complete furniture platfor
 | Workstream | Progress | Status | Next meaningful result |
 |---|---:|---|---|
 | Lead intake and order workflow | `[########--] 80%` | Working | Production hardening and deeper manager workflow |
-| Calculators | `[#########-] 95%` | LC Slice 5 complete | Production embed smoke test with a real landing |
+| Calculators | `[##########] 100%` | Production embed and lead path verified | Repeat the documented flow for the first paid landing |
 | Landing platform | `[##########] 100%` | Production publish and customer-domain HTTPS verified | Repeat the documented flow for the first paid landing |
 | Portfolio and media | `[######----] 60%` | Working | Complete production R2 operations |
 | Production infrastructure | `[#########-] 90%` | Admin proxy, VPS deploy, and proxied landing HTTPS verified | Origin Certificate hardening and observability |
@@ -56,7 +56,7 @@ flowchart LR
 
 | Order | Stage group | Completion rule | State |
 |---:|---|---|---|
-| 1 | Landings and calculators completion | Paid landing order can move from brief to preview lead | Complete through LC Slice 5 |
+| 1 | Landings and calculators completion | Paid landing order can move from brief to preview lead | Complete through LC Slice 7 production verification |
 | 2 | Landing production infrastructure | VPS/domain/SSL/deploy path verified for customer sites | LC Slice 6 operationally verified with Cloudflare proxied HTTPS |
 | 3 | Twenty CRM Slices 3-7 | Manual order-to-CRM sync works from admin | Paused |
 | 4 | Communication channels | Customer conversations are attached to order/contact history | Planned |
@@ -97,3 +97,4 @@ flowchart LR
 | 2 | 2026-06-10 | LC Slices 1-5 | Structured landing editor and calculator flow are locally complete; move to production publishing |
 | Ops pass | 2026-06-10 | LC Slice 6 Pages/D1 release | Production migrations and Pages deploy complete; VPS HTTPS/control service remains blocked by missing SSH credentials |
 | Ops completion | 2026-06-11 | LC Slice 6 VPS/domain/HTTPS path | Public demo HTTPS verified; recurring failures and solutions recorded in `LANDING_VPS_OPS_RUNBOOK.md` |
+| Product completion | 2026-06-11 | LC Slice 7 calculator production path | Published calculator embedded into demo landing and production lead persisted with versioned calculator metadata |

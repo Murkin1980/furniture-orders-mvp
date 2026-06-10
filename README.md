@@ -7,6 +7,14 @@ Production landing/VPS operations, known failures, and verified solutions:
 
 Verified public landing demo: `https://demo.salamat-mebel.kz`.
 
+LC Slice 7 production calculator verification is complete:
+
+- production calculator `1` is published and embedded into the demo landing;
+- the demo artifact was redeployed through the VPS control path;
+- a real calculator smoke lead created production order `5`;
+- D1 stored estimate `615000 KZT` and `calculatorMeta` with
+  `formulaVersion: 1` and `schemaVersion: 1`.
+
 ## Twenty CRM integration
 
 Twenty CRM is planned as a separate optional CRM service. `furniture-orders-mvp` remains the source of truth for lead intake and furniture-specific workflows.
