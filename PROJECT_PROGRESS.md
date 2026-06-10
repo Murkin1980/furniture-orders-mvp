@@ -26,7 +26,7 @@ This is the canonical visual progress tracker for the complete furniture platfor
 | Portfolio and media | `[######----] 60%` | Working | Complete production R2 operations |
 | Production infrastructure | `[#########-] 90%` | Admin proxy, VPS deploy, and proxied landing HTTPS verified | Origin Certificate hardening and observability |
 | Manual AI analysis | `[#######---] 70%` | Working locally | Explicit production enablement decision |
-| Twenty CRM integration | `[##--------] 20%` | Paused | Resume after landing/calculator completion |
+| Twenty CRM integration | `[###-------] 30%` | Request builder complete | Verify Twenty API contract, then add injected sender |
 | AI agents and communications | `[#---------] 10%` | Planned | Tool permissions and human approval model |
 | OCR and sketch recognition | `[----------] 0%` | Planned | Safe document/image intake prototype |
 | SketchUp MCP | `[----------] 0%` | Planned | Windows node and controlled MCP prototype |
@@ -72,7 +72,7 @@ flowchart LR
 |---:|---|---|
 | 1 | Integration decision | Complete |
 | 2 | Pure order-to-Twenty mapper | Complete |
-| 3 | Request builder without network calls | Next |
+| 3 | Request builder without network calls | Complete |
 | 4 | Twenty sender with injected fetch | Planned |
 | 5 | Manual sync core | Planned |
 | 6 | Admin-protected sync endpoint | Planned |
@@ -98,3 +98,4 @@ flowchart LR
 | Ops pass | 2026-06-10 | LC Slice 6 Pages/D1 release | Production migrations and Pages deploy complete; VPS HTTPS/control service remains blocked by missing SSH credentials |
 | Ops completion | 2026-06-11 | LC Slice 6 VPS/domain/HTTPS path | Public demo HTTPS verified; recurring failures and solutions recorded in `LANDING_VPS_OPS_RUNBOOK.md` |
 | Product completion | 2026-06-11 | LC Slice 7 calculator production path | Published calculator embedded into demo landing and production lead persisted with versioned calculator metadata |
+| CRM restart | 2026-06-11 | CRM Slice 3 request builder | Pure versioned request objects complete; verify installed Twenty API paths before adding sender |

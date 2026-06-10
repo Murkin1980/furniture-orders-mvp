@@ -21,8 +21,12 @@ Twenty CRM is planned as a separate optional CRM service. `furniture-orders-mvp`
 
 - CRM Slice 1: architecture and safety decision in `CRM_INTEGRATION_DECISION.md`.
 - CRM Slice 2: pure person, opportunity, note, and sync payload mapping in `src/crm/twenty-mapper.js`.
+- CRM Slice 3: pure request objects for people, opportunities, and notes in
+  `src/crm/twenty-request-builder.js`.
 
-The mapper performs no network calls. Manual sync endpoint, UI, migrations, credentials, and production integration are not implemented yet.
+The mapper and request builder perform no network calls. Manual sync endpoint,
+UI, migrations, credentials, and production integration are not implemented
+yet.
 
 Минимальный backend + тестовый frontend для приёма заявок мебельной мастерской. Проект сделан под Cloudflare Pages Functions и D1: сайт отдаёт форму, Function принимает заявку, сохраняет клиента и заказ, а затем при наличии переменных окружения отправляет уведомление менеджеру в Telegram.
 

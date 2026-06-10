@@ -129,3 +129,20 @@ npm.cmd run check
 git diff --check
 ```
 
+## CRM Slice 3 completion
+
+- Added pure request builder `src/crm/twenty-request-builder.js`.
+- It builds versioned POST request objects for draft Twenty resource paths:
+  `/rest/people`, `/rest/opportunities`, and `/rest/notes`.
+- It consumes the existing mapper output and does not call `fetch`.
+- `TWENTY_API_BASE_URL` is required to build requests.
+- `TWENTY_API_KEY` is optional during request construction and is added only
+  as a Bearer header when present.
+- Resource paths must be verified against the selected installed Twenty
+  version before CRM Slice 4 performs any real or fake sender integration.
+- Twenty officially documents schema-per-tenant APIs: `/rest/` endpoints use
+  the object and field names from the selected workspace schema. Verify the
+  exact people, opportunities, notes, and relation contracts in
+  `Settings -> API & Webhooks` after creating the target workspace API key.
+- Official API overview:
+  `https://docs.twenty.com/developers/extend/api`.

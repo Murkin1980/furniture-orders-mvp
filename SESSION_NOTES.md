@@ -723,3 +723,34 @@ Conclusion:
 - Use the verified landing/calculator procedure for the first paid landing.
 - Select the next product layer; Twenty CRM manual sync remains the planned
   continuation.
+
+## 2026-06-11 - CRM Slice 3 Twenty request builder
+
+### What changed
+- Added pure Twenty request builder for people, opportunities, and notes.
+- Added versioned sync request sequence built from the existing pure mapper.
+- Added safe base URL normalization, optional Bearer authorization header, and
+  explicit rejection of unsupported resources.
+- Added the new CRM module to `npm run check`.
+
+### Files changed
+- `src/crm/twenty-request-builder.js`
+- `tests/twenty-request-builder.test.js`
+- `package.json`
+- `README.md`
+- `CRM_INTEGRATION_DECISION.md`
+- `PROJECT_PROGRESS.md`
+- `SESSION_NOTES.md`
+- `docs/sessions/furniture-crm-slice3-implementation-summary.md`
+
+### Checks
+- `node --test tests/twenty-request-builder.test.js`: 9 passed.
+- `npm.cmd test`: 165 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed before documentation updates.
+
+### Next
+- Verify the draft `/rest/people`, `/rest/opportunities`, and `/rest/notes`
+  paths against the selected installed Twenty version.
+- CRM Slice 4: add `sendTwentyRequest` with injected `fetchFn`; no endpoint,
+  UI, migration, deploy, or production integration yet.
