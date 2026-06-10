@@ -793,5 +793,5 @@ npx.cmd --yes @colbymchenry/codegraph query analyzeLead
 Опциональные технические ветки между продуктовыми этапами:
 
 - Stage 4.04C: расширить artifact pipeline до multi-file package/zip deploy, если single-file HTML перестанет хватать.
-- LC Slice 6: применить migration `0012`, завершить production VPS/domain/SSL path и проверить live publish.
+- LC Slice 6: production migrations `0011` and `0012` are applied and the LC Slices 1-5 code is deployed to Cloudflare Pages. Remaining work: obtain VPS SSH access, expose the control service through HTTPS, configure `VPS_CONTROL_BASE_URL`/`VPS_CONTROL_TOKEN`, and verify live publish/domain/SSL.
 - Stage 4-R next slice: вынести admin helper/request utilities из inline script в отдельный JS-модуль и затем уменьшать размер `public/admin.html` без изменения поведения.

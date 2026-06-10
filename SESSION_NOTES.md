@@ -595,3 +595,28 @@ Conclusion:
 
 ### Next
 - LC Slice 6: prepare and apply the production-safe `0012` migration, then verify VPS/domain/SSL/live publishing.
+
+## 2026-06-10 - LC Slice 6 production Pages and D1 release
+
+### What changed
+- Exported a pre-migration production D1 backup to the ignored local `output/` directory.
+- Applied production migrations `0011_order_ai_results.sql` and `0012_site_content.sql`.
+- Deployed commit `3ae8124` to Cloudflare Pages.
+- Verified the stable Pages URL and new deployment URL return HTTP 200.
+- Verified protected production APIs return HTTP 401 without an admin token instead of failing on schema access.
+- Audited the VPS at `194.32.140.229`: SSH and HTTP are reachable, nginx serves the Furniture AI page, but SSH authentication credentials are unavailable.
+- Confirmed VPS HTTPS port 443 and direct control-service port 8789 are not reachable.
+- Confirmed Pages production currently has only `ADMIN_TOKEN`; VPS control secrets are not configured.
+
+### Checks
+- `npm.cmd test` - 156 tests passed.
+- `npm.cmd run check` - passed.
+- `git diff --check` - passed before documentation updates.
+- `wrangler d1 migrations list furniture_orders --remote` - no migrations pending after apply.
+- Production schema checks confirmed `sites.content_json` and AI order columns.
+- Cloudflare Pages deployment: `https://3acea761.furniture-orders-mvp.pages.dev`.
+
+### Next
+- Obtain the VPS SSH username and password/private key.
+- Install or update `vps-control-service`, configure HTTPS reverse proxy and shared token.
+- Set Pages secrets `VPS_CONTROL_BASE_URL` and `VPS_CONTROL_TOKEN`, then verify health/services/live deploy/reload/logs and customer domain SSL.
