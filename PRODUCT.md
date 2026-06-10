@@ -47,7 +47,7 @@ Important:
 
 These repositories are not the main product. They are sources of useful ideas:
 
-- `Murkin1980/furniture-ai-agent` — donor for AI qualification and AI workflow.
+- `Murkin1980/furniture-ai-agent` — archived donor for AI qualification and AI workflow; its standalone VPS service has been retired.
 - `Murkin1980/furniture-configurator` — donor for visual configurator ideas.
 - `Murkin1980/grand-mebel` — donor for landing/calculator lead flow.
 - `Murkin1980/grand-mebel-invoices` — donor for legacy invoice templates and UX.

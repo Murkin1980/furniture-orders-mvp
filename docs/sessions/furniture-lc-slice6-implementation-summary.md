@@ -44,7 +44,18 @@ Complete the production publishing path for the landing and calculator workflow.
 - Real HTML deploy smoke created `/srv/sites/lc6-smoke/index.html`.
 - An `EXDEV` failure caused by systemd mount isolation was resolved by using `/srv/sites/.staging`.
 
-Remaining work is full admin proxy verification and the first customer landing domain/SSL smoke.
+## Final production verification
+
+- Production admin proxy health, sites, services, and deploy logs return HTTP 200.
+- Created and published production smoke site `lc6-production-landing`.
+- Generated artifact deployed successfully to `/srv/sites/lc6-production-landing/index.html`.
+- Public smoke landing works at `http://lc6-production.194-32-140-229.sslip.io`.
+- Production site status is `published`.
+
+## Remaining operational follow-ups
+
+- Let’s Encrypt primary validation reaches nginx, but secondary validation times out for both `nip.io` and `sslip.io`; SSL is blocked outside the application path.
+- Nginx reload through control API remains blocked by systemd `NoNewPrivileges=true`. This security control was intentionally preserved; live HTML deploy works without reload.
 
 ## Safety
 

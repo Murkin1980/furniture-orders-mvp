@@ -793,5 +793,5 @@ npx.cmd --yes @colbymchenry/codegraph query analyzeLead
 Опциональные технические ветки между продуктовыми этапами:
 
 - Stage 4.04C: расширить artifact pipeline до multi-file package/zip deploy, если single-file HTML перестанет хватать.
-- LC Slice 6: production migrations and Pages deploy are complete. VPS control is installed behind HTTPS, Pages production values are configured, and real HTML deploy smoke passed. Remaining work: verify the admin proxy flow and publish the first real customer landing domain with SSL.
+- LC Slice 6: production admin proxy, artifact generation, VPS live deploy, deploy logs, and a public smoke landing are verified end-to-end. Smoke URL: `http://lc6-production.194-32-140-229.sslip.io`. Let’s Encrypt primary validation reaches nginx, but secondary validation times out; customer-domain SSL remains an infrastructure follow-up.
 - Stage 4-R next slice: вынести admin helper/request utilities из inline script в отдельный JS-модуль и затем уменьшать размер `public/admin.html` без изменения поведения.

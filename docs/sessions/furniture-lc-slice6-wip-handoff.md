@@ -2,7 +2,13 @@
 
 Date: 2026-06-10
 
-## Current goal
+## Status
+
+Superseded by `furniture-lc-slice6-implementation-summary.md`.
+
+The production publishing path is verified end-to-end. Remaining follow-ups are SSL secondary validation and the intentionally blocked nginx reload operation.
+
+## Original goal
 
 Finish VPS/domain/SSL/live-publish operational verification for landing sites.
 

@@ -647,3 +647,25 @@ Conclusion:
 
 ### Next
 - Continue LC Slice 6 admin proxy and first customer landing domain verification.
+
+## 2026-06-10 - LC Slice 6 production publishing verification
+
+### What changed
+- Rotated production `ADMIN_TOKEN` with explicit user approval and stored it only in ignored `.dev.vars`.
+- Verified production admin proxy health, services, deploy logs, and sites endpoints.
+- Created production smoke site `lc6-production-landing`.
+- Confirmed required brief validation blocks incomplete commercial landings.
+- Published the generated artifact through Pages admin API and VPS control service.
+- Configured nginx host `lc6-production.194-32-140-229.sslip.io`.
+- Verified the public smoke landing returns HTTP 200 and deploy logs contain `deploy_completed`.
+
+### Checks
+- Production site status: `published`.
+- Generated artifact: HTTP 200.
+- Public VPS landing: HTTP 200.
+- Admin proxy health and deploy logs: HTTP 200.
+- Nginx configuration check: passed.
+
+### Remaining
+- Let’s Encrypt secondary validation times out even though DNS, HTTP, and primary validation reach nginx. SSL remains an external network/provider follow-up.
+- Admin proxy nginx reload returns 500 because `NoNewPrivileges=true` blocks sudo. Security was not weakened; live HTML deploy does not require reload.

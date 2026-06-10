@@ -10,6 +10,8 @@ It is a donor repository for the future AI module inside the main platform:
 Murkin1980/furniture-orders-mvp
 ```
 
+Operational status as of 2026-06-10: the donor repository is archived, its standalone Express/SQLite VPS service is retired, and the main platform does not depend on it.
+
 ## Why
 
 The main platform already owns:
