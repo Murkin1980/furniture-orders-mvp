@@ -4,7 +4,7 @@ Last reviewed: 2026-06-10
 Current checkpoint: 2
 Next checkpoint review: after 5 more completed slices
 
-Current product focus: LC Slice 6 VPS/domain/SSL operational completion. Production D1 migration and Pages deploy are complete; CRM, new AI work, OCR, SketchUp MCP, and 3D rendering remain paused.
+Current product focus: LC Slice 6 first real customer landing publish. Production D1, Pages, VPS control HTTPS, and live HTML deploy smoke are complete.
 
 This is the canonical visual progress tracker for the complete furniture platform. Percentages are engineering estimates based on implemented, tested, deployed, and operationally verified behavior. A feature is not considered complete only because code exists.
 
@@ -24,7 +24,7 @@ This is the canonical visual progress tracker for the complete furniture platfor
 | Calculators | `[#########-] 95%` | LC Slice 5 complete | Production embed smoke test with a real landing |
 | Landing platform | `[#########-] 90%` | Production code deployed | VPS domain, SSL, and live publish smoke |
 | Portfolio and media | `[######----] 60%` | Working | Complete production R2 operations |
-| Production infrastructure | `[######----] 60%` | Pages/D1 ready, VPS blocked | VPS credentials, HTTPS control endpoint, live publish |
+| Production infrastructure | `[########--] 80%` | Pages/D1/VPS control ready | Admin proxy and first customer domain smoke |
 | Manual AI analysis | `[#######---] 70%` | Working locally | Explicit production enablement decision |
 | Twenty CRM integration | `[##--------] 20%` | Paused | Resume after landing/calculator completion |
 | AI agents and communications | `[#---------] 10%` | Planned | Tool permissions and human approval model |
@@ -57,7 +57,7 @@ flowchart LR
 | Order | Stage group | Completion rule | State |
 |---:|---|---|---|
 | 1 | Landings and calculators completion | Paid landing order can move from brief to preview lead | Complete through LC Slice 5 |
-| 2 | Landing production infrastructure | VPS/domain/SSL/deploy path verified for customer sites | LC Slice 6 partial: Pages/D1 complete, VPS access required |
+| 2 | Landing production infrastructure | VPS/domain/SSL/deploy path verified for customer sites | LC Slice 6 partial: control/live deploy ready, customer domain remains |
 | 3 | Twenty CRM Slices 3-7 | Manual order-to-CRM sync works from admin | Paused |
 | 4 | Communication channels | Customer conversations are attached to order/contact history | Planned |
 | 5 | Controlled AI agents | Agents can suggest or perform approved actions with audit history | Planned |

@@ -34,22 +34,17 @@ Complete the production publishing path for the landing and calculator workflow.
 - Production D1: no pending migrations.
 - VPS `194.32.140.229`: ports 22 and 80 reachable; nginx serves the Furniture AI page.
 
-## Remaining blocker
+## VPS operational update
 
-The VPS/domain/SSL/live-publish portion cannot be completed without SSH authentication and control-service secrets:
+- SSH key access is configured for `ubuntu@194.32.140.229`.
+- `vps-control-service` is installed and enabled on `127.0.0.1:8789`.
+- HTTPS control endpoint is active at `https://control.194-32-140-229.nip.io`.
+- Required Pages production values are configured.
+- Authenticated health/services checks passed.
+- Real HTML deploy smoke created `/srv/sites/lc6-smoke/index.html`.
+- An `EXDEV` failure caused by systemd mount isolation was resolved by using `/srv/sites/.staging`.
 
-- SSH rejects both `root` and `ubuntu` without a password/private key.
-- Port 443 is not reachable.
-- Port 8789 is not publicly reachable.
-- Pages production has `ADMIN_TOKEN`, but not `VPS_CONTROL_BASE_URL` or `VPS_CONTROL_TOKEN`.
-
-Required continuation inputs:
-
-- confirmed SSH username;
-- password or private key;
-- permission to configure nginx, systemd, firewall, and HTTPS;
-- desired public control-service hostname;
-- shared `VPS_CONTROL_TOKEN` generated during setup.
+Remaining work is full admin proxy verification and the first customer landing domain/SSL smoke.
 
 ## Safety
 

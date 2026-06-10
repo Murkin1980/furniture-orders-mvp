@@ -620,3 +620,18 @@ Conclusion:
 - Obtain the VPS SSH username and password/private key.
 - Install or update `vps-control-service`, configure HTTPS reverse proxy and shared token.
 - Set Pages secrets `VPS_CONTROL_BASE_URL` and `VPS_CONTROL_TOKEN`, then verify health/services/live deploy/reload/logs and customer domain SSL.
+
+## 2026-06-10 - LC Slice 6 VPS control operational setup
+
+### What changed
+- Established SSH key access to VPS `194.32.140.229` as `ubuntu`.
+- Installed and enabled `vps-control-service` without changing the existing Furniture AI site.
+- Configured the HTTPS control endpoint `https://control.194-32-140-229.nip.io`.
+- Added required VPS control values to Cloudflare Pages and redeployed production.
+- Completed an authenticated health/services check and real HTML deploy smoke.
+- Fixed an operational `EXDEV` deploy failure by moving staging to `/srv/sites/.staging`.
+
+### Next
+- Verify the full admin proxy flow and publish a real generated landing artifact.
+- Configure and verify the first customer landing domain and SSL.
+- Replace the temporary control hostname with an owned domain when available.
