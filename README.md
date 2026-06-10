@@ -2,6 +2,11 @@
 
 Visual roadmap and current readiness: [`PROJECT_PROGRESS.md`](PROJECT_PROGRESS.md).
 
+Production landing/VPS operations, known failures, and verified solutions:
+[`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).
+
+Verified public landing demo: `https://demo.salamat-mebel.kz`.
+
 ## Twenty CRM integration
 
 Twenty CRM is planned as a separate optional CRM service. `furniture-orders-mvp` remains the source of truth for lead intake and furniture-specific workflows.

@@ -1,10 +1,10 @@
 # Project Progress Dashboard
 
-Last reviewed: 2026-06-10
+Last reviewed: 2026-06-11
 Current checkpoint: 2
 Next checkpoint review: after 5 more completed slices
 
-Current product focus: landing SSL/network follow-up after LC Slice 6 production publishing verification.
+Current product focus: select the next product layer after completing LC Slice 6 landing production publishing and HTTPS verification.
 
 This is the canonical visual progress tracker for the complete furniture platform. Percentages are engineering estimates based on implemented, tested, deployed, and operationally verified behavior. A feature is not considered complete only because code exists.
 
@@ -22,9 +22,9 @@ This is the canonical visual progress tracker for the complete furniture platfor
 |---|---:|---|---|
 | Lead intake and order workflow | `[########--] 80%` | Working | Production hardening and deeper manager workflow |
 | Calculators | `[#########-] 95%` | LC Slice 5 complete | Production embed smoke test with a real landing |
-| Landing platform | `[#########-] 95%` | Production publish verified | Resolve customer-domain SSL validation |
+| Landing platform | `[##########] 100%` | Production publish and customer-domain HTTPS verified | Repeat the documented flow for the first paid landing |
 | Portfolio and media | `[######----] 60%` | Working | Complete production R2 operations |
-| Production infrastructure | `[#########-] 85%` | Admin proxy and VPS deploy verified | SSL secondary validation and reload policy |
+| Production infrastructure | `[#########-] 90%` | Admin proxy, VPS deploy, and proxied landing HTTPS verified | Origin Certificate hardening and observability |
 | Manual AI analysis | `[#######---] 70%` | Working locally | Explicit production enablement decision |
 | Twenty CRM integration | `[##--------] 20%` | Paused | Resume after landing/calculator completion |
 | AI agents and communications | `[#---------] 10%` | Planned | Tool permissions and human approval model |
@@ -57,7 +57,7 @@ flowchart LR
 | Order | Stage group | Completion rule | State |
 |---:|---|---|---|
 | 1 | Landings and calculators completion | Paid landing order can move from brief to preview lead | Complete through LC Slice 5 |
-| 2 | Landing production infrastructure | VPS/domain/SSL/deploy path verified for customer sites | LC Slice 6 operationally verified except SSL secondary validation |
+| 2 | Landing production infrastructure | VPS/domain/SSL/deploy path verified for customer sites | LC Slice 6 operationally verified with Cloudflare proxied HTTPS |
 | 3 | Twenty CRM Slices 3-7 | Manual order-to-CRM sync works from admin | Paused |
 | 4 | Communication channels | Customer conversations are attached to order/contact history | Planned |
 | 5 | Controlled AI agents | Agents can suggest or perform approved actions with audit history | Planned |
@@ -96,3 +96,4 @@ flowchart LR
 | Focus change | 2026-06-09 | Progress handoff created | Finish landings and calculators before resuming CRM |
 | 2 | 2026-06-10 | LC Slices 1-5 | Structured landing editor and calculator flow are locally complete; move to production publishing |
 | Ops pass | 2026-06-10 | LC Slice 6 Pages/D1 release | Production migrations and Pages deploy complete; VPS HTTPS/control service remains blocked by missing SSH credentials |
+| Ops completion | 2026-06-11 | LC Slice 6 VPS/domain/HTTPS path | Public demo HTTPS verified; recurring failures and solutions recorded in `LANDING_VPS_OPS_RUNBOOK.md` |

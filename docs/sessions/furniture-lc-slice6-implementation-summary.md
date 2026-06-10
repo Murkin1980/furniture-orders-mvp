@@ -52,6 +52,14 @@ Complete the production publishing path for the landing and calculator workflow.
 - Public smoke landing works at `http://lc6-production.194-32-140-229.sslip.io`.
 - Production site status is `published`.
 
+## Domain and HTTPS completion
+
+- Public production demo works at `https://demo.salamat-mebel.kz`.
+- Added exact HTTP and HTTPS nginx virtual hosts for the demo hostname.
+- Verified origin SNI and public HTTPS through both Cloudflare edge IPs.
+- Removed the accidental duplicate Cloudflare Pages project `furniture-orders-mvp-2`.
+- Recorded recurring failures and verified solutions in `LANDING_VPS_OPS_RUNBOOK.md`.
+
 ## Remaining operational follow-ups
 
 - Let’s Encrypt primary validation reaches nginx, but secondary validation times out for both `nip.io` and `sslip.io`; SSL is blocked outside the application path.
@@ -63,3 +71,8 @@ Complete the production publishing path for the landing and calculator workflow.
 - No production orders or sites were created.
 - Secrets were not printed or committed.
 - The D1 backup remains ignored under `output/`.
+
+The remaining SSL note above describes the failed Let's Encrypt path. Public
+HTTPS is now working through Cloudflare with origin encryption. Long-term
+hardening should replace the temporary matching self-signed origin certificate
+with a Cloudflare Origin Certificate and `Full (strict)`.

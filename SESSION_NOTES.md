@@ -669,3 +669,22 @@ Conclusion:
 ### Remaining
 - Let’s Encrypt secondary validation times out even though DNS, HTTP, and primary validation reach nginx. SSL remains an external network/provider follow-up.
 - Admin proxy nginx reload returns 500 because `NoNewPrivileges=true` blocks sudo. Security was not weakened; live HTML deploy does not require reload.
+
+## 2026-06-11 - LC Slice 6 domain and HTTPS completion
+
+### What changed
+- Pointed the production smoke landing to `demo.salamat-mebel.kz` through Cloudflare Proxy.
+- Added exact HTTP and HTTPS nginx virtual hosts for the demo hostname.
+- Added a hostname-matching self-signed origin certificate as the approved fallback after the Cloudflare CSR dashboard repeatedly rejected a valid CSR.
+- Verified origin SNI and public HTTPS through both Cloudflare edge IPs.
+- Deleted the accidental duplicate Cloudflare Pages project `furniture-orders-mvp-2`; the intentional `furniture-orders-mvp` production project remains.
+- Added `LANDING_VPS_OPS_RUNBOOK.md` with discovered infrastructure problems, verified resolutions, safety decisions, and the repeatable customer landing procedure.
+
+### Verified
+- `https://demo.salamat-mebel.kz` returns HTTP 200.
+- VPS control and main platform remain available.
+- `salamat-mebel.kz` and other live donor/client sites were not changed.
+
+### Follow-up
+- Prefer a Cloudflare Origin Certificate and `Full (strict)` for long-term origin hardening.
+- Preserve `NoNewPrivileges=true`; normal HTML deploy does not require nginx reload.
