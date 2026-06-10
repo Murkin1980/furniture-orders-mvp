@@ -635,3 +635,15 @@ Conclusion:
 - Verify the full admin proxy flow and publish a real generated landing artifact.
 - Configure and verify the first customer landing domain and SSL.
 - Replace the temporary control hostname with an owned domain when available.
+
+## 2026-06-10 - Standalone furniture-ai-agent retired
+
+- Archived `Murkin1980/furniture-ai-agent` on GitHub.
+- Removed its PM2 process, nginx site, files, secrets, and temporary backup from the VPS.
+- Verified port `3000` is closed.
+- Verified nginx and `furniture-vps-control` remain active.
+- Verified production Pages remains available.
+- Main platform AI modules remain inside `furniture-orders-mvp`.
+
+### Next
+- Continue LC Slice 6 admin proxy and first customer landing domain verification.
