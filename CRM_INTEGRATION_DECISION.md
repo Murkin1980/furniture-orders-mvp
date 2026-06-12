@@ -146,3 +146,17 @@ git diff --check
   `Settings -> API & Webhooks` after creating the target workspace API key.
 - Official API overview:
   `https://docs.twenty.com/developers/extend/api`.
+
+## CRM Slice 4 completion
+
+- Added guarded sender `src/crm/send-twenty-request.js`.
+- The sender requires an explicit injected `fetchFn` and never falls back to
+  `globalThis.fetch`.
+- It validates request objects and requires a Bearer authorization header
+  before calling the injected client.
+- It handles success JSON, authorization errors, rate limits, server errors,
+  invalid JSON, and network errors.
+- HTTP `429` stops after one request. The sender contains no automatic retry
+  loop.
+- No endpoint, UI, migration, production credentials, real API call, or deploy
+  was added.

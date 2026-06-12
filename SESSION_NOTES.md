@@ -754,3 +754,36 @@ Conclusion:
   paths against the selected installed Twenty version.
 - CRM Slice 4: add `sendTwentyRequest` with injected `fetchFn`; no endpoint,
   UI, migration, deploy, or production integration yet.
+
+## 2026-06-12 - CRM Slice 4 guarded Twenty sender
+
+### What changed
+- Added `sendTwentyRequest(request, options)` with required injected `fetchFn`.
+- Prevented automatic fallback to `globalThis.fetch`.
+- Added request validation and safe handling for success JSON, missing key,
+  authorization errors, rate limits, server errors, invalid JSON, and network
+  failures.
+- Confirmed HTTP `429` stops after exactly one request.
+- Added the sender to `npm run check`.
+
+### Files changed
+- `src/crm/send-twenty-request.js`
+- `tests/send-twenty-request.test.js`
+- `package.json`
+- `README.md`
+- `CRM_INTEGRATION_DECISION.md`
+- `PROJECT_PROGRESS.md`
+- `SESSION_NOTES.md`
+- `docs/sessions/furniture-crm-slice4-implementation-summary.md`
+
+### Checks
+- `node --test tests/send-twenty-request.test.js`: 11 passed.
+- `npm.cmd test`: 176 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed before documentation updates.
+
+### Next
+- CRM Slice 5: create a manual sync core that builds requests and executes them
+  through an injected sender in tests.
+- Do not add endpoint, UI, migration, deploy, production credentials, or real
+  Twenty requests yet.
