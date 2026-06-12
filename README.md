@@ -32,6 +32,10 @@ Twenty sync remains disabled by default. Failed or unavailable CRM sync never
 breaks order intake. A real successful production sync still requires a
 verified Twenty workspace API contract, base URL, and API key.
 
+Production safety test completed on 2026-06-12: the disabled endpoint recorded
+a controlled failed status on smoke order `5` while preserving its normal order
+fields. Deployment: `https://a25ae4ff.furniture-orders-mvp.pages.dev`.
+
 Минимальный backend + тестовый frontend для приёма заявок мебельной мастерской. Проект сделан под Cloudflare Pages Functions и D1: сайт отдаёт форму, Function принимает заявку, сохраняет клиента и заказ, а затем при наличии переменных окружения отправляет уведомление менеджеру в Telegram.
 
 Проект сейчас закрывает Этап 1, Этап 2, рабочий проход Этапа 3 и подэтап 4.01:

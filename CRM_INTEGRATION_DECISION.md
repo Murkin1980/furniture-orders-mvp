@@ -173,3 +173,15 @@ git diff --check
   status without calling Twenty.
 - Real production enablement requires verification of the target workspace API
   schema and production secrets.
+
+## Production safety test
+
+- Migration `0013_order_twenty_sync.sql` was applied to production D1.
+- The manual sync path was deployed to Cloudflare Pages.
+- Production smoke order `5` was sent to the endpoint while
+  `TWENTY_SYNC_ENABLED` remained disabled.
+- The endpoint recorded `crm_sync_status = failed` and
+  `crm_error = Twenty sync is disabled.` without making a Twenty request.
+- Order source, status, and budget remained unchanged.
+- This is a successful safety-path production test, not a successful real
+  Twenty workspace sync.

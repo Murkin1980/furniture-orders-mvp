@@ -45,3 +45,14 @@ safety test. A successful real Twenty production test remains dependent on:
 - `TWENTY_API_BASE_URL`;
 - `TWENTY_API_KEY`;
 - explicit `TWENTY_SYNC_ENABLED=true`.
+
+## Production result
+
+- Applied migration `0013_order_twenty_sync.sql`; no migrations remain pending.
+- Deployed to `https://a25ae4ff.furniture-orders-mvp.pages.dev`.
+- Stable and deployment admin URLs return HTTP 200.
+- Production admin JavaScript contains the CRM button and endpoint path.
+- Production smoke order `5` returned controlled failed status because sync is
+  disabled.
+- The smoke order's source, status, and budget remained unchanged.
+- No external Twenty request was made.

@@ -819,3 +819,27 @@ Conclusion:
 - Run disabled-by-default production safety test.
 - For a successful real Twenty sync, create/select a Twenty workspace, verify
   its generated API schema, and configure production secrets.
+
+## 2026-06-12 - CRM production safety test
+
+### What changed
+- Applied production migration `0013_order_twenty_sync.sql`.
+- Deployed CRM Slices 5-7 to Cloudflare Pages.
+- Ran the production endpoint against smoke order `5` while Twenty sync
+  remained disabled.
+
+### Checks
+- Deployment URL: `https://a25ae4ff.furniture-orders-mvp.pages.dev`.
+- Stable admin and deployment admin: HTTP 200.
+- Production admin bundle contains the CRM button and endpoint path.
+- Production D1: no pending migrations.
+- Endpoint result: controlled `failed` with `Twenty sync is disabled.`
+- Order `5` source `calculator:1`, status `new`, and budget `615000` remained
+  unchanged.
+
+### Next
+- Create or select a Twenty workspace.
+- Verify workspace-generated API paths and payload schemas.
+- Configure `TWENTY_API_BASE_URL` and `TWENTY_API_KEY`.
+- Set `TWENTY_SYNC_ENABLED=true` only for a controlled successful production
+  test.

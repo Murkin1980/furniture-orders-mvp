@@ -26,7 +26,7 @@ This is the canonical visual progress tracker for the complete furniture platfor
 | Portfolio and media | `[######----] 60%` | Working | Complete production R2 operations |
 | Production infrastructure | `[#########-] 90%` | Admin proxy, VPS deploy, and proxied landing HTTPS verified | Origin Certificate hardening and observability |
 | Manual AI analysis | `[#######---] 70%` | Working locally | Explicit production enablement decision |
-| Twenty CRM integration | `[#######---] 70%` | Manual platform sync path complete | Configure Twenty workspace and run successful production sync |
+| Twenty CRM integration | `[#######---] 70%` | Production safety path verified | Configure Twenty workspace and run successful real sync |
 | AI agents and communications | `[#---------] 10%` | Planned | Tool permissions and human approval model |
 | OCR and sketch recognition | `[----------] 0%` | Planned | Safe document/image intake prototype |
 | SketchUp MCP | `[----------] 0%` | Planned | Windows node and controlled MCP prototype |
@@ -101,3 +101,4 @@ flowchart LR
 | CRM restart | 2026-06-11 | CRM Slice 3 request builder | Pure versioned request objects complete; verify installed Twenty API paths before adding sender |
 | CRM sender | 2026-06-12 | CRM Slice 4 guarded sender | Injected-only sender complete; no real API, endpoint, UI, migration, deploy, or production change |
 | CRM platform path | 2026-06-12 | CRM Slices 5-7 | Manual core, persistence, endpoint, and admin control complete; real Twenty workspace remains external |
+| CRM production safety | 2026-06-12 | Disabled-by-default production test | Migration, endpoint, admin bundle, and safe failed status verified without an external CRM request |
