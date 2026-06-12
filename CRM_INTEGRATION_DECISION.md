@@ -7,9 +7,10 @@
 - Do not make Twenty CRM a required dependency for the platform MVP.
 - `furniture-orders-mvp` remains the source of truth for lead intake and furniture-specific workflows.
 - Twenty CRM will be used for contacts, companies, opportunities, tasks, and communication history.
-- Twenty integration packaging and operational files will live in a separate
-  repository/module. The working adapter code already present here remains
-  disabled until that module boundary is prepared and reviewed.
+- Twenty integration packaging and operational files live in the separate
+  `https://github.com/Murkin1980/furniture-twenty-integration` module
+  repository. The working adapter code already present here remains disabled
+  until that module boundary is prepared and reviewed.
 - Before enabling Twenty, the platform will validate a small native CRM built
   on the existing orders, statuses, notes, project steps, and AI fields.
 

@@ -17,7 +17,10 @@ LC Slice 7 production calculator verification is complete:
 
 ## Twenty CRM integration
 
-Twenty CRM is planned as a separate optional CRM service. `furniture-orders-mvp` remains the source of truth for lead intake and furniture-specific workflows.
+Twenty CRM is planned as a separate optional CRM service. Its module repository
+is [`Murkin1980/furniture-twenty-integration`](https://github.com/Murkin1980/furniture-twenty-integration).
+`furniture-orders-mvp` remains the source of truth for lead intake and
+furniture-specific workflows.
 
 The platform now also has a native CRM MVP at `/crm.html`. It provides a
 manager-oriented order pipeline with search, summary counters, AI/CRM signals,

@@ -60,7 +60,7 @@ flowchart LR
 | 1 | Landings and calculators completion | Paid landing order can move from brief to preview lead | Complete through LC Slice 7 production verification |
 | 2 | Landing production infrastructure | VPS/domain/SSL/deploy path verified for customer sites | LC Slice 6 operationally verified with Cloudflare proxied HTTPS |
 | 3 | Native CRM MVP | Manager can search, review, and move orders through the pipeline | Implementation complete; production verification pending |
-| 4 | Separate Twenty module | Optional adapter is isolated from the platform MVP | Planned after native CRM verification |
+| 4 | Separate Twenty module | Optional adapter repository and extraction contract exist | Scaffold complete; runtime extraction waits for verified Twenty schema |
 | 5 | Communication channels | Customer conversations are attached to order/contact history | Planned |
 | 6 | Controlled AI agents | Agents can suggest or perform approved actions with audit history | Planned |
 | 7 | OCR and vision | Text, measurements, and sketch details produce reviewed structured data | Planned |
@@ -105,3 +105,4 @@ flowchart LR
 | CRM platform path | 2026-06-12 | CRM Slices 5-7 | Manual core, persistence, endpoint, and admin control complete; real Twenty workspace remains external |
 | CRM production safety | 2026-06-12 | Disabled-by-default production test | Migration, endpoint, admin bundle, and safe failed status verified without an external CRM request |
 | Native CRM MVP | 2026-06-12 | Dedicated order pipeline, search, summary, and status movement | Validate the simple built-in CRM before isolating Twenty into a separate module repository |
+| Twenty module boundary | 2026-06-12 | Separate repository, env contract, and safe extraction plan | Verify Twenty schema before moving runtime adapter code |

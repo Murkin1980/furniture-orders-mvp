@@ -880,3 +880,20 @@ Conclusion:
 - Deploy the native CRM and run a production manager-flow smoke test.
 - After native CRM verification, create a separate repository for the optional
   Twenty integration module.
+
+## 2026-06-12 - Native CRM deploy and Twenty module boundary
+
+### What changed
+- Deployed native CRM commit `740cc07` to Cloudflare Pages.
+- Verified `https://furniture-orders-mvp.pages.dev/crm` returns HTTP 200 and
+  includes the CRM screen and script.
+- Created and pushed the separate public module repository:
+  `https://github.com/Murkin1980/furniture-twenty-integration`.
+- Added module README, integration contract, env example, and safe extraction
+  plan.
+- Kept the tested Twenty adapter path in this repository disabled; no working
+  code was removed or duplicated yet.
+
+### Next
+- Run a manager-flow smoke test in the deployed native CRM using a test order.
+- Verify a selected Twenty workspace schema before moving adapter runtime code.
