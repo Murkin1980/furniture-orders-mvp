@@ -23,6 +23,7 @@ Small and medium furniture makers who need:
 - Orders intake
 - Admin order list
 - Order statuses and notes
+- Native CRM pipeline, follow-up tasks, interaction history, and summary
 - Project steps
 - Furniture calculators
 - Calculator embed widget

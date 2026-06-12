@@ -34,8 +34,11 @@ export function calculateCrmSummary(orders = []) {
       summary.active += 1;
       summary.activeBudget += budget;
     }
+    const followUpState = getFollowUpState(order?.followUpAt);
+    if (followUpState === "today") summary.dueToday += 1;
+    if (followUpState === "overdue") summary.overdue += 1;
     return summary;
-  }, { total: 0, active: 0, completed: 0, totalBudget: 0, activeBudget: 0, completedBudget: 0 });
+  }, { total: 0, active: 0, completed: 0, dueToday: 0, overdue: 0, totalBudget: 0, activeBudget: 0, completedBudget: 0 });
 }
 
 export function getCrmOrderViewModel(order = {}) {

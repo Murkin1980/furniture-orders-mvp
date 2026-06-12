@@ -20,13 +20,13 @@ This is the canonical visual progress tracker for the complete furniture platfor
 
 | Workstream | Progress | Status | Next meaningful result |
 |---|---:|---|---|
-| Lead intake and order workflow | `[########--] 80%` | Working | Production hardening and deeper manager workflow |
+| Lead intake and order workflow | `[##########] 100%` | Production-ready MVP: intake, statuses, notes, follow-up, history, and project steps | Extend only from real user feedback |
 | Calculators | `[##########] 100%` | Production embed and lead path verified | Repeat the documented flow for the first paid landing |
 | Landing platform | `[##########] 100%` | Production publish and customer-domain HTTPS verified | Repeat the documented flow for the first paid landing |
 | Portfolio and media | `[######----] 60%` | Working | Complete production R2 operations |
 | Production infrastructure | `[#########-] 90%` | Admin proxy, VPS deploy, and proxied landing HTTPS verified | Origin Certificate hardening and observability |
 | Manual AI analysis | `[#######---] 70%` | Working locally | Explicit production enablement decision |
-| Native CRM | `[#########-] 90%` | Pipeline, filters, notes, follow-up dates/tasks implemented | Verify production manager workflow and plan interaction history |
+| Native CRM | `[##########] 100%` | Production-ready MVP: pipeline, filters, analytics, follow-up, and interaction history | Extend only from real manager usage |
 | Twenty CRM integration | `[#######---] 70%` | Production safety path verified; now a separate future module | Prepare separate integration repository after native CRM verification |
 | AI agents and communications | `[#---------] 10%` | Planned | Tool permissions and human approval model |
 | OCR and sketch recognition | `[----------] 0%` | Planned | Safe document/image intake prototype |
@@ -108,3 +108,4 @@ flowchart LR
 | Twenty module boundary | 2026-06-12 | Separate repository, env contract, and safe extraction plan | Verify Twenty schema before moving runtime adapter code |
 | Native CRM manager tools | 2026-06-12 | Priority views and inline notes added without a new backend contract | Verify the deployed manager flow and plan follow-up dates |
 | Native CRM follow-up | 2026-06-12 | Follow-up task/date, today and overdue indicators | Apply migration, deploy, and verify production workflow |
+| Native CRM completion | 2026-06-12 | Interaction history, quick actions, and manager summary | Production migration/deploy and smoke verification |

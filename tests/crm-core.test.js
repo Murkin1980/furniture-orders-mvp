@@ -49,7 +49,7 @@ test("classifies follow-up dates", () => {
 
 test("calculates active and completed CRM summary", () => {
   assert.deepEqual(calculateCrmSummary(orders), {
-    total: 3, active: 2, completed: 1, totalBudget: 350000, activeBudget: 100000, completedBudget: 250000
+    total: 3, active: 2, completed: 1, dueToday: 0, overdue: 0, totalBudget: 350000, activeBudget: 100000, completedBudget: 250000
   });
 });
 

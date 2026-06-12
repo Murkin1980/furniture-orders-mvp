@@ -60,7 +60,9 @@ function render() {
     ["Всего заявок", data.total],
     ["Активные", data.active],
     ["Активный бюджет", formatMoney(data.activeBudget)],
-    ["Завершено", data.completed]
+    ["Конверсия", `${data.total ? Math.round(data.completed / data.total * 100) : 0}%`],
+    ["Сегодня", data.dueToday],
+    ["Просрочено", data.overdue]
   ].map(([label, value]) => `<div><span>${label}</span><strong>${value}</strong></div>`).join("");
   renderBoard(groupCrmOrders(orders));
 }
@@ -74,6 +76,8 @@ function renderBoard(groups) {
   `).join("");
   for (const select of board.querySelectorAll("[data-order-status]")) select.addEventListener("change", updateStatus);
   for (const button of board.querySelectorAll("[data-save-note]")) button.addEventListener("click", saveNote);
+  for (const button of board.querySelectorAll("[data-interaction-type]")) button.addEventListener("click", addInteraction);
+  for (const button of board.querySelectorAll("[data-show-history]")) button.addEventListener("click", showHistory);
 }
 
 function renderCard(order) {
@@ -94,6 +98,13 @@ function renderCard(order) {
       <label>Следующий контакт<input type="date" data-follow-up-at="${escapeHtml(item.id)}" value="${escapeHtml(dateInputValue(item.followUpAt))}" /></label>
       <label>Задача<input type="text" data-follow-up-task="${escapeHtml(item.id)}" value="${escapeHtml(item.followUpTask)}" placeholder="Позвонить, назначить замер" /></label>
       <button class="note-button" type="button" data-save-note="${escapeHtml(item.id)}">Сохранить карточку</button>
+      <div class="quick-actions">
+        <button type="button" data-interaction-type="call" data-order-id="${escapeHtml(item.id)}">Позвонил</button>
+        <button type="button" data-interaction-type="message" data-order-id="${escapeHtml(item.id)}">Написал</button>
+        <button type="button" data-interaction-type="measurement" data-order-id="${escapeHtml(item.id)}">Замер</button>
+        <button type="button" data-show-history="${escapeHtml(item.id)}">История</button>
+      </div>
+      <div class="history" data-history="${escapeHtml(item.id)}"></div>
       <label>Этап<select data-order-status="${escapeHtml(item.id)}" data-previous-status="${escapeHtml(item.status)}">
         ${CRM_STATUSES.map((status) => `<option value="${status}" ${status === item.status ? "selected" : ""}>${statusLabels[status]}</option>`).join("")}
       </select></label>
@@ -121,6 +132,40 @@ async function saveNote(event) {
     setMessage(error.message, "bad");
     button.disabled = false;
   }
+}
+
+async function addInteraction(event) {
+  const button = event.currentTarget;
+  const orderId = Number(button.dataset.orderId);
+  const type = button.dataset.interactionType;
+  const summaries = { call: "Менеджер позвонил клиенту", message: "Менеджер написал клиенту", measurement: "Назначен или проведён замер" };
+  button.disabled = true;
+  try {
+    await adminFetchJson("/api/order-interactions", { method: "POST", payload: { orderId, type, summary: summaries[type] } });
+    setMessage(`Действие по заказу #${orderId} записано.`, "ok");
+    await loadHistory(orderId);
+  } catch (error) { setMessage(error.message, "bad"); }
+  finally { button.disabled = false; }
+}
+
+async function showHistory(event) {
+  await loadHistory(Number(event.currentTarget.dataset.showHistory));
+}
+
+async function loadHistory(orderId) {
+  const container = board.querySelector(`[data-history="${orderId}"]`);
+  if (!container) return;
+  container.textContent = "Загрузка...";
+  try {
+    const json = await adminFetchJson(`/api/order-interactions?orderId=${orderId}`);
+    container.innerHTML = (json.items || []).length
+      ? json.items.map((item) => `<p><strong>${escapeHtml(interactionLabel(item.type))}</strong> ${escapeHtml(item.summary)}<time>${escapeHtml(item.createdAt)}</time></p>`).join("")
+      : "<p>История пока пуста.</p>";
+  } catch (error) { container.textContent = error.message; }
+}
+
+function interactionLabel(type) {
+  return { call: "Звонок:", message: "Сообщение:", meeting: "Встреча:", measurement: "Замер:", note: "Запись:" }[type] || "Действие:";
 }
 
 async function updateStatus(event) {

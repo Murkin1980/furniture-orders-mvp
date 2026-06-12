@@ -26,7 +26,9 @@ The platform now also has a native CRM MVP at `/crm.html`. It provides a
 manager-oriented order pipeline with search, summary counters, AI/CRM signals,
 quick status movement, priority views, and inline manager notes through the
 existing protected order APIs. Follow-up dates and tasks highlight contacts due
-today or overdue. Twenty is packaged as a separate integration
+today or overdue. Quick actions record calls, messages, and measurements in the
+order interaction history. CRM summary shows active value, conversion, due
+contacts, and overdue contacts. Twenty is packaged as a separate integration
 module/repository and is not required for the native CRM.
 
 - CRM Slice 1: architecture and safety decision in `CRM_INTEGRATION_DECISION.md`.

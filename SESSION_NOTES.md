@@ -942,3 +942,25 @@ Conclusion:
 - Cloudflare Pages deployment: `https://bb963409.furniture-orders-mvp.pages.dev`.
 - Stable `/crm` returned HTTP 200 and contains the follow-up filter.
 - Production D1 reports no pending migrations.
+
+## 2026-06-12 - Native CRM and order workflow completion
+
+### What changed
+- Added order interaction history for calls, messages, meetings, measurements,
+  and notes.
+- Added protected `GET/POST /api/order-interactions`.
+- Added CRM quick actions and per-order history display.
+- Expanded CRM summary with conversion, due-today, and overdue counts.
+- Marked native CRM and the lead/order workflow complete for MVP scope.
+
+### Checks
+- Targeted CRM/order tests: 40 passed.
+- `npm.cmd test`: 196 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed before documentation updates.
+
+### Completion boundary
+- Intake, order statuses, manager notes, project steps, follow-up tasks,
+  interaction history, priority filters, and basic analytics are complete.
+- Further CRM/order changes should now be driven by real manager usage rather
+  than expanding speculative scope.
