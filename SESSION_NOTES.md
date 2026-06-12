@@ -964,3 +964,10 @@ Conclusion:
   interaction history, priority filters, and basic analytics are complete.
 - Further CRM/order changes should now be driven by real manager usage rather
   than expanding speculative scope.
+
+### Production completion
+- Applied migration `0015_order_interactions.sql`.
+- Deployed to `https://55405041.furniture-orders-mvp.pages.dev`.
+- Created and read a safe `note` interaction on production smoke order `5`.
+- Stable production interaction endpoint returned the saved event.
+- Native CRM and lead/order workflow are closed for MVP scope.
