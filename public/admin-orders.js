@@ -34,6 +34,20 @@ export function parseOrderAiMissingInfo(value) {
   }
 }
 
+export function getOrderCrmViewModel(order = {}) {
+  return {
+    hasSync: Boolean(order.crmSyncStatus),
+    buttonLabel: order.crmSyncStatus ? "Повторить отправку в CRM" : "Отправить в CRM",
+    status: clean(order.crmSyncStatus),
+    personId: clean(order.crmPersonId),
+    opportunityId: clean(order.crmOpportunityId),
+    noteId: clean(order.crmNoteId),
+    error: clean(order.crmError),
+    lastAttemptAt: clean(order.crmLastAttemptAt),
+    syncedAt: clean(order.crmSyncedAt)
+  };
+}
+
 function clean(value) {
   if (value === undefined || value === null) {
     return "";

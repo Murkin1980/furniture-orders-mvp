@@ -25,10 +25,12 @@ Twenty CRM is planned as a separate optional CRM service. `furniture-orders-mvp`
   `src/crm/twenty-request-builder.js`.
 - CRM Slice 4: guarded sender with required injected `fetchFn` in
   `src/crm/send-twenty-request.js`.
+- CRM Slices 5-7: sequential manual sync core, admin-protected endpoint, order
+  sync persistence, and the manual `Отправить в CRM` admin control.
 
-The mapper and request builder perform no network calls. The sender cannot use
-global `fetch` and requires explicit injection. Manual sync core, endpoint, UI,
-migrations, credentials, and production integration are not implemented yet.
+Twenty sync remains disabled by default. Failed or unavailable CRM sync never
+breaks order intake. A real successful production sync still requires a
+verified Twenty workspace API contract, base URL, and API key.
 
 Минимальный backend + тестовый frontend для приёма заявок мебельной мастерской. Проект сделан под Cloudflare Pages Functions и D1: сайт отдаёт форму, Function принимает заявку, сохраняет клиента и заказ, а затем при наличии переменных окружения отправляет уведомление менеджеру в Telegram.
 
@@ -63,6 +65,8 @@ migrations, credentials, and production integration are not implemented yet.
 - `POST /api/order-steps/update` обновляет статус и заметку шага.
 - `POST /api/orders/project/init` создаёт проектные шаги для заказа вручную.
 - `POST /api/orders/:id/ai/analyze` вручную запускает AI-квалификацию заказа из admin flow и сохраняет нормализованный success/failed результат.
+- `POST /api/orders/:id/crm/twenty` вручную запускает one-way Twenty CRM sync,
+  сохраняет success/failed статус и не влияет на обычный order intake.
 - `GET /api/calculators` и `POST /api/calculators` управляют калькуляторами.
 - `GET /api/calculators/:id/embed` генерирует embed-код для админки или отдаёт публичный widget script по token.
 - `POST /api/calculators/:id/lead` сохраняет расчёт из виджета как обычную заявку.

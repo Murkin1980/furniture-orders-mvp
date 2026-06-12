@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { getOrderAiViewModel, parseOrderAiMissingInfo } from "../public/admin-orders.js";
+import { getOrderAiViewModel, getOrderCrmViewModel, parseOrderAiMissingInfo } from "../public/admin-orders.js";
 
 test("builds AI view model for analyzed order", () => {
   const view = getOrderAiViewModel({
@@ -35,4 +35,22 @@ test("builds safe empty AI view model", () => {
 test("handles malformed missing info without throwing", () => {
   assert.deepEqual(parseOrderAiMissingInfo("dimensions"), ["dimensions"]);
   assert.deepEqual(parseOrderAiMissingInfo(null), []);
+});
+
+test("builds CRM view model for manual sync", () => {
+  const view = getOrderCrmViewModel({
+    crmSyncStatus: "success",
+    crmPersonId: "person-1",
+    crmSyncedAt: "2026-06-12T10:00:00.000Z"
+  });
+
+  assert.equal(view.hasSync, true);
+  assert.equal(view.buttonLabel, "Повторить отправку в CRM");
+  assert.equal(view.personId, "person-1");
+});
+
+test("builds safe empty CRM view model", () => {
+  const view = getOrderCrmViewModel({});
+  assert.equal(view.hasSync, false);
+  assert.equal(view.buttonLabel, "Отправить в CRM");
 });

@@ -1,5 +1,5 @@
     const statuses = ["new", "in_review", "quoted", "in_production", "completed", "canceled"];
-    import { getOrderAiViewModel } from "./admin-orders.js";
+    import { getOrderAiViewModel, getOrderCrmViewModel } from "./admin-orders.js";
 
     const stepStatuses = ["pending", "done", "skipped"];
     const tokenInput = document.querySelector("#token");
@@ -124,6 +124,8 @@
               <button type="submit">Обновить</button>
               <button class="secondary" type="button" data-project-id="${escapeHtml(item.id)}">Открыть проект</button>
               <button class="secondary" type="button" data-ai-order-id="${escapeHtml(item.id)}">${escapeHtml(getOrderAiViewModel(item).buttonLabel)}</button>
+              <button class="secondary" type="button" data-crm-order-id="${escapeHtml(item.id)}">${escapeHtml(getOrderCrmViewModel(item).buttonLabel)}</button>
+              ${renderOrderCrm(item)}
             </form>
           </td>
         </tr>
@@ -137,6 +139,9 @@
       }
       for (const button of tbody.querySelectorAll("[data-ai-order-id]")) {
         button.addEventListener("click", () => analyzeOrderWithAi(Number(button.dataset.aiOrderId), button));
+      }
+      for (const button of tbody.querySelectorAll("[data-crm-order-id]")) {
+        button.addEventListener("click", () => syncOrderToCrm(Number(button.dataset.crmOrderId), button));
       }
     }
 
@@ -172,6 +177,40 @@
         });
 
         setMessage(`AI-анализ заказа #${json.orderId} завершён.`, json.update?.ai_status === "failed" ? "bad" : "ok");
+        await loadOrders();
+      } catch (error) {
+        setMessage(error.message, "bad");
+      } finally {
+        button.disabled = false;
+        button.textContent = originalLabel;
+      }
+    }
+
+    function renderOrderCrm(item) {
+      const crm = getOrderCrmViewModel(item);
+      if (!crm.hasSync) return '<span class="muted">CRM: не отправлялся</span>';
+      return `
+        <div class="order-ai ${crm.error ? "bad" : ""}">
+          <strong>CRM: ${escapeHtml(crm.status)}</strong>
+          <span>Person: ${escapeHtml(crm.personId || "—")}</span>
+          <span>Opportunity: ${escapeHtml(crm.opportunityId || "—")}</span>
+          <span>Note: ${escapeHtml(crm.noteId || "—")}</span>
+          <span>${escapeHtml(crm.syncedAt || crm.lastAttemptAt)}</span>
+          ${crm.error ? `<span class="ai-error">${escapeHtml(crm.error)}</span>` : ""}
+        </div>`;
+    }
+
+    async function syncOrderToCrm(orderId, button) {
+      const originalLabel = button.textContent;
+      button.disabled = true;
+      button.textContent = "Отправка в CRM...";
+      setMessage(`Отправка заказа #${orderId} в CRM...`);
+      try {
+        const json = await adminFetchJson(`/api/orders/${orderId}/crm/twenty`, {
+          method: "POST",
+          fallbackMessage: "Заказ не отправлен в CRM."
+        });
+        setMessage(`CRM sync заказа #${json.orderId}: ${json.sync?.status}.`, json.sync?.status === "success" ? "ok" : "bad");
         await loadOrders();
       } catch (error) {
         setMessage(error.message, "bad");

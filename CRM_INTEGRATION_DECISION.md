@@ -160,3 +160,16 @@ git diff --check
   loop.
 - No endpoint, UI, migration, production credentials, real API call, or deploy
   was added.
+
+## CRM Slices 5-7 completion
+
+- Added sequential manual sync core: person, opportunity, then note.
+- The core stops safely on the first error and preserves partial created IDs.
+- Added migration `0013_order_twenty_sync.sql` for sync status, created IDs,
+  error, last attempt, and successful sync time.
+- Added admin-protected `POST /api/orders/:id/crm/twenty`.
+- Added manual admin control and readable CRM status block.
+- `TWENTY_SYNC_ENABLED` defaults to false. Disabled sync records a safe failed
+  status without calling Twenty.
+- Real production enablement requires verification of the target workspace API
+  schema and production secrets.

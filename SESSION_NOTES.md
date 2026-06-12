@@ -787,3 +787,35 @@ Conclusion:
   through an injected sender in tests.
 - Do not add endpoint, UI, migration, deploy, production credentials, or real
   Twenty requests yet.
+
+## 2026-06-12 - CRM Slices 5-7 manual sync platform path
+
+### What changed
+- Added sequential manual Twenty sync core with partial-ID preservation.
+- Added migration `0013_order_twenty_sync.sql`.
+- Added admin-protected `POST /api/orders/:id/crm/twenty`.
+- Added order-list CRM fields and a manual `Отправить в CRM` admin control.
+- Added disabled-by-default Twenty environment variables.
+
+### Files changed
+- `src/crm/twenty-sync-core.js`
+- `functions/api/orders/[id]/crm/twenty.js`
+- `migrations/0013_order_twenty_sync.sql`
+- `src/orders-core.js`
+- `public/admin-orders.js`
+- `public/admin.js`
+- `.env.example`
+- tests and project documentation
+
+### Checks
+- Targeted CRM core/admin tests: 12 passed.
+- `npm.cmd test`: 185 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed before documentation updates.
+- Remote migration audit: only `0013_order_twenty_sync.sql` pending.
+
+### Next
+- Apply migration and deploy the platform path.
+- Run disabled-by-default production safety test.
+- For a successful real Twenty sync, create/select a Twenty workspace, verify
+  its generated API schema, and configure production secrets.
