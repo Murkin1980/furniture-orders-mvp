@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { calculateCrmSummary, filterCrmOrders, getCrmOrderViewModel, groupCrmOrders } from "../public/crm-core.js";
+import { calculateCrmSummary, filterCrmOrders, getCrmOrderViewModel, getFollowUpState, groupCrmOrders } from "../public/crm-core.js";
 
 const orders = [
   { id: 1, clientName: "Алия", phone: "7701", status: "new", budget: 100000, furnitureType: "kitchen" },
@@ -37,6 +37,14 @@ test("filters active, attention and completed CRM views", () => {
   assert.deepEqual(filterCrmOrders(filterOrders, "", "active").map((item) => item.id), [1, 3, 4, 5]);
   assert.deepEqual(filterCrmOrders(filterOrders, "", "attention").map((item) => item.id), [1, 3, 4, 5]);
   assert.deepEqual(filterCrmOrders(filterOrders, "", "completed").map((item) => item.id), [2]);
+});
+
+test("classifies follow-up dates", () => {
+  const now = new Date("2026-06-12T12:00:00Z");
+  assert.equal(getFollowUpState("2026-06-11", now), "overdue");
+  assert.equal(getFollowUpState("2026-06-12", now), "today");
+  assert.equal(getFollowUpState("2026-06-13", now), "planned");
+  assert.equal(getFollowUpState("", now), "");
 });
 
 test("calculates active and completed CRM summary", () => {

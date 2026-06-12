@@ -917,3 +917,22 @@ Conclusion:
 ### Next
 - Deploy and verify the updated CRM screen.
 - Next native CRM product slice: follow-up date/tasks and overdue indicators.
+
+## 2026-06-12 - Native CRM follow-up MVP
+
+### What changed
+- Added optional `follow_up_at` and `follow_up_task` order fields.
+- Added migration `0014_order_follow_up.sql`.
+- Extended the existing protected order update contract.
+- Added CRM date/task controls, today/overdue indicators, and a due-contact
+  filter.
+- No notifications, external calls, or new dependencies were added.
+
+### Checks
+- Targeted CRM/order tests: 38 passed.
+- `npm.cmd test`: 194 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed before documentation updates.
+
+### Next
+- Apply migration `0014`, deploy, and verify the production CRM screen.

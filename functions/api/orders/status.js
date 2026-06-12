@@ -40,7 +40,9 @@ export async function onRequestPost(context) {
       env: context.env,
       orderId: payload.orderId,
       status: payload.status,
-      notes: payload.notes
+      notes: payload.notes,
+      followUpAt: payload.followUpAt,
+      followUpTask: payload.followUpTask
     });
 
     return jsonResponse(result.body, result.status);

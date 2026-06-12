@@ -53,8 +53,21 @@ export function getCrmOrderViewModel(order = {}) {
     aiTemperature: clean(order.aiTemperature),
     aiSummary: clean(order.aiSummary),
     crmStatus: clean(order.crmSyncStatus),
+    followUpAt: clean(order.followUpAt),
+    followUpTask: clean(order.followUpTask),
+    followUpState: getFollowUpState(order.followUpAt),
     updatedAt: clean(order.updatedAt || order.createdAt)
   };
+}
+
+export function getFollowUpState(value, now = new Date()) {
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return "";
+  const today = now.toISOString().slice(0, 10);
+  const due = date.toISOString().slice(0, 10);
+  if (due < today) return "overdue";
+  if (due === today) return "today";
+  return "planned";
 }
 
 function clean(value) {
@@ -74,5 +87,6 @@ function matchesMode(order, mode) {
       || safeNumber(order?.aiScore) >= 70;
   }
   if (mode === "completed") return order?.status === "completed";
+  if (mode === "follow_up") return ["today", "overdue"].includes(getFollowUpState(order?.followUpAt));
   return true;
 }

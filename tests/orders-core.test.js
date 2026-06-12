@@ -193,6 +193,24 @@ test("updates order status and notes", async () => {
   assert.equal(result.body.item.notes, "Уточнить размеры");
 });
 
+test("updates order follow-up task and date", async () => {
+  const db = createMockDb();
+  await createOrder({ db, env: { RUNTIME_SCHEMA_INIT: "true" }, payload: { name: "Ерлан", phone: "+77011234567" } });
+
+  const result = await updateOrderStatus({
+    db,
+    env: { RUNTIME_SCHEMA_INIT: "true" },
+    orderId: 1,
+    status: "new",
+    notes: "",
+    followUpAt: "2026-06-13",
+    followUpTask: "Позвонить клиенту"
+  });
+
+  assert.equal(result.body.item.followUpAt, "2026-06-13");
+  assert.equal(result.body.item.followUpTask, "Позвонить клиенту");
+});
+
 test("rejects invalid status updates", async () => {
   const result = await updateOrderStatus({
     db: createMockDb(),
@@ -1157,11 +1175,13 @@ function createMockDb() {
             }
 
             if (sql.includes("UPDATE orders")) {
-              const [status, notes, orderId] = values;
+              const [status, notes, followUpAt, followUpTask, orderId] = values;
               const order = state.orders.find((item) => item.id === orderId);
               if (order) {
                 order.status = status;
                 order.notes = notes;
+                order.followUpAt = followUpAt;
+                order.followUpTask = followUpTask;
                 order.updatedAt = now();
               }
               return { success: true };
@@ -1396,6 +1416,8 @@ function toOrderRow(state, order) {
     aiPotentialValue: order.ai_potential_value || null,
     aiRecommendedStatus: order.ai_recommended_status || null,
     aiError: order.ai_error || null,
+    followUpAt: order.followUpAt || null,
+    followUpTask: order.followUpTask || null,
     createdAt: order.createdAt,
     updatedAt: order.updatedAt
   };

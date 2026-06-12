@@ -127,6 +127,8 @@ async function ensureSchema(db, env) {
       crm_error TEXT,
       crm_last_attempt_at TEXT,
       crm_synced_at TEXT,
+      follow_up_at TEXT,
+      follow_up_task TEXT,
       raw_payload TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -332,6 +334,8 @@ export async function listOrders({ db, env = {}, status = null }) {
       orders.crm_error AS crmError,
       orders.crm_last_attempt_at AS crmLastAttemptAt,
       orders.crm_synced_at AS crmSyncedAt,
+      orders.follow_up_at AS followUpAt,
+      orders.follow_up_task AS followUpTask,
       orders.created_at AS createdAt,
       COALESCE(orders.updated_at, orders.created_at) AS updatedAt
     FROM orders
@@ -353,7 +357,7 @@ export async function listOrders({ db, env = {}, status = null }) {
   };
 }
 
-export async function updateOrderStatus({ db, env = {}, orderId, status, notes = null }) {
+export async function updateOrderStatus({ db, env = {}, orderId, status, notes = null, followUpAt = null, followUpTask = null }) {
   if (!db) {
     throw new Error("D1 binding DB is not configured.");
   }
@@ -363,6 +367,8 @@ export async function updateOrderStatus({ db, env = {}, orderId, status, notes =
   const normalizedOrderId = Number(orderId);
   const normalizedStatus = cleanText(status);
   const normalizedNotes = cleanText(notes);
+  const normalizedFollowUpAt = cleanText(followUpAt);
+  const normalizedFollowUpTask = cleanText(followUpTask);
 
   if (!Number.isInteger(normalizedOrderId) || normalizedOrderId < 1) {
     return {
@@ -408,10 +414,10 @@ export async function updateOrderStatus({ db, env = {}, orderId, status, notes =
   await db
     .prepare(
       `UPDATE orders
-       SET status = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
+       SET status = ?, notes = ?, follow_up_at = ?, follow_up_task = ?, updated_at = CURRENT_TIMESTAMP
        WHERE id = ?`
     )
-    .bind(normalizedStatus, normalizedNotes, normalizedOrderId)
+    .bind(normalizedStatus, normalizedNotes, normalizedFollowUpAt, normalizedFollowUpTask, normalizedOrderId)
     .run();
 
   let projectSteps = null;
@@ -434,6 +440,8 @@ export async function updateOrderStatus({ db, env = {}, orderId, status, notes =
         orders.description,
         orders.notes,
         orders.status,
+        orders.follow_up_at AS followUpAt,
+        orders.follow_up_task AS followUpTask,
         orders.created_at AS createdAt,
         COALESCE(orders.updated_at, orders.created_at) AS updatedAt
        FROM orders

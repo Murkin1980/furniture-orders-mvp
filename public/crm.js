@@ -89,9 +89,11 @@ function renderCard(order) {
       ${item.description ? `<p class="description">${escapeHtml(item.description)}</p>` : ""}
       ${item.notes ? `<p class="note">${escapeHtml(item.notes)}</p>` : ""}
       ${item.aiSummary ? `<p class="ai-summary">${escapeHtml(item.aiSummary)}</p>` : ""}
-      <div class="signals">${ai}${crm}</div>
+      <div class="signals">${ai}${crm}${renderFollowUpSignal(item)}</div>
       <label>Заметка<textarea data-order-note="${escapeHtml(item.id)}" placeholder="Следующий контакт, замер, договорённость">${escapeHtml(item.notes)}</textarea></label>
-      <button class="note-button" type="button" data-save-note="${escapeHtml(item.id)}">Сохранить заметку</button>
+      <label>Следующий контакт<input type="date" data-follow-up-at="${escapeHtml(item.id)}" value="${escapeHtml(dateInputValue(item.followUpAt))}" /></label>
+      <label>Задача<input type="text" data-follow-up-task="${escapeHtml(item.id)}" value="${escapeHtml(item.followUpTask)}" placeholder="Позвонить, назначить замер" /></label>
+      <button class="note-button" type="button" data-save-note="${escapeHtml(item.id)}">Сохранить карточку</button>
       <label>Этап<select data-order-status="${escapeHtml(item.id)}" data-previous-status="${escapeHtml(item.status)}">
         ${CRM_STATUSES.map((status) => `<option value="${status}" ${status === item.status ? "selected" : ""}>${statusLabels[status]}</option>`).join("")}
       </select></label>
@@ -104,14 +106,15 @@ async function saveNote(event) {
   const orderId = Number(button.dataset.saveNote);
   const order = state.orders.find((item) => Number(item.id) === orderId);
   const note = board.querySelector(`[data-order-note="${orderId}"]`)?.value || "";
+  const followUpAt = board.querySelector(`[data-follow-up-at="${orderId}"]`)?.value || "";
+  const followUpTask = board.querySelector(`[data-follow-up-task="${orderId}"]`)?.value || "";
   button.disabled = true;
   try {
     const json = await adminFetchJson("/api/orders/status", {
       method: "POST",
-      payload: { orderId, status: order.status, notes: note }
+      payload: { orderId, status: order.status, notes: note, followUpAt, followUpTask }
     });
-    order.notes = json.item?.notes ?? note;
-    order.updatedAt = json.item?.updatedAt ?? order.updatedAt;
+    Object.assign(order, json.item || { notes: note, followUpAt, followUpTask });
     setMessage(`Заметка заказа #${orderId} сохранена.`, "ok");
     render();
   } catch (error) {
@@ -126,8 +129,10 @@ async function updateStatus(event) {
   const order = state.orders.find((item) => Number(item.id) === orderId);
   select.disabled = true;
   try {
-    await adminFetchJson("/api/orders/status", { method: "POST", payload: { orderId, status: select.value, notes: order?.notes || "" } });
-    order.status = select.value;
+    const json = await adminFetchJson("/api/orders/status", { method: "POST", payload: {
+      orderId, status: select.value, notes: order?.notes || "", followUpAt: order?.followUpAt || "", followUpTask: order?.followUpTask || ""
+    } });
+    Object.assign(order, json.item || { status: select.value });
     setMessage(`Заказ #${orderId} перемещён: ${statusLabels[select.value]}.`, "ok");
     render();
   } catch (error) {
@@ -136,6 +141,16 @@ async function updateStatus(event) {
   } finally {
     select.disabled = false;
   }
+}
+
+function renderFollowUpSignal(item) {
+  if (!item.followUpState) return "";
+  const labels = { overdue: "Просрочено", today: "Сегодня", planned: "Запланировано" };
+  return `<span class="signal follow-up ${item.followUpState}">${labels[item.followUpState]}${item.followUpTask ? ` · ${escapeHtml(item.followUpTask)}` : ""}</span>`;
+}
+
+function dateInputValue(value) {
+  return value ? String(value).slice(0, 10) : "";
 }
 
 async function adminFetchJson(path, { method = "GET", payload } = {}) {
