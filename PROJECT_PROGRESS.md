@@ -26,7 +26,7 @@ This is the canonical visual progress tracker for the complete furniture platfor
 | Portfolio and media | `[######----] 60%` | Working | Complete production R2 operations |
 | Production infrastructure | `[#########-] 90%` | Admin proxy, VPS deploy, and proxied landing HTTPS verified | Origin Certificate hardening and observability |
 | Manual AI analysis | `[#######---] 70%` | Working locally | Explicit production enablement decision |
-| Native CRM | `[#######---] 70%` | Pipeline MVP implemented and locally tested | Deploy and verify manager flow in production |
+| Native CRM | `[########--] 80%` | Pipeline, priority filters, notes, and status workflow deployed | Verify manager workflow on test orders and add task/follow-up dates |
 | Twenty CRM integration | `[#######---] 70%` | Production safety path verified; now a separate future module | Prepare separate integration repository after native CRM verification |
 | AI agents and communications | `[#---------] 10%` | Planned | Tool permissions and human approval model |
 | OCR and sketch recognition | `[----------] 0%` | Planned | Safe document/image intake prototype |
@@ -106,3 +106,4 @@ flowchart LR
 | CRM production safety | 2026-06-12 | Disabled-by-default production test | Migration, endpoint, admin bundle, and safe failed status verified without an external CRM request |
 | Native CRM MVP | 2026-06-12 | Dedicated order pipeline, search, summary, and status movement | Validate the simple built-in CRM before isolating Twenty into a separate module repository |
 | Twenty module boundary | 2026-06-12 | Separate repository, env contract, and safe extraction plan | Verify Twenty schema before moving runtime adapter code |
+| Native CRM manager tools | 2026-06-12 | Priority views and inline notes added without a new backend contract | Verify the deployed manager flow and plan follow-up dates |

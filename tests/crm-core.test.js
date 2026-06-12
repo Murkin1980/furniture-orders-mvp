@@ -27,6 +27,18 @@ test("filters by client, phone, city and furniture type", () => {
   assert.deepEqual(filterCrmOrders(orders, "office").map((item) => item.id), [3]);
 });
 
+test("filters active, attention and completed CRM views", () => {
+  const filterOrders = [
+    ...orders,
+    { id: 4, status: "quoted", aiTemperature: "hot" },
+    { id: 5, status: "in_production", aiScore: 80 },
+    { id: 6, status: "canceled" }
+  ];
+  assert.deepEqual(filterCrmOrders(filterOrders, "", "active").map((item) => item.id), [1, 3, 4, 5]);
+  assert.deepEqual(filterCrmOrders(filterOrders, "", "attention").map((item) => item.id), [1, 3, 4, 5]);
+  assert.deepEqual(filterCrmOrders(filterOrders, "", "completed").map((item) => item.id), [2]);
+});
+
 test("calculates active and completed CRM summary", () => {
   assert.deepEqual(calculateCrmSummary(orders), {
     total: 3, active: 2, completed: 1, totalBudget: 350000, activeBudget: 100000, completedBudget: 250000

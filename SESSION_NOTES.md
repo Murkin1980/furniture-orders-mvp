@@ -897,3 +897,23 @@ Conclusion:
 ### Next
 - Run a manager-flow smoke test in the deployed native CRM using a test order.
 - Verify a selected Twenty workspace schema before moving adapter runtime code.
+
+## 2026-06-12 - Native CRM manager tools
+
+### What changed
+- Added `All`, `Active`, `Needs attention`, and `Completed` CRM views.
+- `Needs attention` includes early-stage, hot/warm, and AI score 70+ orders.
+- Added inline manager-note editing and saving through the existing protected
+  order status endpoint.
+- Preserved existing data and avoided new endpoints, migrations, or
+  dependencies.
+
+### Checks
+- `node --test tests/crm-core.test.js`: 7 passed.
+- `npm.cmd test`: 192 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed before documentation updates.
+
+### Next
+- Deploy and verify the updated CRM screen.
+- Next native CRM product slice: follow-up date/tasks and overdue indicators.

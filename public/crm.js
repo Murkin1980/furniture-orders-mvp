@@ -4,13 +4,14 @@ const statusLabels = {
   new: "Новые", in_review: "На проверке", quoted: "Смета отправлена",
   in_production: "В производстве", completed: "Завершены", canceled: "Отменены"
 };
-const state = { orders: [], query: "" };
+const state = { orders: [], query: "", mode: "all" };
 const tokenInput = document.querySelector("#token");
 const searchInput = document.querySelector("#search");
 const board = document.querySelector("#crm-board");
 const summary = document.querySelector("#crm-summary");
 const message = document.querySelector("#message");
 const refreshButton = document.querySelector("#refresh");
+const filterButtons = document.querySelectorAll("[data-crm-mode]");
 
 tokenInput.value = localStorage.getItem("furnitureAdminToken") || "";
 document.querySelector("#save-token").addEventListener("click", () => {
@@ -18,6 +19,13 @@ document.querySelector("#save-token").addEventListener("click", () => {
   loadOrders();
 });
 refreshButton.addEventListener("click", loadOrders);
+for (const button of filterButtons) {
+  button.addEventListener("click", () => {
+    state.mode = button.dataset.crmMode;
+    for (const item of filterButtons) item.classList.toggle("active", item === button);
+    render();
+  });
+}
 searchInput.addEventListener("input", () => {
   state.query = searchInput.value;
   render();
@@ -46,7 +54,7 @@ async function loadOrders() {
 }
 
 function render() {
-  const orders = filterCrmOrders(state.orders, state.query);
+  const orders = filterCrmOrders(state.orders, state.query, state.mode);
   const data = calculateCrmSummary(orders);
   summary.innerHTML = [
     ["Всего заявок", data.total],
@@ -65,6 +73,7 @@ function renderBoard(groups) {
     </section>
   `).join("");
   for (const select of board.querySelectorAll("[data-order-status]")) select.addEventListener("change", updateStatus);
+  for (const button of board.querySelectorAll("[data-save-note]")) button.addEventListener("click", saveNote);
 }
 
 function renderCard(order) {
@@ -81,11 +90,34 @@ function renderCard(order) {
       ${item.notes ? `<p class="note">${escapeHtml(item.notes)}</p>` : ""}
       ${item.aiSummary ? `<p class="ai-summary">${escapeHtml(item.aiSummary)}</p>` : ""}
       <div class="signals">${ai}${crm}</div>
+      <label>Заметка<textarea data-order-note="${escapeHtml(item.id)}" placeholder="Следующий контакт, замер, договорённость">${escapeHtml(item.notes)}</textarea></label>
+      <button class="note-button" type="button" data-save-note="${escapeHtml(item.id)}">Сохранить заметку</button>
       <label>Этап<select data-order-status="${escapeHtml(item.id)}" data-previous-status="${escapeHtml(item.status)}">
         ${CRM_STATUSES.map((status) => `<option value="${status}" ${status === item.status ? "selected" : ""}>${statusLabels[status]}</option>`).join("")}
       </select></label>
       <time>${escapeHtml(item.updatedAt)}</time>
     </article>`;
+}
+
+async function saveNote(event) {
+  const button = event.currentTarget;
+  const orderId = Number(button.dataset.saveNote);
+  const order = state.orders.find((item) => Number(item.id) === orderId);
+  const note = board.querySelector(`[data-order-note="${orderId}"]`)?.value || "";
+  button.disabled = true;
+  try {
+    const json = await adminFetchJson("/api/orders/status", {
+      method: "POST",
+      payload: { orderId, status: order.status, notes: note }
+    });
+    order.notes = json.item?.notes ?? note;
+    order.updatedAt = json.item?.updatedAt ?? order.updatedAt;
+    setMessage(`Заметка заказа #${orderId} сохранена.`, "ok");
+    render();
+  } catch (error) {
+    setMessage(error.message, "bad");
+    button.disabled = false;
+  }
 }
 
 async function updateStatus(event) {

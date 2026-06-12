@@ -24,9 +24,10 @@ furniture-specific workflows.
 
 The platform now also has a native CRM MVP at `/crm.html`. It provides a
 manager-oriented order pipeline with search, summary counters, AI/CRM signals,
-and quick status movement through the existing protected order APIs. It adds no
-new migration or dependency. Twenty will be packaged later as a separate
-integration module/repository and is not required for the native CRM.
+quick status movement, priority views, and inline manager notes through the
+existing protected order APIs. It adds no new migration or dependency. Twenty
+is packaged as a separate integration module/repository and is not required for
+the native CRM.
 
 - CRM Slice 1: architecture and safety decision in `CRM_INTEGRATION_DECISION.md`.
 - CRM Slice 2: pure person, opportunity, note, and sync payload mapping in `src/crm/twenty-mapper.js`.

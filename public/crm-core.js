@@ -1,13 +1,15 @@
 export const CRM_STATUSES = ["new", "in_review", "quoted", "in_production", "completed", "canceled"];
 
-export function filterCrmOrders(orders = [], query = "") {
+export function filterCrmOrders(orders = [], query = "", mode = "all") {
   const normalizedQuery = clean(query).toLowerCase();
-  if (!normalizedQuery) return [...orders];
+  return orders.filter((order) => {
+    const matchesQuery = !normalizedQuery || [
+      order.id, order.clientName, order.phone, order.city, order.furnitureType,
+      order.aiFurnitureType, order.description, order.notes
+    ].some((value) => clean(value).toLowerCase().includes(normalizedQuery));
 
-  return orders.filter((order) => [
-    order.id, order.clientName, order.phone, order.city, order.furnitureType,
-    order.aiFurnitureType, order.description, order.notes
-  ].some((value) => clean(value).toLowerCase().includes(normalizedQuery)));
+    return matchesQuery && matchesMode(order, mode);
+  });
 }
 
 export function groupCrmOrders(orders = [], statuses = CRM_STATUSES) {
@@ -62,4 +64,15 @@ function clean(value) {
 function safeNumber(value) {
   const number = Number(value);
   return Number.isFinite(number) && number > 0 ? number : 0;
+}
+
+function matchesMode(order, mode) {
+  if (mode === "active") return !["completed", "canceled"].includes(order?.status);
+  if (mode === "attention") {
+    return ["new", "in_review"].includes(order?.status)
+      || ["hot", "warm"].includes(clean(order?.aiTemperature).toLowerCase())
+      || safeNumber(order?.aiScore) >= 70;
+  }
+  if (mode === "completed") return order?.status === "completed";
+  return true;
 }

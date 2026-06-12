@@ -14,6 +14,7 @@
     .brand-mark{display:grid;width:38px;aspect-ratio:1;place-items:center;border-radius:var(--radius);color:#fff;background:var(--accent);font-weight:800}
     h1{margin:0;font-size:20px;letter-spacing:0}.brand p{margin:2px 0 0;color:var(--muted);font-size:12px}.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
     .controls input[type=search]{width:min(280px,42vw)}.controls input[type=password]{width:150px}.admin-link{color:var(--accent);font-weight:700;text-decoration:none}
+    .filters{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 14px}.filters button{min-height:32px;padding:5px 9px;border-color:var(--line);color:var(--muted);background:var(--surface);font-size:12px}.filters button.active{border-color:var(--accent);color:#fff;background:var(--accent)}
     main{max-width:1800px;margin:auto;padding:18px}.status-line{min-height:22px;color:var(--muted);font-size:13px}.status-line.ok{color:var(--accent)}.status-line.bad{color:var(--bad)}
     .summary{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:8px;margin:8px 0 18px}.summary div{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
     .summary span{color:var(--muted);font-size:12px}.summary strong{font-size:17px}.board{display:grid;grid-template-columns:repeat(6,minmax(245px,1fr));gap:10px;align-items:start;overflow-x:auto;padding-bottom:18px}
@@ -23,7 +24,7 @@
     .lead-top{display:grid;grid-template-columns:auto 1fr;gap:4px 8px;align-items:baseline}.lead-top strong{overflow-wrap:anywhere}.lead-id{color:var(--muted);font-size:11px}.money{grid-column:1/-1;color:var(--accent);font-size:13px;font-weight:800}
     .phone{color:var(--ink);font-size:13px;font-weight:700;text-decoration:none}.details,.description,.note,.ai-summary{margin:0;font-size:12px;line-height:1.45;overflow-wrap:anywhere}.details{color:var(--muted)}.description{max-height:54px;overflow:hidden}.note{padding:7px;border-left:2px solid var(--warm);background:#fff6eb}.ai-summary{padding:7px;background:var(--accent-soft)}
     .signals{display:flex;gap:4px;flex-wrap:wrap}.signal{padding:3px 5px;border:1px solid var(--line);border-radius:4px;font-size:10px;font-weight:800}.signal.ai{color:var(--accent)}.signal.sync{color:#465a79}
-    .lead-card label{display:grid;gap:4px;color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase}.lead-card select{width:100%;min-height:34px;font-size:12px}time{color:var(--muted);font-size:10px}
+    .lead-card label{display:grid;gap:4px;color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase}.lead-card select{width:100%;min-height:34px;font-size:12px}.lead-card textarea{width:100%;min-height:58px;resize:vertical;border:1px solid var(--line);border-radius:5px;padding:7px;font:12px/1.4 "Segoe UI",sans-serif;text-transform:none}.note-button{min-height:32px;padding:5px 8px;font-size:11px}time{color:var(--muted);font-size:10px}
     .empty,.board-empty{margin:0;padding:18px 10px;color:var(--muted);text-align:center;font-size:12px}.board-empty{grid-column:1/-1;border:1px solid var(--line);background:var(--surface)}
     @media(max-width:900px){.topbar-inner{align-items:flex-start;flex-direction:column}.controls{width:100%}.controls input[type=search]{width:100%}.summary{grid-template-columns:repeat(2,minmax(130px,1fr))}main{padding:12px}}
   </style>
@@ -31,7 +32,7 @@
 <body>
   <header class="topbar"><div class="topbar-inner"><div class="brand"><div class="brand-mark">CRM</div><div><h1>Воронка мебельных заказов</h1><p>Лиды, сметы и производство в одном рабочем поле</p></div></div>
     <div class="controls"><input id="search" type="search" placeholder="Поиск клиента, телефона, заказа" /><input id="token" type="password" autocomplete="current-password" placeholder="Admin token" /><button id="save-token" class="secondary" type="button">Сохранить</button><button id="refresh" type="button">Обновить</button><a class="admin-link" href="/admin.html">Админка</a></div></div></header>
-  <main><div id="message" class="status-line"></div><section id="crm-summary" class="summary" aria-label="Сводка"></section><section id="crm-board" class="board" aria-label="CRM воронка"><div class="board-empty">Загрузка...</div></section></main>
+  <main><div id="message" class="status-line"></div><section id="crm-summary" class="summary" aria-label="Сводка"></section><nav class="filters" aria-label="Фильтры CRM"><button class="active" type="button" data-crm-mode="all">Все</button><button type="button" data-crm-mode="active">Активные</button><button type="button" data-crm-mode="attention">Требуют внимания</button><button type="button" data-crm-mode="completed">Завершённые</button></nav><section id="crm-board" class="board" aria-label="CRM воронка"><div class="board-empty">Загрузка...</div></section></main>
   <script src="/crm.js" type="module"></script>
 </body>
 </html>
