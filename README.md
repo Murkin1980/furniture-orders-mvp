@@ -399,7 +399,10 @@ canceled
 - При missing key, authorization error, rate limit, provider error или invalid response заказ остаётся целым, а результат сохраняется с `ai_status=failed` и `ai_error`.
 - Локальные smoke tests подтвердили ручной endpoint, безопасные failure paths для authorization error/HTTP 429 и successful OpenAI path.
 - Successful OpenAI smoke test вернул `ai_status=success`, score `75`, temperature `warm`, заполненные summary/next question, валидный missing-info JSON и пустой `ai_error`.
-- Production AI пока не включён; migration `0011` не применялась к production D1.
+- Production migration `0011` применена, provider secrets настроены, и ручной
+  AI-анализ успешно проверен на синтетическом production-заказе `6`.
+- AI autorun остаётся отключённым; реальные клиентские данные не использовались
+  в production smoke test.
 - Полная настройка и команды проверки находятся в `AI_SETUP.md`.
 
 ## Локальная проверка

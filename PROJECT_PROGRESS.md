@@ -4,7 +4,8 @@ Last reviewed: 2026-06-12
 Current checkpoint: 2
 Next checkpoint review: after 5 more completed slices
 
-Current product focus: prepare the first paid landing while selecting the next product layer after completing landing and calculator production verification.
+Current product focus: restore the VPS operational path and use the verified
+manual AI analysis flow safely on synthetic/test data.
 
 This is the canonical visual progress tracker for the complete furniture platform. Percentages are engineering estimates based on implemented, tested, deployed, and operationally verified behavior. A feature is not considered complete only because code exists.
 
@@ -24,8 +25,8 @@ This is the canonical visual progress tracker for the complete furniture platfor
 | Calculators | `[##########] 100%` | Production embed and lead path verified | Repeat the documented flow for the first paid landing |
 | Landing platform | `[##########] 100%` | Production publish and customer-domain HTTPS verified | Repeat the documented flow for the first paid landing |
 | Portfolio and media | `[######----] 60%` | Working | Complete production R2 operations |
-| Production infrastructure | `[#########-] 90%` | Admin proxy, VPS deploy, and proxied landing HTTPS verified | Origin Certificate hardening and observability |
-| Manual AI analysis | `[#######---] 70%` | Working locally | Explicit production enablement decision |
+| Production infrastructure | `[#########-] 90%` | Cloudflare core is operational; VPS control and SSH are currently unreachable | Restore VPS/provider access, then re-run health/services/deploy checks |
+| Manual AI analysis | `[##########] 100%` | Manual-only production flow verified on a synthetic order | Keep manual-only; define consent rules before using real customer data |
 | Native CRM | `[##########] 100%` | Production-ready MVP: pipeline, filters, analytics, follow-up, and interaction history | Extend only from real manager usage |
 | Twenty CRM integration | `[#######---] 70%` | Production safety path verified; now a separate future module | Prepare separate integration repository after native CRM verification |
 | AI agents and communications | `[#---------] 10%` | Planned | Tool permissions and human approval model |
@@ -109,3 +110,5 @@ flowchart LR
 | Native CRM manager tools | 2026-06-12 | Priority views and inline notes added without a new backend contract | Verify the deployed manager flow and plan follow-up dates |
 | Native CRM follow-up | 2026-06-12 | Follow-up task/date, today and overdue indicators | Apply migration, deploy, and verify production workflow |
 | Native CRM completion | 2026-06-12 | Interaction history, quick actions, and manager summary | Production migration/deploy and smoke verification |
+| AI production verification | 2026-06-12 | Production secrets, migration, deploy, and synthetic manual analysis | Manual AI is complete; no autorun and no real customer-data smoke |
+| Infrastructure audit | 2026-06-12 | Cloudflare/D1/R2 verified; VPS proxy and SSH timed out | Treat VPS as degraded until provider access is restored and checks pass |

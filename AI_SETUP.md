@@ -25,7 +25,9 @@ For an existing local Wrangler D1 database:
 npx.cmd wrangler d1 migrations apply furniture_orders --local
 ```
 
-Production migration application is a separate operations step. Do not apply it implicitly while developing or testing the AI module.
+Production migration `0011` is applied to the current production D1 database.
+For any new environment, migration application remains a separate explicit
+operations step; do not apply it implicitly while developing or testing.
 
 ## Environment variables
 
@@ -95,3 +97,19 @@ git diff --check
 ```
 
 To verify a real provider locally, configure `.dev.vars`, ensure migration `0011` is applied to configured local D1 `furniture_orders`, start Pages without the `--d1 DB` override, and trigger analysis manually from the admin order list.
+
+## Production status
+
+Manual production AI analysis was verified on 2026-06-12 using a clearly
+synthetic order:
+
+- provider: `openai`;
+- model: `gpt-4o-mini`;
+- result: `ai_status=success`;
+- normalized score and temperature were saved;
+- `ai_error` remained empty;
+- automatic analysis on order intake remains disabled.
+
+Use synthetic smoke orders for provider verification. Sending a real customer
+order to an external AI provider requires an explicit operational decision and
+appropriate consent/data-handling rules.

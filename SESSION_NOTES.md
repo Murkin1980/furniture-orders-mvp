@@ -971,3 +971,34 @@ Conclusion:
 - Created and read a safe `note` interaction on production smoke order `5`.
 - Stable production interaction endpoint returned the saved event.
 - Native CRM and lead/order workflow are closed for MVP scope.
+
+## 2026-06-12 - Infrastructure and AI production audit
+
+### What changed
+- Confirmed production D1 has no pending migrations and required R2 buckets
+  exist.
+- Added the existing OpenAI provider configuration to Cloudflare Pages
+  production secrets without exposing secret values.
+- Redeployed Pages and successfully ran manual AI analysis on synthetic order
+  `6`.
+- Updated AI and VPS operations documentation to match the verified state.
+
+### Verified
+- Manual AI result: `ai_status=success`, provider `openai`, model
+  `gpt-4o-mini`, normalized score/temperature saved, empty `ai_error`.
+- AI autorun remains disabled.
+- No real customer data was sent during the production smoke test.
+- Cloudflare Pages and D1 are operational.
+
+### Infrastructure blocker
+- Production VPS proxy health, services, and deploy-log checks return
+  `502 vps_control_unreachable`.
+- Direct SSH to `194.32.140.229` times out.
+- Automated PS.kz panel inspection is blocked by environment network policy.
+- No VPS start, stop, restart, deploy, or reload action was attempted.
+
+### Next
+- Inspect VPS power/network state manually in PS.kz.
+- Obtain explicit approval before a start or restart.
+- After recovery, verify `sshd`, nginx, `furniture-vps-control`, then run one
+  health/services/deploy-log check.

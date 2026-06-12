@@ -1,6 +1,6 @@
 # Landing VPS Operations Runbook
 
-Last verified: 2026-06-11
+Last verified: 2026-06-12
 
 This runbook records the production landing path, failures found during LC
 Slice 6, and verified solutions. Read it before changing Pages, D1, nginx, VPS
@@ -43,6 +43,23 @@ ssh -i "$HOME\.ssh\furniture_vps_ed25519" ubuntu@194.32.140.229
 
 Running `sudo` directly in Windows PowerShell produces "`sudo` is not
 recognized". This is expected because `sudo` is a Linux command.
+
+## Current Operational Status
+
+As of 2026-06-12, the Cloudflare Pages application, production D1 migrations,
+and R2 buckets are available. The VPS path is degraded:
+
+- production `/api/vps/health`, `/api/vps/services`, and deploy logs return
+  `502 vps_control_unreachable`;
+- direct SSH to `194.32.140.229` times out;
+- the PS.kz panel could not be inspected from the automated browser because
+  the environment network policy blocks that console.
+
+Do not retry deploy/reload operations in a loop while the node is unreachable.
+Inspect the VPS state in the provider panel manually. If it is stopped, obtain
+explicit approval before starting it. If it is running, use VNC/provider
+console to verify networking, `sshd`, nginx, and `furniture-vps-control`, then
+repeat one health/services/deploy-log check.
 
 ## Known Problems And Verified Solutions
 
@@ -173,3 +190,6 @@ verified closed. The main platform AI modules remain in this repository.
 - Do not delete a Pages project or repository until its domains, bindings,
   deployment owner, and dependencies are verified.
 - Keep smoke tests small and use UTF-8-safe tooling for real customer data.
+- Do not start, stop, or restart the VPS without explicit approval.
+- Stop repeated infrastructure retries after a timeout or rate-limit signal;
+  diagnose the provider/node state first.
