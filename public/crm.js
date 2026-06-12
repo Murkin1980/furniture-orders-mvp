@@ -78,6 +78,7 @@ function renderBoard(groups) {
   for (const button of board.querySelectorAll("[data-save-note]")) button.addEventListener("click", saveNote);
   for (const button of board.querySelectorAll("[data-interaction-type]")) button.addEventListener("click", addInteraction);
   for (const button of board.querySelectorAll("[data-show-history]")) button.addEventListener("click", showHistory);
+  for (const button of board.querySelectorAll("[data-suggest-reply]")) button.addEventListener("click", suggestReply);
 }
 
 function renderCard(order) {
@@ -104,6 +105,8 @@ function renderCard(order) {
         <button type="button" data-interaction-type="measurement" data-order-id="${escapeHtml(item.id)}">Замер</button>
         <button type="button" data-show-history="${escapeHtml(item.id)}">История</button>
       </div>
+      <button class="reply-button" type="button" data-suggest-reply="${escapeHtml(item.id)}">Предложить ответ</button>
+      <div class="reply-draft" data-reply-draft="${escapeHtml(item.id)}"></div>
       <div class="history" data-history="${escapeHtml(item.id)}"></div>
       <label>Этап<select data-order-status="${escapeHtml(item.id)}" data-previous-status="${escapeHtml(item.status)}">
         ${CRM_STATUSES.map((status) => `<option value="${status}" ${status === item.status ? "selected" : ""}>${statusLabels[status]}</option>`).join("")}
@@ -150,6 +153,29 @@ async function addInteraction(event) {
 
 async function showHistory(event) {
   await loadHistory(Number(event.currentTarget.dataset.showHistory));
+}
+
+async function suggestReply(event) {
+  const button = event.currentTarget;
+  const orderId = Number(button.dataset.suggestReply);
+  const container = board.querySelector(`[data-reply-draft="${orderId}"]`);
+  button.disabled = true;
+  container.textContent = "Готовим черновик...";
+  try {
+    const json = await adminFetchJson(`/api/orders/${orderId}/ai/suggest-reply`, { method: "POST" });
+    const suggestion = json.suggestion || {};
+    container.innerHTML = `
+      <strong>Черновик, требуется проверка менеджера</strong>
+      <textarea readonly>${escapeHtml(suggestion.reply || "")}</textarea>
+      <small>${escapeHtml((suggestion.warnings || []).join(" · ") || "Сообщение не отправлено автоматически.")}</small>
+    `;
+    setMessage(`AI подготовил черновик для заказа #${orderId}.`, "ok");
+  } catch (error) {
+    container.textContent = error.message;
+    setMessage(error.message, "bad");
+  } finally {
+    button.disabled = false;
+  }
 }
 
 async function loadHistory(orderId) {

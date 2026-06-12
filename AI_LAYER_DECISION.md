@@ -180,6 +180,17 @@ POST /api/ai/generate-offer
 POST /api/ai/extract-dimensions
 ```
 
+Implemented safe communications foundation:
+
+```text
+POST /api/orders/:id/ai/suggest-reply
+```
+
+This endpoint is admin-protected, disabled by default through
+`AI_COMMUNICATIONS_ENABLED=false`, and returns a review-only draft. It cannot
+send messages or change an order. Full permissions and data-minimization rules
+are recorded in `AI_COMMUNICATIONS_DECISION.md`.
+
 ## Integration order
 
 1. Add AI result schema/migration.

@@ -1025,3 +1025,31 @@ Conclusion:
 - `git diff --check`: passed.
 - Automated Playwright visual launch timed out while loading the CLI; no
   repeated retry was made.
+
+## 2026-06-13 - AI communications foundation
+
+### What changed
+- Added `AI_COMMUNICATIONS_DECISION.md` with permissions, human approval, and
+  data-minimization rules.
+- Added pure AI reply prompt, parser, orchestration, and explicit action policy.
+- Added admin-protected `POST /api/orders/:id/ai/suggest-reply`.
+- Added CRM `Предложить ответ` control and a read-only manager-review draft.
+- Added `AI_COMMUNICATIONS_ENABLED=false`; production remains disabled by
+  default.
+
+### Safety boundary
+- The feature cannot send a customer message.
+- The feature cannot update an order or schedule a follow-up.
+- Phone, email, address, and raw payload are excluded from the AI prompt.
+- Every result requires human approval.
+
+### Checks
+- Targeted AI communications tests: 9 passed.
+- `npm.cmd test`: 205 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed before documentation update.
+
+### Next
+- Deploy the disabled-by-default path and verify it returns a controlled
+  disabled response.
+- After explicit approval, enable only for a synthetic reply suggestion smoke.

@@ -87,6 +87,8 @@ fields. Deployment: `https://a25ae4ff.furniture-orders-mvp.pages.dev`.
 - `POST /api/order-steps/update` обновляет статус и заметку шага.
 - `POST /api/orders/project/init` создаёт проектные шаги для заказа вручную.
 - `POST /api/orders/:id/ai/analyze` вручную запускает AI-квалификацию заказа из admin flow и сохраняет нормализованный success/failed результат.
+- `POST /api/orders/:id/ai/suggest-reply` вручную готовит черновик ответа для
+  проверки менеджером; не отправляет сообщение и по умолчанию выключен.
 - `POST /api/orders/:id/crm/twenty` вручную запускает one-way Twenty CRM sync,
   сохраняет success/failed статус и не влияет на обычный order intake.
 - `GET /api/calculators` и `POST /api/calculators` управляют калькуляторами.
@@ -124,6 +126,8 @@ fields. Deployment: `https://a25ae4ff.furniture-orders-mvp.pages.dev`.
 - `vps-control-service/` содержит Ubuntu-side MVP сервиса, который принимает запросы Cloudflare proxy и выполняет только allowlisted VPS actions.
 - `src/phone.js` содержит общую нормализацию и проверку телефона для заявок и calculator leads.
 - `src/ai/` содержит безопасный AI layer: prompt builder, provider abstraction, request sender, parser, orchestration и mapping результата в поля заказа.
+- AI communications foundation добавляет policy-контракт и ручной reply
+  suggestion flow. Отправка сообщений и изменение заказа AI-агентом запрещены.
 - AI-анализ поддерживает `openai`, `groq`, `gemini`, `openrouter` и `nvidia` через OpenAI-compatible request contract.
 - Ошибки provider, rate limit, invalid JSON и отсутствующие ключи сохраняются как `ai_status=failed`, не ломая заказ.
 - Подробная настройка AI описана в `AI_SETUP.md`; реальные API keys не хранятся в репозитории.
@@ -409,6 +413,9 @@ canceled
 - AI autorun остаётся отключённым; реальные клиентские данные не использовались
   в production smoke test.
 - Полная настройка и команды проверки находятся в `AI_SETUP.md`.
+- Правила AI-коммуникаций и human approval находятся в
+  `AI_COMMUNICATIONS_DECISION.md`. Для включения только черновиков используется
+  `AI_COMMUNICATIONS_ENABLED=true`.
 
 ## Локальная проверка
 

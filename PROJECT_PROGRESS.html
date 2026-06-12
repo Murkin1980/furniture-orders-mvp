@@ -410,7 +410,7 @@
         <p class="lead">Живая карта разработки платформы: готовые продуктовые контуры, активные инфраструктурные задачи и цепочка будущих AI-возможностей.</p>
         <div class="meta-row">
           <span class="meta">Обновлено: 13 июня 2026</span>
-          <span class="meta">Checkpoint 3</span>
+          <span class="meta">Checkpoint 3 · AI communications foundation</span>
           <span class="meta">Следующий пересчёт: через 5 этапов</span>
         </div>
       </section>
@@ -488,14 +488,15 @@
       { name: "Cloudflare / VPS", progress: 90, state: "blocked", status: "Блокер", detail: "Pages, D1 и R2 работают; VPS control и SSH недоступны.", next: "Восстановить VPS и повторить health/deploy проверки." },
       { name: "Portfolio и media", progress: 60, state: "active", status: "В работе", detail: "Галерея работает, R2-ready upload flow реализован.", next: "Завершить production R2 operations." },
       { name: "Twenty CRM модуль", progress: 70, state: "active", status: "Опционально", detail: "Безопасный manual sync path и отдельная граница модуля.", next: "Проверить контракт реального Twenty workspace." },
-      { name: "AI-агенты и коммуникации", progress: 10, state: "planned", status: "План", detail: "Будущий слой управляемых действий и общения.", next: "Спроектировать permissions и human approval." },
+      { name: "AI-агенты и коммуникации", progress: 30, state: "active", status: "В работе", detail: "Policy, ручной reply suggestion endpoint и CRM-черновик реализованы.", next: "Проверить disabled-by-default production path и добавить историю одобренных черновиков." },
       { name: "OCR и распознавание эскизов", progress: 0, state: "planned", status: "План", detail: "Извлечение текста, размеров и деталей эскиза.", next: "Сделать безопасный intake-прототип." },
       { name: "SketchUp MCP", progress: 0, state: "planned", status: "План", detail: "Контролируемое построение модели из спецификации.", next: "Подготовить Windows node и MCP-прототип." },
       { name: "3D-рендер заказа", progress: 0, state: "planned", status: "План", detail: "Возврат визуализации в заказ и CRM workflow.", next: "Определить render contract после SketchUp." }
     ];
 
     const stages = [
-      { date: "13.06.2026", state: "active", title: "Визуальный progress control", detail: "Создан автономный HTML-дашборд для наблюдения за всеми направлениями.", result: "Дальше обновлять после каждого этапа." },
+      { date: "13.06.2026", state: "active", title: "AI communications foundation", detail: "Добавлены human-approval policy, безопасный ручной черновик ответа и CRM-кнопка.", result: "Отправка сообщений и автономные действия запрещены." },
+      { date: "13.06.2026", state: "complete", title: "Визуальный progress control", detail: "Создан автономный HTML-дашборд для наблюдения за всеми направлениями.", result: "Дальше обновлять после каждого этапа." },
       { date: "12.06.2026", state: "complete", title: "AI production verification", detail: "Manual AI успешно проверен в production на синтетической заявке.", result: "AI manual-only path завершён." },
       { date: "12.06.2026", state: "blocked", title: "Infrastructure audit", detail: "Cloudflare core работает; SSH и VPS control недоступны.", result: "Нужно восстановить VPS." },
       { date: "12.06.2026", state: "complete", title: "Native CRM completion", detail: "История взаимодействий, follow-up, фильтры и аналитика проверены.", result: "CRM и order workflow закрыты для MVP." },

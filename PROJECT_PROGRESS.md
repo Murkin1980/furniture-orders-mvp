@@ -18,7 +18,7 @@ and `SESSION_NOTES.md` together.
 | Target | Progress | Meaning |
 |---|---:|---|
 | Commercial platform | `[########--] 75%` | Landings, orders, calculators, portfolio, CRM, and stable operations |
-| AI-assisted platform | `[####------] 40%` | AI qualification, communication assistance, OCR, and controlled agents |
+| AI-assisted platform | `[#####-----] 50%` | AI qualification, first communication assistance, OCR, and controlled agents |
 | Complete vision | `[###-------] 30%` | Commercial platform plus vision, SketchUp MCP, and 3D render pipeline |
 
 ## Workstreams
@@ -33,7 +33,7 @@ and `SESSION_NOTES.md` together.
 | Manual AI analysis | `[##########] 100%` | Manual-only production flow verified on a synthetic order | Keep manual-only; define consent rules before using real customer data |
 | Native CRM | `[##########] 100%` | Production-ready MVP: pipeline, filters, analytics, follow-up, and interaction history | Extend only from real manager usage |
 | Twenty CRM integration | `[#######---] 70%` | Production safety path verified; now a separate future module | Prepare separate integration repository after native CRM verification |
-| AI agents and communications | `[#---------] 10%` | Planned | Tool permissions and human approval model |
+| AI agents and communications | `[###-------] 30%` | Reply policy, safe manual suggestion endpoint, and CRM draft control implemented | Verify disabled-by-default production path, then add approved draft history |
 | OCR and sketch recognition | `[----------] 0%` | Planned | Safe document/image intake prototype |
 | SketchUp MCP | `[----------] 0%` | Planned | Windows node and controlled MCP prototype |
 | 3D rendering pipeline | `[----------] 0%` | Planned | Render contract after SketchUp prototype |
@@ -117,3 +117,4 @@ flowchart LR
 | AI production verification | 2026-06-12 | Production secrets, migration, deploy, and synthetic manual analysis | Manual AI is complete; no autorun and no real customer-data smoke |
 | Infrastructure audit | 2026-06-12 | Cloudflare/D1/R2 verified; VPS proxy and SSH timed out | Treat VPS as degraded until provider access is restored and checks pass |
 | 3 | 2026-06-13 | Interactive project progress dashboard | Record every completed stage in Markdown, HTML, and session notes |
+| AI communications foundation | 2026-06-13 | Human-approval policy, pure suggestion layer, protected endpoint, and CRM draft control | Keep disabled by default; verify production safety path before enabling |
