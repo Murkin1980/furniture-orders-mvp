@@ -936,3 +936,9 @@ Conclusion:
 
 ### Next
 - Apply migration `0014`, deploy, and verify the production CRM screen.
+
+### Production completion
+- Migration `0014_order_follow_up.sql` applied successfully.
+- Cloudflare Pages deployment: `https://bb963409.furniture-orders-mvp.pages.dev`.
+- Stable `/crm` returned HTTP 200 and contains the follow-up filter.
+- Production D1 reports no pending migrations.
