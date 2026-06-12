@@ -1002,3 +1002,26 @@ Conclusion:
 - Obtain explicit approval before a start or restart.
 - After recovery, verify `sshd`, nginx, `furniture-vps-control`, then run one
   health/services/deploy-log check.
+
+## 2026-06-13 - Interactive project progress dashboard
+
+### What changed
+- Added standalone `PROJECT_PROGRESS.html` with workstream progress, filters,
+  dependency map, and checkpoint timeline.
+- Kept `PROJECT_PROGRESS.md` as the canonical text source.
+- Added the rule that every completed stage updates the HTML dashboard,
+  Markdown tracker, and `SESSION_NOTES.md` together.
+- Linked the visual dashboard from `README.md`.
+
+### Next
+- Continue the Cloudflare/VPS infrastructure recovery stage.
+- Add each completed future stage to both progress views.
+
+### Checks
+- `PROJECT_PROGRESS.html` inline JavaScript syntax: passed.
+- Dashboard data: 12 workstreams and 7 timeline stages.
+- `npm.cmd test`: 196 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed.
+- Automated Playwright visual launch timed out while loading the CLI; no
+  repeated retry was made.

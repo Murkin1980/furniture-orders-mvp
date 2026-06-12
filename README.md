@@ -1,6 +1,11 @@
 # Furniture Orders MVP
 
-Visual roadmap and current readiness: [`PROJECT_PROGRESS.md`](PROJECT_PROGRESS.md).
+Visual roadmap and current readiness:
+[`PROJECT_PROGRESS.html`](PROJECT_PROGRESS.html) ·
+[`PROJECT_PROGRESS.md`](PROJECT_PROGRESS.md).
+
+After every completed stage, update the visual HTML dashboard, the canonical
+Markdown progress tracker, and `SESSION_NOTES.md`.
 
 Production landing/VPS operations, known failures, and verified solutions:
 [`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).

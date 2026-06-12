@@ -1,13 +1,17 @@
 # Project Progress Dashboard
 
-Last reviewed: 2026-06-12
-Current checkpoint: 2
+Last reviewed: 2026-06-13
+Current checkpoint: 3
 Next checkpoint review: after 5 more completed slices
 
 Current product focus: restore the VPS operational path and use the verified
 manual AI analysis flow safely on synthetic/test data.
 
 This is the canonical visual progress tracker for the complete furniture platform. Percentages are engineering estimates based on implemented, tested, deployed, and operationally verified behavior. A feature is not considered complete only because code exists.
+
+Interactive visual companion: [`PROJECT_PROGRESS.html`](PROJECT_PROGRESS.html).
+After every completed stage, update this Markdown source, the HTML dashboard,
+and `SESSION_NOTES.md` together.
 
 ## Product Readiness
 
@@ -112,3 +116,4 @@ flowchart LR
 | Native CRM completion | 2026-06-12 | Interaction history, quick actions, and manager summary | Production migration/deploy and smoke verification |
 | AI production verification | 2026-06-12 | Production secrets, migration, deploy, and synthetic manual analysis | Manual AI is complete; no autorun and no real customer-data smoke |
 | Infrastructure audit | 2026-06-12 | Cloudflare/D1/R2 verified; VPS proxy and SSH timed out | Treat VPS as degraded until provider access is restored and checks pass |
+| 3 | 2026-06-13 | Interactive project progress dashboard | Record every completed stage in Markdown, HTML, and session notes |
