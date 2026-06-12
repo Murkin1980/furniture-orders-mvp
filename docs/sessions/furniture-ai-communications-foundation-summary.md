@@ -26,4 +26,5 @@ Date: 2026-06-13
 - Full suite: 205 passed.
 - Syntax/check: passed.
 - `git diff --check`: passed before documentation update.
-- Disabled production smoke remains before completion.
+- Deployed to `https://e847189f.furniture-orders-mvp.pages.dev`.
+- Disabled production endpoint smoke returned HTTP `503` before any AI call.

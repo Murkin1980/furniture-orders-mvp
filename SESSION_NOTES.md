@@ -1053,3 +1053,10 @@ Conclusion:
 - Deploy the disabled-by-default path and verify it returns a controlled
   disabled response.
 - After explicit approval, enable only for a synthetic reply suggestion smoke.
+
+### Production safety completion
+- Deployed to `https://e847189f.furniture-orders-mvp.pages.dev`.
+- Stable production endpoint returned HTTP `503` while
+  `AI_COMMUNICATIONS_ENABLED` remained unset/disabled.
+- No AI provider request, message send, order update, or migration was
+  performed.
