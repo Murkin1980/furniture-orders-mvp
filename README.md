@@ -19,6 +19,12 @@ LC Slice 7 production calculator verification is complete:
 
 Twenty CRM is planned as a separate optional CRM service. `furniture-orders-mvp` remains the source of truth for lead intake and furniture-specific workflows.
 
+The platform now also has a native CRM MVP at `/crm.html`. It provides a
+manager-oriented order pipeline with search, summary counters, AI/CRM signals,
+and quick status movement through the existing protected order APIs. It adds no
+new migration or dependency. Twenty will be packaged later as a separate
+integration module/repository and is not required for the native CRM.
+
 - CRM Slice 1: architecture and safety decision in `CRM_INTEGRATION_DECISION.md`.
 - CRM Slice 2: pure person, opportunity, note, and sync payload mapping in `src/crm/twenty-mapper.js`.
 - CRM Slice 3: pure request objects for people, opportunities, and notes in
@@ -57,6 +63,7 @@ fields. Deployment: `https://a25ae4ff.furniture-orders-mvp.pages.dev`.
 
 - Сайт: `https://furniture-orders-mvp.pages.dev`
 - Админка: `https://furniture-orders-mvp.pages.dev/admin`
+- Native CRM pipeline: `https://furniture-orders-mvp.pages.dev/crm.html`
 - Preview deployment URLs смотрите в Cloudflare Pages deployments.
 - GitHub: `https://github.com/Murkin1980/furniture-orders-mvp`
 

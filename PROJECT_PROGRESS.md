@@ -26,7 +26,8 @@ This is the canonical visual progress tracker for the complete furniture platfor
 | Portfolio and media | `[######----] 60%` | Working | Complete production R2 operations |
 | Production infrastructure | `[#########-] 90%` | Admin proxy, VPS deploy, and proxied landing HTTPS verified | Origin Certificate hardening and observability |
 | Manual AI analysis | `[#######---] 70%` | Working locally | Explicit production enablement decision |
-| Twenty CRM integration | `[#######---] 70%` | Production safety path verified | Configure Twenty workspace and run successful real sync |
+| Native CRM | `[#######---] 70%` | Pipeline MVP implemented and locally tested | Deploy and verify manager flow in production |
+| Twenty CRM integration | `[#######---] 70%` | Production safety path verified; now a separate future module | Prepare separate integration repository after native CRM verification |
 | AI agents and communications | `[#---------] 10%` | Planned | Tool permissions and human approval model |
 | OCR and sketch recognition | `[----------] 0%` | Planned | Safe document/image intake prototype |
 | SketchUp MCP | `[----------] 0%` | Planned | Windows node and controlled MCP prototype |
@@ -58,13 +59,14 @@ flowchart LR
 |---:|---|---|---|
 | 1 | Landings and calculators completion | Paid landing order can move from brief to preview lead | Complete through LC Slice 7 production verification |
 | 2 | Landing production infrastructure | VPS/domain/SSL/deploy path verified for customer sites | LC Slice 6 operationally verified with Cloudflare proxied HTTPS |
-| 3 | Twenty CRM Slices 3-7 | Manual order-to-CRM sync works from admin | Paused |
-| 4 | Communication channels | Customer conversations are attached to order/contact history | Planned |
-| 5 | Controlled AI agents | Agents can suggest or perform approved actions with audit history | Planned |
-| 6 | OCR and vision | Text, measurements, and sketch details produce reviewed structured data | Planned |
-| 7 | SketchUp MCP prototype | Structured order creates or updates a controlled SketchUp model | Planned |
-| 8 | 3D render pipeline | Render output returns to the order and CRM workflow | Planned |
-| 9 | Full production hardening | Security, recovery, observability, and end-to-end QA pass | Planned |
+| 3 | Native CRM MVP | Manager can search, review, and move orders through the pipeline | Implementation complete; production verification pending |
+| 4 | Separate Twenty module | Optional adapter is isolated from the platform MVP | Planned after native CRM verification |
+| 5 | Communication channels | Customer conversations are attached to order/contact history | Planned |
+| 6 | Controlled AI agents | Agents can suggest or perform approved actions with audit history | Planned |
+| 7 | OCR and vision | Text, measurements, and sketch details produce reviewed structured data | Planned |
+| 8 | SketchUp MCP prototype | Structured order creates or updates a controlled SketchUp model | Planned |
+| 9 | 3D render pipeline | Render output returns to the order and CRM workflow | Planned |
+| 10 | Full production hardening | Security, recovery, observability, and end-to-end QA pass | Planned |
 
 ## Twenty CRM Detail
 
@@ -102,3 +104,4 @@ flowchart LR
 | CRM sender | 2026-06-12 | CRM Slice 4 guarded sender | Injected-only sender complete; no real API, endpoint, UI, migration, deploy, or production change |
 | CRM platform path | 2026-06-12 | CRM Slices 5-7 | Manual core, persistence, endpoint, and admin control complete; real Twenty workspace remains external |
 | CRM production safety | 2026-06-12 | Disabled-by-default production test | Migration, endpoint, admin bundle, and safe failed status verified without an external CRM request |
+| Native CRM MVP | 2026-06-12 | Dedicated order pipeline, search, summary, and status movement | Validate the simple built-in CRM before isolating Twenty into a separate module repository |

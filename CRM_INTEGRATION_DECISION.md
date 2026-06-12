@@ -7,6 +7,11 @@
 - Do not make Twenty CRM a required dependency for the platform MVP.
 - `furniture-orders-mvp` remains the source of truth for lead intake and furniture-specific workflows.
 - Twenty CRM will be used for contacts, companies, opportunities, tasks, and communication history.
+- Twenty integration packaging and operational files will live in a separate
+  repository/module. The working adapter code already present here remains
+  disabled until that module boundary is prepared and reviewed.
+- Before enabling Twenty, the platform will validate a small native CRM built
+  on the existing orders, statuses, notes, project steps, and AI fields.
 
 ## Architecture
 
@@ -20,6 +25,14 @@ Website / landing / calculator
 ```
 
 Twenty CRM is an optional downstream service. Its availability must not affect order intake, calculators, landing sites, portfolio, or manual AI analysis.
+
+## Native CRM first
+
+The first manager-facing CRM is the built-in `/crm.html` pipeline. It uses the
+existing protected order APIs and D1 data, requires no additional service, and
+keeps `furniture-orders-mvp` as the source of truth. Its purpose is to validate
+the daily lead workflow before introducing Twenty as a separate optional
+module.
 
 ## First integration mode
 

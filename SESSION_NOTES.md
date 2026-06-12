@@ -843,3 +843,40 @@ Conclusion:
 - Configure `TWENTY_API_BASE_URL` and `TWENTY_API_KEY`.
 - Set `TWENTY_SYNC_ENABLED=true` only for a controlled successful production
   test.
+
+## 2026-06-12 - Native CRM MVP
+
+### Decision
+- Validate a simple built-in CRM before installing or enabling Twenty.
+- Twenty will become a separate optional module/repository; it remains disabled.
+
+### What changed
+- Added `/crm.html`, a manager-focused pipeline over existing order data.
+- Added search, pipeline grouping, summary counters, AI/CRM signals, and quick
+  status movement through the existing `/api/orders/status` endpoint.
+- Added a CRM link to the existing admin page.
+- No endpoint, migration, dependency, external service, or production setting
+  was added.
+
+### Files changed
+- `public/crm.html`
+- `public/crm.js`
+- `public/crm-core.js`
+- `tests/crm-core.test.js`
+- `public/admin.html`
+- `package.json`
+- project documentation
+
+### Checks
+- `node --test tests/crm-core.test.js`: 6 passed.
+- `npm.cmd test`: 191 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed before documentation updates.
+- Local Wrangler server started on port `8795`.
+- Visual browser verification was blocked by the environment policy for
+  localhost and remains pending.
+
+### Next
+- Deploy the native CRM and run a production manager-flow smoke test.
+- After native CRM verification, create a separate repository for the optional
+  Twenty integration module.
