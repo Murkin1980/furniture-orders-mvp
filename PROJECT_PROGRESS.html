@@ -410,13 +410,14 @@
         <p class="lead">Живая карта разработки платформы: готовые продуктовые контуры, активные инфраструктурные задачи и цепочка будущих AI-возможностей.</p>
         <div class="meta-row">
           <span class="meta">Обновлено: 13 июня 2026</span>
-          <span class="meta">Checkpoint 3 · AI communications foundation</span>
-          <span class="meta">Следующий пересчёт: через 5 этапов</span>
+          <span class="meta">Checkpoint 3 · AI communications 30%</span>
+          <span class="meta">205 тестов проходят</span>
+          <span class="meta">Production safety smoke: пройден</span>
         </div>
       </section>
       <aside class="readiness">
         <p class="section-kicker">Коммерческая готовность</p>
-        <div class="score">75%<small>Лендинги, калькуляторы, заказы, CRM и ручной AI уже работают. Главный текущий риск — доступность VPS.</small></div>
+        <div class="score">75%<small>AI-assisted готовность: 50%. Лендинги, калькуляторы, заказы, CRM и ручной AI работают. Черновики ответов задеплоены, но безопасно выключены. Главный текущий риск — доступность VPS.</small></div>
       </aside>
     </header>
 
@@ -495,7 +496,7 @@
     ];
 
     const stages = [
-      { date: "13.06.2026", state: "active", title: "AI communications foundation", detail: "Добавлены human-approval policy, безопасный ручной черновик ответа и CRM-кнопка.", result: "Отправка сообщений и автономные действия запрещены." },
+      { date: "13.06.2026", state: "active", title: "AI communications foundation", detail: "Добавлены human-approval policy, безопасный ручной черновик ответа и CRM-кнопка. Production endpoint проверен с выключенным флагом.", result: "205 тестов. Endpoint вернул безопасный 503 до AI-вызова." },
       { date: "13.06.2026", state: "complete", title: "Визуальный progress control", detail: "Создан автономный HTML-дашборд для наблюдения за всеми направлениями.", result: "Дальше обновлять после каждого этапа." },
       { date: "12.06.2026", state: "complete", title: "AI production verification", detail: "Manual AI успешно проверен в production на синтетической заявке.", result: "AI manual-only path завершён." },
       { date: "12.06.2026", state: "blocked", title: "Infrastructure audit", detail: "Cloudflare core работает; SSH и VPS control недоступны.", result: "Нужно восстановить VPS." },
