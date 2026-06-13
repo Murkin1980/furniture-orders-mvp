@@ -1170,3 +1170,8 @@ Conclusion:
 ### Next
 - Refine dashboard summaries, dense order tables, and high-frequency CRM
   actions in a separate UI slice.
+
+### Deployment
+- Implementation commit: `f3dfde2`.
+- Cloudflare Pages production deployment:
+  `https://8cf4b37a.furniture-orders-mvp.pages.dev`.

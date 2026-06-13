@@ -23,6 +23,12 @@ preserving the existing working product behavior.
 - `npm.cmd run check`: passed.
 - Desktop/mobile admin and desktop CRM screenshots: visually verified.
 
+## Deployment
+
+- Implementation commit: `f3dfde2`.
+- Cloudflare Pages production deployment:
+  `https://8cf4b37a.furniture-orders-mvp.pages.dev`.
+
 ## Next UI Slice
 
 Improve dashboard summaries, dense tables, and high-frequency manager actions
