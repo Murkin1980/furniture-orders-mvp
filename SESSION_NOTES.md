@@ -943,6 +943,27 @@ Conclusion:
 - Stable `/crm` returned HTTP 200 and contains the follow-up filter.
 - Production D1 reports no pending migrations.
 
+## 2026-06-13 - Portfolio first-photo upload UX fix
+
+### What changed
+- Exposed an `Upload first photo` file input directly in the portfolio creation
+  form.
+- After creating a portfolio work, the selected JPEG/PNG/WebP file uploads
+  automatically through the existing R2 endpoint.
+- Preserved the existing per-work `Upload photo` and URL-based `Add photos`
+  actions.
+- Added focused tests for the visible control and create-then-upload workflow.
+
+### Checks
+- Targeted portfolio/admin upload tests: 8 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed before documentation update.
+
+### Next
+- Deploy and verify the visible production admin control.
+- Run a real test-image upload and public gallery smoke before marking
+  Portfolio and media complete.
+
 ## 2026-06-12 - Native CRM and order workflow completion
 
 ### What changed
@@ -1098,3 +1119,18 @@ Conclusion:
 - Verified the approved draft is returned in communication history.
 - No customer message was sent and no order field was changed by the agent.
 - Production D1 reports no pending migrations.
+
+## 2026-06-13 - Portfolio first-photo upload UX fix
+
+### What changed
+- Added a visible optional `Upload first photo` control to the portfolio create
+  form.
+- After creating a draft portfolio work, the admin automatically uploads the
+  selected image through the existing protected R2 endpoint.
+- Reused the same upload helper for existing portfolio work cards.
+
+### Checks
+- Targeted portfolio/admin upload tests: 8 passed.
+- `npm.cmd test`: 209 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed before documentation update.

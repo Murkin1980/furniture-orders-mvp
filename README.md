@@ -371,6 +371,8 @@ canceled
 - `GET /media/:path` reads from `PORTFOLIO_MEDIA_BUCKET`, serves only keys under `portfolio/`, and rejects path traversal.
 - If `PORTFOLIO_MEDIA_BUCKET` is not configured, upload returns `503 portfolio_media_not_configured`; URL-based portfolio images still work.
 - `public/admin.html` now has both `Upload photo` and URL-based `Add photos` actions.
+- The portfolio creation form also exposes `Upload first photo`; when selected,
+  the admin creates the draft work and immediately uploads the file to R2.
 - Migration `0010_portfolio_media.sql` adds the storage metadata columns and a storage-key index.
 
 ## Stage 4-R admin stabilization lane

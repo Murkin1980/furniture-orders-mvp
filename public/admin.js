@@ -743,6 +743,7 @@
       }
 
       const button = portfolioForm.querySelector("button");
+      const photo = portfolioForm.elements.photo?.files?.[0];
       button.disabled = true;
 
       try {
@@ -759,8 +760,15 @@
           fallbackMessage: "Portfolio item was not created."
         });
 
-        setMessage(`Portfolio item #${json.item.id} created.`, "ok");
+        if (photo) {
+          await uploadPortfolioFile(json.item.id, photo);
+        }
+
+        setMessage(`Portfolio item #${json.item.id} created${photo ? " and photo uploaded" : ""}.`, "ok");
         portfolioForm.elements.imageUrls.value = "";
+        if (portfolioForm.elements.photo) {
+          portfolioForm.elements.photo.value = "";
+        }
         await loadPortfolio("");
       } catch (error) {
         setMessage(error.message, "bad");
@@ -863,17 +871,8 @@
           return;
         }
 
-        const formData = new FormData();
-        formData.set("file", file);
-        formData.set("altText", file.name);
-
         try {
-          await adminFetchFormData(`/api/portfolio/${itemId}/images/upload`, {
-            method: "POST",
-            formData,
-            fallbackMessage: "Portfolio image was not uploaded."
-          });
-
+          await uploadPortfolioFile(itemId, file);
           setMessage(`Photo uploaded to portfolio item #${itemId}.`, "ok");
           await loadPortfolio("");
         } catch (error) {
@@ -881,6 +880,17 @@
         }
       }, { once: true });
       input.click();
+    }
+
+    async function uploadPortfolioFile(itemId, file) {
+      const formData = new FormData();
+      formData.set("file", file);
+      formData.set("altText", file.name);
+      return adminFetchFormData(`/api/portfolio/${itemId}/images/upload`, {
+        method: "POST",
+        formData,
+        fallbackMessage: "Portfolio image was not uploaded."
+      });
     }
 
     // Landing sites & VPS
