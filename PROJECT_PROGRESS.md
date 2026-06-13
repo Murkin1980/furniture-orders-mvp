@@ -1,6 +1,6 @@
 # Project Progress Dashboard
 
-Last reviewed: 2026-06-13
+Last reviewed: 2026-06-14
 Current checkpoint: 3
 Next checkpoint review: after 5 more completed slices
 
@@ -32,6 +32,7 @@ and `SESSION_NOTES.md` together.
 | Production infrastructure | `[#########-] 90%` | Cloudflare core is operational; VPS control and SSH are currently unreachable | Restore VPS/provider access, then re-run health/services/deploy checks |
 | Manual AI analysis | `[##########] 100%` | Manual-only production flow verified on a synthetic order | Keep manual-only; define consent rules before using real customer data |
 | Native CRM | `[##########] 100%` | Production-ready MVP: pipeline, filters, analytics, follow-up, and interaction history | Extend only from real manager usage |
+| Admin and CRM interface | `[#######---] 70%` | Shared Furniture OS shell complete for desktop/mobile | Refine dashboard summaries, tables, and high-frequency manager actions |
 | Twenty CRM integration | `[#######---] 70%` | Production safety path verified; now a separate future module | Prepare separate integration repository after native CRM verification |
 | AI agents and communications | `[##########] 100%` | Safe MVP complete: manual suggestions, editing, approval/rejection, audit history, and no autonomous sending | Add Telegram/WhatsApp delivery only as separately approved channel integrations |
 | OCR and sketch recognition | `[----------] 0%` | Planned | Safe document/image intake prototype |
@@ -119,3 +120,4 @@ flowchart LR
 | 3 | 2026-06-13 | Interactive project progress dashboard | Record every completed stage in Markdown, HTML, and session notes |
 | AI communications foundation | 2026-06-13 | Human-approval policy, pure suggestion layer, protected endpoint, CRM draft control, and disabled production smoke | Add approved draft history before enabling synthetic reply smoke |
 | AI communications safe MVP | 2026-06-13 | Persistent drafts, manager editing, approval/rejection, and communication audit history | Optional delivery adapters remain separate future integrations |
+| Admin/CRM UI Slice 1 | 2026-06-14 | Shared Serenite-inspired operational shell, responsive navigation, and visual verification | Refine high-frequency dashboard and CRM surfaces without changing backend contracts |

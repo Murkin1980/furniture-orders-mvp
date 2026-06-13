@@ -1144,3 +1144,29 @@ Conclusion:
 - On 2026-06-14, `wrangler pages deployment list` confirmed deployment
   `12022ac5-8e08-4c5f-b7b1-a1af8bacac17` is the latest Production deployment
   for `main`, sourced from implementation commit `3ba1ce6`.
+
+## 2026-06-14 - Admin/CRM UI Slice 1
+
+### What changed
+- Added a shared Serenite-inspired Furniture OS shell to admin and CRM.
+- Added persistent desktop sidebar navigation and compact mobile navigation.
+- Preserved existing forms, IDs, API contracts, and manager workflows.
+
+### Files changed
+- `public/admin.html`
+- `public/crm.html`
+- `tests/admin-shell.test.js`
+- `README.md`
+- `PROJECT_PROGRESS.md`
+- `PROJECT_PROGRESS.html`
+
+### Checks
+- Targeted UI tests: 5 passed.
+- `npm.cmd test`: 212 passed.
+- `npm.cmd run check`: passed.
+- Desktop and mobile admin screenshots: visually verified.
+- Desktop CRM screenshot: visually verified.
+
+### Next
+- Refine dashboard summaries, dense order tables, and high-frequency CRM
+  actions in a separate UI slice.

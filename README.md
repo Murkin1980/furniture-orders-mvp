@@ -36,6 +36,11 @@ order interaction history. CRM summary shows active value, conversion, due
 contacts, and overdue contacts. Twenty is packaged as a separate integration
 module/repository and is not required for the native CRM.
 
+The admin panel and native CRM now share a Serenite-inspired operational shell:
+a persistent desktop sidebar, compact mobile navigation, clearer section
+hierarchy, and a restrained furniture-workshop palette. Existing forms, IDs,
+API contracts, and manager workflows remain unchanged.
+
 - CRM Slice 1: architecture and safety decision in `CRM_INTEGRATION_DECISION.md`.
 - CRM Slice 2: pure person, opportunity, note, and sync payload mapping in `src/crm/twenty-mapper.js`.
 - CRM Slice 3: pure request objects for people, opportunities, and notes in
@@ -69,6 +74,8 @@ fields. Deployment: `https://a25ae4ff.furniture-orders-mvp.pages.dev`.
 - Этап 4.02B: добавлен schema-driven calculator layer с draft/published fields, `schemaVersion` и безопасными enum-контрактами без arbitrary formulas/user-defined code execution.
 - LC Slices 1-5: добавлены structured landing brief/content model, allowlisted furniture templates, редактирование и exact artifact preview в админке, выбор calculator для лендинга, полноценный field schema editor и mobile-verified calculator embed.
 - AI layer: добавлены строгий parser, qualification prompt, provider abstraction, OpenAI-compatible sender, ручной admin endpoint и сохранение AI-результата в заказ. AI запускается только вручную; autorun для новых заявок отключён.
+- Admin/CRM UI Slice 1: добавлена единая responsive-оболочка Furniture OS с
+  боковой навигацией и сохранением существующих рабочих сценариев.
 
 ## Production
 

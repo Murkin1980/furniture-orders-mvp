@@ -409,9 +409,9 @@
         <h1>От заявки<br>до 3D-рендера</h1>
         <p class="lead">Живая карта разработки платформы: готовые продуктовые контуры, активные инфраструктурные задачи и цепочка будущих AI-возможностей.</p>
         <div class="meta-row">
-          <span class="meta">Обновлено: 13 июня 2026</span>
+          <span class="meta">Обновлено: 14 июня 2026</span>
           <span class="meta">Checkpoint 3 · AI communications MVP 100%</span>
-          <span class="meta">207 тестов проходят</span>
+          <span class="meta">212 тестов проходят</span>
           <span class="meta">Synthetic production flow: пройден</span>
         </div>
       </section>
@@ -485,6 +485,7 @@
       { name: "Калькуляторы", progress: 100, state: "complete", status: "Готово", detail: "Production embed, schema и lead path проверены.", next: "Использовать для первого платного лендинга." },
       { name: "Платформа лендингов", progress: 100, state: "complete", status: "Готово", detail: "Публикация и HTTPS клиентского домена проверены.", next: "Повторять документированный production flow." },
       { name: "Нативная CRM", progress: 100, state: "complete", status: "Готово", detail: "Pipeline, фильтры, аналитика, follow-up и история.", next: "Собирать обратную связь менеджера." },
+      { name: "Интерфейс админки и CRM", progress: 70, state: "active", status: "В работе", detail: "Единая responsive-оболочка Furniture OS и навигация готовы.", next: "Улучшить сводки, таблицы и частые действия менеджера." },
       { name: "Ручной AI-анализ", progress: 100, state: "complete", status: "Готово", detail: "Manual-only production flow проверен на synthetic order.", next: "Определить правила согласия для клиентских данных." },
       { name: "Cloudflare / VPS", progress: 90, state: "blocked", status: "Блокер", detail: "Pages, D1 и R2 работают; VPS control и SSH недоступны.", next: "Восстановить VPS и повторить health/deploy проверки." },
       { name: "Portfolio и media", progress: 60, state: "active", status: "В работе", detail: "Галерея работает, R2-ready upload flow реализован.", next: "Завершить production R2 operations." },
@@ -496,6 +497,7 @@
     ];
 
     const stages = [
+      { date: "14.06.2026", state: "complete", title: "Admin/CRM UI Slice 1", detail: "Админка и CRM получили единую Serenite-inspired рабочую оболочку, desktop sidebar и мобильную навигацию без изменения API.", result: "212 тестов; desktop/mobile визуальная проверка пройдена." },
       { date: "13.06.2026", state: "complete", title: "AI communications safe MVP", detail: "AI-черновики сохраняются, менеджер редактирует, одобряет или отклоняет, история доступна в CRM. Synthetic production flow завершён.", result: "Draft 1 одобрен; автономная отправка и изменение заказа запрещены." },
       { date: "13.06.2026", state: "complete", title: "AI communications foundation", detail: "Добавлены human-approval policy, безопасный ручной черновик ответа и CRM-кнопка. Production endpoint проверен с выключенным флагом.", result: "205 тестов. Endpoint вернул безопасный 503 до AI-вызова." },
       { date: "13.06.2026", state: "complete", title: "Визуальный progress control", detail: "Создан автономный HTML-дашборд для наблюдения за всеми направлениями.", result: "Дальше обновлять после каждого этапа." },
