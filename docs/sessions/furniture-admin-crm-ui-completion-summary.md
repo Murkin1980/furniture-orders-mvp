@@ -24,3 +24,9 @@ Date: 2026-06-14
 
 The Admin and CRM interface workstream is complete for the current MVP.
 Further changes should be driven by real manager feedback.
+
+## Release
+
+- Implementation commit: `7f1c768 feat: complete admin and CRM interface MVP`
+- Cloudflare Pages deployment:
+  `https://2423fa56.furniture-orders-mvp.pages.dev`

@@ -1233,5 +1233,10 @@ Conclusion:
 - `git diff --check`: passed before documentation update.
 - Desktop and mobile admin screenshots: visually verified.
 
+### Release
+- Implementation commit: `7f1c768 feat: complete admin and CRM interface MVP`.
+- Cloudflare Pages deployment:
+  `https://2423fa56.furniture-orders-mvp.pages.dev`
+
 ### Next
 - Extend the completed MVP interface only from real manager feedback.
