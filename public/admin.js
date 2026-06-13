@@ -1,11 +1,14 @@
     const statuses = ["new", "in_review", "quoted", "in_production", "completed", "canceled"];
     import { getOrderAiViewModel, getOrderCrmViewModel } from "./admin-orders.js";
+    import { calculateAdminSummary, filterAdminOrders } from "./admin-core.js";
 
     const stepStatuses = ["pending", "done", "skipped"];
     const tokenInput = document.querySelector("#token");
     const filterInput = document.querySelector("#status-filter");
     const message = document.querySelector("#message");
     const tbody = document.querySelector("#orders-body");
+    const adminSummary = document.querySelector("#admin-summary");
+    const orderSearch = document.querySelector("#order-search");
     const refreshButton = document.querySelector("#refresh");
     const projectTitle = document.querySelector("#project-title");
     const projectProgress = document.querySelector("#project-progress");
@@ -36,6 +39,7 @@
     let activeCalculator = null;
     let activePricing = null;
     let activeSite = null;
+    let adminOrders = [];
 
     tokenInput.value = localStorage.getItem("furnitureAdminToken") || "";
 
@@ -47,7 +51,11 @@
     });
 
     refreshButton.addEventListener("click", loadOrders);
-    filterInput.addEventListener("change", loadOrders);
+    filterInput.addEventListener("change", renderAdminOrders);
+    orderSearch.addEventListener("input", renderAdminOrders);
+    for (const link of document.querySelectorAll("[data-admin-view]")) {
+      link.addEventListener("click", () => showAdminView(link.dataset.adminView));
+    }
     createCalculatorButton.addEventListener("click", createDefaultCalculator);
     refreshPortfolioButton.addEventListener("click", () => loadPortfolio(""));
     portfolioForm.addEventListener("submit", createPortfolioItem);
@@ -64,6 +72,7 @@
     loadCalculators();
     loadPortfolio("");
     loadSites();
+    showAdminView(viewFromHash());
 
     // Orders & project steps
     async function loadOrders() {
@@ -77,23 +86,32 @@
       setMessage("Загрузка заказов...");
 
       try {
-        const params = new URLSearchParams();
-        if (filterInput.value) {
-          params.set("status", filterInput.value);
-        }
-
-        const json = await adminFetchJson(`/api/orders${params.toString() ? `?${params}` : ""}`, {
+        const json = await adminFetchJson("/api/orders", {
           fallbackMessage: "Не удалось загрузить заказы."
         });
 
-        renderOrders(json.items || []);
-        setMessage(`Заказов: ${(json.items || []).length}`, "ok");
+        adminOrders = json.items || [];
+        renderAdminOrders();
+        setMessage(`Заказов: ${adminOrders.length}`, "ok");
       } catch (error) {
         renderEmpty(error.message);
         setMessage(error.message, "bad");
       } finally {
         refreshButton.disabled = false;
       }
+    }
+
+    function renderAdminOrders() {
+      const items = filterAdminOrders(adminOrders, orderSearch.value, filterInput.value);
+      const data = calculateAdminSummary(adminOrders);
+      adminSummary.innerHTML = [
+        ["Все заказы", data.total, "Полная база"],
+        ["Новые", data.newOrders, "Нужен первый контакт"],
+        ["Активные", data.active, formatMoney(data.activeBudget)],
+        ["Требуют внимания", data.attention, "Новые или горячие"],
+        ["Завершены", data.completed, "Закрытые проекты"]
+      ].map(([label, value, note]) => `<article><span>${label}</span><strong>${value}</strong><small>${note}</small></article>`).join("");
+      renderOrders(items);
     }
 
     function renderOrders(items) {
@@ -104,18 +122,18 @@
 
       tbody.innerHTML = items.map((item) => `
         <tr>
-          <td>#${escapeHtml(item.id)}</td>
-          <td>${escapeHtml(item.clientName || "")}</td>
-          <td>${escapeHtml(item.phone || "")}</td>
-          <td>${escapeHtml(item.furnitureType || "")}</td>
-          <td>${escapeHtml(item.city || "")}</td>
-          <td class="money">${formatMoney(item.budget)}</td>
-          <td>${escapeHtml(item.status || "")}</td>
-          <td>${escapeHtml(item.createdAt || "")}</td>
-          <td>${escapeHtml(item.updatedAt || "")}</td>
-          <td>${escapeHtml(item.notes || "")}</td>
-          <td>${renderOrderAi(item)}</td>
-          <td class="actions">
+          <td data-label="ID">#${escapeHtml(item.id)}</td>
+          <td data-label="Клиент">${escapeHtml(item.clientName || "")}</td>
+          <td data-label="Телефон">${escapeHtml(item.phone || "")}</td>
+          <td data-label="Тип">${escapeHtml(item.furnitureType || "")}</td>
+          <td data-label="Город">${escapeHtml(item.city || "")}</td>
+          <td data-label="Бюджет" class="money">${formatMoney(item.budget)}</td>
+          <td data-label="Статус"><span class="status-pill" data-status="${escapeHtml(item.status || "")}">${escapeHtml(item.status || "")}</span></td>
+          <td data-label="Создан">${escapeHtml(item.createdAt || "")}</td>
+          <td data-label="Обновлён">${escapeHtml(item.updatedAt || "")}</td>
+          <td data-label="Заметка">${escapeHtml(item.notes || "")}</td>
+          <td data-label="AI">${renderOrderAi(item)}</td>
+          <td data-label="Действия" class="actions">
             <form data-order-id="${escapeHtml(item.id)}">
               <select name="status">
                 ${statuses.map((status) => `<option value="${status}" ${status === item.status ? "selected" : ""}>${status}</option>`).join("")}
@@ -220,6 +238,26 @@
       }
     }
 
+    function showAdminView(view) {
+      const safeView = document.querySelector(`[data-admin-section="${view}"]`) ? view : "orders";
+      for (const section of document.querySelectorAll("[data-admin-section]")) {
+        section.classList.toggle("is-active", section.dataset.adminSection === safeView);
+      }
+      for (const link of document.querySelectorAll("[data-admin-view]")) {
+        link.classList.toggle("active", link.dataset.adminView === safeView);
+      }
+    }
+
+    function viewFromHash() {
+      return ({
+        "#project-title": "project",
+        "#calculator-title": "calculators",
+        "#portfolio-title": "portfolio",
+        "#sites-title": "sites",
+        "#vps-title": "infrastructure"
+      })[window.location.hash] || "orders";
+    }
+
     async function updateOrder(event) {
       event.preventDefault();
       const form = event.currentTarget;
@@ -258,6 +296,7 @@
     }
 
     async function openProject(orderId) {
+      showAdminView("project");
       const token = getToken();
       if (!token) {
         setMessage("Введите admin token.", "bad");

@@ -118,6 +118,22 @@
 
     .status-line.bad { color: var(--danger); }
     .status-line.ok { color: var(--ok); }
+    .skip-link {
+      position: fixed;
+      top: 8px;
+      left: 248px;
+      z-index: 100;
+      transform: translateY(-160%);
+      padding: 9px 12px;
+      border-radius: 5px;
+      color: #fff;
+      background: #17241f;
+    }
+    .skip-link:focus { transform: translateY(0); }
+    :focus-visible {
+      outline: 3px solid #9fc52f;
+      outline-offset: 2px;
+    }
 
     .table-wrap {
       overflow-x: auto;
@@ -484,6 +500,60 @@
       border-bottom: 1px solid #e5e9e6;
     }
     .project-head h2 { font-size: 15px; }
+    .admin-section { display: none; }
+    .admin-section.is-active { display: block; }
+    .dashboard-summary {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(130px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .dashboard-summary article {
+      min-height: 92px;
+      padding: 14px;
+      border: 1px solid #dce2dd;
+      border-radius: 6px;
+      background: #fff;
+      box-shadow: 0 5px 18px rgba(27, 46, 37, .05);
+    }
+    .dashboard-summary span,
+    .dashboard-summary small { display: block; color: var(--muted); }
+    .dashboard-summary span { font-size: 11px; font-weight: 800; text-transform: uppercase; }
+    .dashboard-summary strong { display: block; margin: 8px 0 3px; font-size: 24px; }
+    .dashboard-summary small { font-size: 11px; }
+    .orders-toolbar {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) auto;
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 12px;
+    }
+    .orders-toolbar input { width: 100%; }
+    .section-intro {
+      margin: -4px 0 16px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 3px 7px;
+      border: 1px solid #cfd9d2;
+      border-radius: 999px;
+      color: #315244;
+      background: #edf4ef;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .status-pill[data-status="new"],
+    .status-pill[data-status="in_review"] { color: #775500; background: #fff5d8; border-color: #ead49a; }
+    .status-pill[data-status="completed"] { color: #28613a; background: #e8f5eb; border-color: #bcd9c3; }
+    .status-pill[data-status="canceled"] { color: #7a3733; background: #f9e9e7; border-color: #e1bcb8; }
+    .table-wrap td[data-label="Клиент"] { font-weight: 800; }
+    .table-wrap td[data-label="Телефон"] { white-space: nowrap; }
     button { transition: transform .16s ease, box-shadow .16s ease, background .16s ease; }
     button:hover:not(:disabled) {
       transform: translateY(-1px);
@@ -505,6 +575,8 @@
         overflow-x: auto;
       }
       .sidebar-nav a { white-space: nowrap; }
+      .dashboard-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .orders-toolbar { grid-template-columns: 1fr; }
       .bar {
         align-items: stretch;
       }
@@ -537,23 +609,52 @@
       .vps-actions {
         grid-template-columns: 1fr;
       }
+
+      .table-wrap { overflow: visible; border: 0; background: transparent; box-shadow: none; }
+      table, tbody, tr, td { display: block; width: 100%; }
+      table { min-width: 0; }
+      thead { display: none; }
+      tr {
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: #fff;
+      }
+      td {
+        display: grid;
+        grid-template-columns: 92px minmax(0, 1fr);
+        gap: 8px;
+        padding: 6px 0;
+        border: 0;
+      }
+      td::before {
+        content: attr(data-label);
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+      td.actions { display: block; min-width: 0; padding-top: 10px; border-top: 1px solid var(--line); }
+      td.actions::before { display: none; }
     }
   </style>
 </head>
 <body>
+  <a class="skip-link" href="#workspace">К рабочей области</a>
   <aside class="app-sidebar" aria-label="Навигация админки">
     <div class="sidebar-brand">
       <span class="sidebar-mark">FM</span>
       <span><strong>Furniture OS</strong><small>Управление мастерской</small></span>
     </div>
     <nav class="sidebar-nav">
-      <a class="active" href="#orders">Заказы</a>
+      <a class="active" href="#orders" data-admin-view="orders">Обзор и заказы</a>
       <a href="/crm.html">CRM-воронка</a>
-      <a href="#project-title">Этапы проекта</a>
-      <a href="#calculator-title">Калькуляторы</a>
-      <a href="#portfolio-title">Портфолио</a>
-      <a href="#sites-title">Лендинги</a>
-      <a href="#vps-title">Инфраструктура</a>
+      <a href="#project-title" data-admin-view="project">Этапы проекта</a>
+      <a href="#calculator-title" data-admin-view="calculators">Калькуляторы</a>
+      <a href="#portfolio-title" data-admin-view="portfolio">Портфолио</a>
+      <a href="#sites-title" data-admin-view="sites">Лендинги</a>
+      <a href="#vps-title" data-admin-view="infrastructure">Инфраструктура</a>
     </nav>
   </aside>
   <header>
@@ -583,9 +684,16 @@
     </div>
   </header>
 
-  <main>
-    <div id="message" class="status-line"></div>
-    <div id="orders" class="table-wrap">
+  <main id="workspace">
+    <div id="message" class="status-line" role="status" aria-live="polite"></div>
+    <section id="orders" class="admin-section is-active" data-admin-section="orders" aria-labelledby="orders-title">
+      <div class="project-head"><div><h2 id="orders-title">Обзор заказов</h2><p class="section-intro">Новые заявки, активная работа и заказы, которым нужно внимание.</p></div></div>
+      <div id="admin-summary" class="dashboard-summary" aria-label="Сводка заказов"></div>
+      <div class="orders-toolbar">
+        <label>Поиск заказа<input id="order-search" type="search" placeholder="Клиент, телефон, город или тип мебели" /></label>
+        <small class="muted">Фильтр статуса находится в верхней панели.</small>
+      </div>
+      <div class="table-wrap">
       <table>
         <thead>
           <tr>
@@ -609,8 +717,9 @@
           </tr>
         </tbody>
       </table>
-    </div>
-    <section class="project-panel" aria-labelledby="project-title">
+      </div>
+    </section>
+    <section class="project-panel admin-section" data-admin-section="project" aria-labelledby="project-title">
       <div class="project-head">
         <h2 id="project-title">Шаги заказа</h2>
         <div id="project-progress" class="progress"></div>
@@ -619,7 +728,7 @@
         <div class="muted">Откройте проект из таблицы заказов.</div>
       </div>
     </section>
-    <section class="calculator-panel" aria-labelledby="calculator-title">
+    <section class="calculator-panel admin-section" data-admin-section="calculators" aria-labelledby="calculator-title">
       <div class="project-head">
         <h2 id="calculator-title">Furniture calculators</h2>
         <button id="create-calculator" type="button">Create calculator</button>
@@ -642,7 +751,7 @@
         </div>
       </div>
     </section>
-    <section class="vps-panel" aria-labelledby="portfolio-title">
+    <section class="vps-panel admin-section" data-admin-section="portfolio" aria-labelledby="portfolio-title">
       <div class="project-head">
         <h2 id="portfolio-title">Portfolio gallery</h2>
         <button id="refresh-portfolio" type="button">Refresh portfolio</button>
@@ -696,7 +805,7 @@
         </div>
       </div>
     </section>
-    <section class="vps-panel" aria-labelledby="sites-title">
+    <section class="vps-panel admin-section" data-admin-section="sites" aria-labelledby="sites-title">
       <div class="project-head">
         <h2 id="sites-title">Landing sites</h2>
         <button id="refresh-sites" type="button">Refresh sites</button>
@@ -805,7 +914,7 @@
         </div>
       </div>
     </section>
-    <section class="vps-panel" aria-labelledby="vps-title">
+    <section class="vps-panel admin-section" data-admin-section="infrastructure" aria-labelledby="vps-title">
       <div class="project-head">
         <h2 id="vps-title">VPS control</h2>
         <button id="vps-health" type="button">Health</button>

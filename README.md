@@ -46,6 +46,12 @@ Future admin/CRM interface work follows the repository skill
 workflow and review checklist focused on frequent tasks, system states, error
 recovery, responsive behavior, and accessibility.
 
+The admin/CRM interface workstream is complete for the current MVP: admin
+modules open as focused workspaces, the orders overview has actionable summary
+metrics and combined search/status filtering, order tables reflow into mobile
+cards, and CRM cards keep status/quick actions visible while progressively
+disclosing notes, follow-up, history, and AI drafts.
+
 - CRM Slice 1: architecture and safety decision in `CRM_INTEGRATION_DECISION.md`.
 - CRM Slice 2: pure person, opportunity, note, and sync payload mapping in `src/crm/twenty-mapper.js`.
 - CRM Slice 3: pure request objects for people, opportunities, and notes in

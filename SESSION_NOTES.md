@@ -1204,3 +1204,34 @@ Conclusion:
 
 ### Next
 - Apply the skill to Admin/CRM UI Slice 2.
+
+## 2026-06-14 - Admin/CRM UI completion
+
+### What changed
+- Split the long admin page into focused workspaces controlled by stable sidebar
+  navigation.
+- Added actionable order summary metrics, client-side search, and combined
+  status filtering.
+- Added semantic status pills and mobile order-card table reflow.
+- Kept CRM status and quick actions visible while moving notes, follow-up,
+  history, and AI drafts into progressive disclosure.
+- Added skip/focus/accessibility polish without changing backend contracts.
+
+### Files changed
+- `public/admin.html`
+- `public/admin.js`
+- `public/admin-core.js`
+- `public/crm.html`
+- `public/crm.js`
+- `tests/admin-dashboard.test.js`
+- `tests/admin-shell.test.js`
+
+### Checks
+- Focused admin/CRM tests: 17 passed.
+- `npm.cmd test`: 216 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed before documentation update.
+- Desktop and mobile admin screenshots: visually verified.
+
+### Next
+- Extend the completed MVP interface only from real manager feedback.

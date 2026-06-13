@@ -96,24 +96,28 @@ function renderCard(order) {
       ${item.notes ? `<p class="note">${escapeHtml(item.notes)}</p>` : ""}
       ${item.aiSummary ? `<p class="ai-summary">${escapeHtml(item.aiSummary)}</p>` : ""}
       <div class="signals">${ai}${crm}${renderFollowUpSignal(item)}</div>
-      <label>Заметка<textarea data-order-note="${escapeHtml(item.id)}" placeholder="Следующий контакт, замер, договорённость">${escapeHtml(item.notes)}</textarea></label>
-      <label>Следующий контакт<input type="date" data-follow-up-at="${escapeHtml(item.id)}" value="${escapeHtml(dateInputValue(item.followUpAt))}" /></label>
-      <label>Задача<input type="text" data-follow-up-task="${escapeHtml(item.id)}" value="${escapeHtml(item.followUpTask)}" placeholder="Позвонить, назначить замер" /></label>
-      <button class="note-button" type="button" data-save-note="${escapeHtml(item.id)}">Сохранить карточку</button>
+      <div class="primary-actions">
+        <label>Этап<select data-order-status="${escapeHtml(item.id)}" data-previous-status="${escapeHtml(item.status)}">
+          ${CRM_STATUSES.map((status) => `<option value="${status}" ${status === item.status ? "selected" : ""}>${statusLabels[status]}</option>`).join("")}
+        </select></label>
+        <button type="button" data-show-history="${escapeHtml(item.id)}">История</button>
+      </div>
       <div class="quick-actions">
         <button type="button" data-interaction-type="call" data-order-id="${escapeHtml(item.id)}">Позвонил</button>
         <button type="button" data-interaction-type="message" data-order-id="${escapeHtml(item.id)}">Написал</button>
         <button type="button" data-interaction-type="measurement" data-order-id="${escapeHtml(item.id)}">Замер</button>
-        <button type="button" data-show-history="${escapeHtml(item.id)}">История</button>
+        <button class="reply-button" type="button" data-suggest-reply="${escapeHtml(item.id)}">AI-ответ</button>
       </div>
-      <button class="reply-button" type="button" data-suggest-reply="${escapeHtml(item.id)}">Предложить ответ</button>
+      <details class="card-workspace"><summary>Заметки, follow-up и черновики</summary><div class="card-workspace-body">
+      <label>Заметка<textarea data-order-note="${escapeHtml(item.id)}" placeholder="Следующий контакт, замер, договорённость">${escapeHtml(item.notes)}</textarea></label>
+      <label>Следующий контакт<input type="date" data-follow-up-at="${escapeHtml(item.id)}" value="${escapeHtml(dateInputValue(item.followUpAt))}" /></label>
+      <label>Задача<input type="text" data-follow-up-task="${escapeHtml(item.id)}" value="${escapeHtml(item.followUpTask)}" placeholder="Позвонить, назначить замер" /></label>
+      <button class="note-button" type="button" data-save-note="${escapeHtml(item.id)}">Сохранить карточку</button>
       <button class="drafts-button" type="button" data-show-drafts="${escapeHtml(item.id)}">История черновиков</button>
       <div class="reply-draft" data-reply-draft="${escapeHtml(item.id)}"></div>
       <div class="draft-history" data-draft-history="${escapeHtml(item.id)}"></div>
       <div class="history" data-history="${escapeHtml(item.id)}"></div>
-      <label>Этап<select data-order-status="${escapeHtml(item.id)}" data-previous-status="${escapeHtml(item.status)}">
-        ${CRM_STATUSES.map((status) => `<option value="${status}" ${status === item.status ? "selected" : ""}>${statusLabels[status]}</option>`).join("")}
-      </select></label>
+      </div></details>
       <time>${escapeHtml(item.updatedAt)}</time>
     </article>`;
 }
