@@ -128,7 +128,11 @@ Do not merge it into this platform until there is a clear product reason.
 
 When you make meaningful changes, update `SESSION_NOTES.md`.
 
-Keep `PROJECT_PROGRESS.md` synchronized after every completed stage or slice. Perform a broader progress review, recalculate estimates, and add a checkpoint-history entry after every 5 completed slices.
+Keep `PROJECT_PROGRESS.md` and `PROJECT_PROGRESS.html` synchronized after every
+completed stage or slice. A stage or slice is not complete until both existing
+progress files reflect its actual status, checks, deployment state, and next
+step. Perform a broader progress review, recalculate estimates, and add a
+checkpoint-history entry after every 5 completed slices.
 
 Use `knowledge/` for reviewed project/business facts and `skills/` for repeatable workflows. Do not add unverified prices, legal terms, client personal data, or generated claims to either folder.
 
