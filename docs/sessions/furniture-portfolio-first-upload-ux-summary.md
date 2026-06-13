@@ -21,3 +21,11 @@ was unavailable.
 - Full project tests: 209 passed.
 - Syntax/check: passed.
 - `git diff --check`: passed before documentation update.
+
+## Deployment
+
+- Implementation commit: `3ba1ce6`.
+- Cloudflare Pages deployment:
+  `https://12022ac5.furniture-orders-mvp.pages.dev`.
+- Cloudflare reported a completed deployment. Direct HTML verification from the
+  local machine was blocked by a connection failure to `pages.dev`.

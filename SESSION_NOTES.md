@@ -1134,3 +1134,10 @@ Conclusion:
 - `npm.cmd test`: 209 passed.
 - `npm.cmd run check`: passed.
 - `git diff --check`: passed before documentation update.
+
+### Deployment
+- Pushed implementation commit `3ba1ce6`.
+- Cloudflare Pages deployment completed:
+  `https://12022ac5.furniture-orders-mvp.pages.dev`.
+- Direct production HTML verification was blocked by a local connection failure
+  to `pages.dev`; Cloudflare reported the deployment as complete.
