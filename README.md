@@ -420,6 +420,9 @@ canceled
 - Правила AI-коммуникаций и human approval находятся в
   `AI_COMMUNICATIONS_DECISION.md`. Для включения только черновиков используется
   `AI_COMMUNICATIONS_ENABLED=true`.
+- Safe AI communications MVP включён и production-проверен на синтетическом
+  заказе `6`: draft создан, отредактированным manager flow одобрен и сохранён
+  в истории; внешняя отправка сообщений отсутствует.
 
 ## Локальная проверка
 

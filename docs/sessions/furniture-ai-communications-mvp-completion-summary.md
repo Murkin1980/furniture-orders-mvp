@@ -40,3 +40,14 @@ Date: 2026-06-13
 - Full suite: 207 passed.
 - Syntax/check: passed.
 - `git diff --check`: passed before documentation update.
+
+## Production Completion
+
+- Migration `0016_communication_drafts.sql` applied.
+- Manual-only AI communications flag enabled.
+- Deployment: `https://1928eb7e.furniture-orders-mvp.pages.dev`.
+- Synthetic order `6` produced draft `1`.
+- Draft required human approval, was explicitly approved, and appeared in
+  history.
+- No message was sent to a customer.
+- Production D1 has no pending migrations.

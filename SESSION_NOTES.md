@@ -1086,3 +1086,15 @@ Conclusion:
 - `npm.cmd test`: 207 passed.
 - `npm.cmd run check`: passed.
 - `git diff --check`: passed before documentation update.
+
+### Production completion
+- Applied migration `0016_communication_drafts.sql`.
+- Enabled manual-only `AI_COMMUNICATIONS_ENABLED=true`.
+- Deployed to `https://1928eb7e.furniture-orders-mvp.pages.dev`.
+- On synthetic order `6`, created communication draft `1` through the AI
+  suggestion endpoint.
+- Verified `requiresHumanApproval=true`.
+- Explicitly approved draft `1` through the manager review endpoint.
+- Verified the approved draft is returned in communication history.
+- No customer message was sent and no order field was changed by the agent.
+- Production D1 reports no pending migrations.
