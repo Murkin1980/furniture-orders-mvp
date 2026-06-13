@@ -1060,3 +1060,29 @@ Conclusion:
   `AI_COMMUNICATIONS_ENABLED` remained unset/disabled.
 - No AI provider request, message send, order update, or migration was
   performed.
+
+## 2026-06-13 - AI communications safe MVP completion
+
+### What changed
+- Added migration `0016_communication_drafts.sql`.
+- Added persistent AI/manager communication drafts with draft, approved, and
+  rejected states.
+- Added protected communication draft list/create/review API.
+- AI reply suggestions now persist an audit draft.
+- CRM now supports draft editing, explicit approval/rejection, and draft
+  history.
+
+### Completion boundary
+- AI may suggest, but cannot send a message or change an order.
+- Managers explicitly review every draft.
+- Telegram and WhatsApp delivery adapters remain optional future integrations.
+
+### Next
+- Run full checks, apply migration `0016`, deploy, and verify a synthetic
+  suggestion/approval production flow.
+
+### Checks
+- Targeted AI communications/draft tests: 11 passed.
+- `npm.cmd test`: 207 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed before documentation update.

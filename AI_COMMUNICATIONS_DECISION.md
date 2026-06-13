@@ -5,9 +5,10 @@
 AI communications is a manager-assistance layer, not an autonomous customer
 support bot.
 
-The first production-safe capability is a manually requested reply suggestion.
-It may draft text, but it cannot send a message, change an order, schedule a
-follow-up, or perform another external action.
+The completed MVP capability is a manually requested reply suggestion with
+manager editing, explicit approval/rejection, and an audit history. It may
+draft text, but it cannot send a message, change an order, schedule a follow-up,
+or perform another external action.
 
 ## Permission Model
 
@@ -40,7 +41,31 @@ The endpoint:
 - requires `AI_COMMUNICATIONS_ENABLED=true`;
 - loads the order;
 - builds one reply suggestion;
-- returns the draft without persisting or sending it.
+- persists the draft for manager review without sending it.
+
+The current implementation persists the returned draft in
+`communication_drafts`. Managers can edit and review it through:
+
+```text
+GET  /api/communication-drafts?orderId=:id
+POST /api/communication-drafts
+```
+
+An approved draft is still not sent automatically.
+
+## MVP Completion Boundary
+
+AI communications is complete for the current safe MVP scope when:
+
+- a manager manually requests a suggestion;
+- the suggestion is persisted as a draft;
+- a manager can edit, approve, reject, and review its history;
+- no external message is sent automatically;
+- no order field is changed by the agent;
+- every action remains protected by admin authentication and audit data.
+
+Telegram/WhatsApp delivery adapters are future optional channel integrations,
+not required to close this safe agent-assistance MVP.
 
 ## Next Safe Slices
 

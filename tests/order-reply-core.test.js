@@ -8,14 +8,15 @@ test("returns 404 for missing order", async () => {
   assert.equal(result.status, 404);
 });
 
-test("returns a manual reply suggestion without database writes", async () => {
+test("returns and persists a manual reply suggestion draft", async () => {
   const db = createDb({ id: 1, furnitureType: "kitchen", description: "Need kitchen" });
   const result = await suggestOrderReplyCore({ db }, 1, {
     sendAiRequest: async () => '{"reply":"Уточните размеры помещения.","tone":"professional","channel":"messenger","warnings":[]}'
   });
   assert.equal(result.status, 200);
   assert.equal(result.body.suggestion.requiresHumanApproval, true);
-  assert.equal(db.writeCalls, 0);
+  assert.equal(result.body.draft.status, "draft");
+  assert.equal(db.writeCalls, 1);
 });
 
 test("endpoint is disabled by default", async () => {
@@ -40,14 +41,29 @@ test("endpoint supports injected sender when explicitly enabled", async () => {
 });
 
 function createDb(order) {
+  const drafts = [];
   return {
     writeCalls: 0,
-    prepare() {
+    prepare(sql) {
+      const db = this;
+      let values = [];
       return {
-        bind() {
+        bind(...input) {
+          values = input;
           return {
-            async first() { return order ? { ...order } : null; },
-            async run() { this.writeCalls += 1; }
+            async first() {
+              if (sql.includes("FROM orders")) return order ? { ...order } : null;
+              if (sql.includes("FROM communication_drafts WHERE id")) return drafts.find((item) => item.id === values[0]) || null;
+              return null;
+            },
+            async run() {
+              if (sql.includes("INSERT INTO communication_drafts")) {
+                db.writeCalls += 1;
+                drafts.push({ id: 1, orderId: values[0], channel: values[1], content: values[2], status: "draft", warningsJson: values[6] });
+                return { meta: { last_row_id: 1 } };
+              }
+              return { success: true };
+            }
           };
         }
       };

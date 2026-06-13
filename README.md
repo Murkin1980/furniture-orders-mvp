@@ -89,6 +89,9 @@ fields. Deployment: `https://a25ae4ff.furniture-orders-mvp.pages.dev`.
 - `POST /api/orders/:id/ai/analyze` вручную запускает AI-квалификацию заказа из admin flow и сохраняет нормализованный success/failed результат.
 - `POST /api/orders/:id/ai/suggest-reply` вручную готовит черновик ответа для
   проверки менеджером; не отправляет сообщение и по умолчанию выключен.
+- `GET /api/communication-drafts?orderId=:id` и
+  `POST /api/communication-drafts` сохраняют, показывают и позволяют явно
+  одобрить или отклонить отредактированный черновик.
 - `POST /api/orders/:id/crm/twenty` вручную запускает one-way Twenty CRM sync,
   сохраняет success/failed статус и не влияет на обычный order intake.
 - `GET /api/calculators` и `POST /api/calculators` управляют калькуляторами.
@@ -127,7 +130,8 @@ fields. Deployment: `https://a25ae4ff.furniture-orders-mvp.pages.dev`.
 - `src/phone.js` содержит общую нормализацию и проверку телефона для заявок и calculator leads.
 - `src/ai/` содержит безопасный AI layer: prompt builder, provider abstraction, request sender, parser, orchestration и mapping результата в поля заказа.
 - AI communications foundation добавляет policy-контракт и ручной reply
-  suggestion flow. Отправка сообщений и изменение заказа AI-агентом запрещены.
+  suggestion flow с историей черновиков и manager approval. Отправка сообщений
+  и изменение заказа AI-агентом запрещены.
 - AI-анализ поддерживает `openai`, `groq`, `gemini`, `openrouter` и `nvidia` через OpenAI-compatible request contract.
 - Ошибки provider, rate limit, invalid JSON и отсутствующие ключи сохраняются как `ai_status=failed`, не ломая заказ.
 - Подробная настройка AI описана в `AI_SETUP.md`; реальные API keys не хранятся в репозитории.

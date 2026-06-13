@@ -1,4 +1,5 @@
 import { suggestReply } from "./suggest-reply.js";
+import { createCommunicationDraft } from "../communication-drafts.js";
 
 export async function suggestOrderReplyCore({ db }, orderId, options = {}) {
   if (!db) throw new Error("D1 binding DB is not configured.");
@@ -20,10 +21,29 @@ export async function suggestOrderReplyCore({ db }, orderId, options = {}) {
   }
 
   const suggestion = await suggestReply(order, options);
-  return result(suggestion.meta?.error ? 502 : 200, {
+  if (suggestion.meta?.error) {
+    return result(502, {
+      success: false,
+      orderId: id,
+      suggestion
+    });
+  }
+
+  const draft = await createCommunicationDraft({
+    db,
+    orderId: id,
+    channel: suggestion.channel,
+    content: suggestion.reply,
+    provider: suggestion.meta?.provider,
+    model: suggestion.meta?.model,
+    warnings: suggestion.warnings
+  });
+
+  return result(200, {
     success: !suggestion.meta?.error,
     orderId: id,
-    suggestion
+    suggestion,
+    draft: draft.body.item
   });
 }
 function result(status, body) {

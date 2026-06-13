@@ -79,6 +79,7 @@ function renderBoard(groups) {
   for (const button of board.querySelectorAll("[data-interaction-type]")) button.addEventListener("click", addInteraction);
   for (const button of board.querySelectorAll("[data-show-history]")) button.addEventListener("click", showHistory);
   for (const button of board.querySelectorAll("[data-suggest-reply]")) button.addEventListener("click", suggestReply);
+  for (const button of board.querySelectorAll("[data-show-drafts]")) button.addEventListener("click", showDrafts);
 }
 
 function renderCard(order) {
@@ -106,7 +107,9 @@ function renderCard(order) {
         <button type="button" data-show-history="${escapeHtml(item.id)}">История</button>
       </div>
       <button class="reply-button" type="button" data-suggest-reply="${escapeHtml(item.id)}">Предложить ответ</button>
+      <button class="drafts-button" type="button" data-show-drafts="${escapeHtml(item.id)}">История черновиков</button>
       <div class="reply-draft" data-reply-draft="${escapeHtml(item.id)}"></div>
+      <div class="draft-history" data-draft-history="${escapeHtml(item.id)}"></div>
       <div class="history" data-history="${escapeHtml(item.id)}"></div>
       <label>Этап<select data-order-status="${escapeHtml(item.id)}" data-previous-status="${escapeHtml(item.status)}">
         ${CRM_STATUSES.map((status) => `<option value="${status}" ${status === item.status ? "selected" : ""}>${statusLabels[status]}</option>`).join("")}
@@ -164,17 +167,61 @@ async function suggestReply(event) {
   try {
     const json = await adminFetchJson(`/api/orders/${orderId}/ai/suggest-reply`, { method: "POST" });
     const suggestion = json.suggestion || {};
+    const draft = json.draft || {};
     container.innerHTML = `
       <strong>Черновик, требуется проверка менеджера</strong>
-      <textarea readonly>${escapeHtml(suggestion.reply || "")}</textarea>
+      <textarea data-draft-content="${escapeHtml(draft.id)}">${escapeHtml(suggestion.reply || "")}</textarea>
       <small>${escapeHtml((suggestion.warnings || []).join(" · ") || "Сообщение не отправлено автоматически.")}</small>
+      <div class="draft-actions">
+        <button type="button" data-review-draft="${escapeHtml(draft.id)}" data-review-status="approved" data-order-id="${orderId}">Одобрить</button>
+        <button type="button" data-review-draft="${escapeHtml(draft.id)}" data-review-status="rejected" data-order-id="${orderId}">Отклонить</button>
+      </div>
     `;
+    for (const reviewButton of container.querySelectorAll("[data-review-draft]")) reviewButton.addEventListener("click", reviewDraft);
     setMessage(`AI подготовил черновик для заказа #${orderId}.`, "ok");
   } catch (error) {
     container.textContent = error.message;
     setMessage(error.message, "bad");
   } finally {
     button.disabled = false;
+  }
+}
+
+async function reviewDraft(event) {
+  const button = event.currentTarget;
+  const draftId = Number(button.dataset.reviewDraft);
+  const orderId = Number(button.dataset.orderId);
+  const content = board.querySelector(`[data-draft-content="${draftId}"]`)?.value || "";
+  button.disabled = true;
+  try {
+    await adminFetchJson("/api/communication-drafts", {
+      method: "POST",
+      payload: { action: "review", draftId, content, status: button.dataset.reviewStatus }
+    });
+    setMessage(`Черновик #${draftId}: ${button.dataset.reviewStatus}. Сообщение не отправлено.`, "ok");
+    await loadDrafts(orderId);
+  } catch (error) {
+    setMessage(error.message, "bad");
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function showDrafts(event) {
+  await loadDrafts(Number(event.currentTarget.dataset.showDrafts));
+}
+
+async function loadDrafts(orderId) {
+  const container = board.querySelector(`[data-draft-history="${orderId}"]`);
+  if (!container) return;
+  container.textContent = "Загрузка черновиков...";
+  try {
+    const json = await adminFetchJson(`/api/communication-drafts?orderId=${orderId}`);
+    container.innerHTML = (json.items || []).length
+      ? json.items.map((item) => `<p><strong>${escapeHtml(item.status)}</strong> ${escapeHtml(item.content)}<small>${escapeHtml(item.channel)} · ${escapeHtml(item.createdAt)}</small></p>`).join("")
+      : "<p>Черновиков пока нет.</p>";
+  } catch (error) {
+    container.textContent = error.message;
   }
 }
 

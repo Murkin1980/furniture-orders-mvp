@@ -410,14 +410,14 @@
         <p class="lead">Живая карта разработки платформы: готовые продуктовые контуры, активные инфраструктурные задачи и цепочка будущих AI-возможностей.</p>
         <div class="meta-row">
           <span class="meta">Обновлено: 13 июня 2026</span>
-          <span class="meta">Checkpoint 3 · AI communications 30%</span>
-          <span class="meta">205 тестов проходят</span>
+          <span class="meta">Checkpoint 3 · AI communications MVP 100%</span>
+          <span class="meta">Manager approval и audit history</span>
           <span class="meta">Production safety smoke: пройден</span>
         </div>
       </section>
       <aside class="readiness">
         <p class="section-kicker">Коммерческая готовность</p>
-        <div class="score">75%<small>AI-assisted готовность: 50%. Лендинги, калькуляторы, заказы, CRM и ручной AI работают. Черновики ответов задеплоены, но безопасно выключены. Главный текущий риск — доступность VPS.</small></div>
+        <div class="score">75%<small>AI-assisted готовность: 60%. Безопасный агентный MVP завершён: предложения, редактирование, одобрение и история без автономной отправки. Главный текущий риск — доступность VPS.</small></div>
       </aside>
     </header>
 
@@ -489,14 +489,15 @@
       { name: "Cloudflare / VPS", progress: 90, state: "blocked", status: "Блокер", detail: "Pages, D1 и R2 работают; VPS control и SSH недоступны.", next: "Восстановить VPS и повторить health/deploy проверки." },
       { name: "Portfolio и media", progress: 60, state: "active", status: "В работе", detail: "Галерея работает, R2-ready upload flow реализован.", next: "Завершить production R2 operations." },
       { name: "Twenty CRM модуль", progress: 70, state: "active", status: "Опционально", detail: "Безопасный manual sync path и отдельная граница модуля.", next: "Проверить контракт реального Twenty workspace." },
-      { name: "AI-агенты и коммуникации", progress: 30, state: "active", status: "В работе", detail: "Policy, ручной reply suggestion endpoint, CRM-черновик и disabled production smoke готовы.", next: "Добавить историю одобренных черновиков до включения synthetic smoke." },
+      { name: "AI-агенты и коммуникации", progress: 100, state: "complete", status: "Готово", detail: "Safe MVP: AI-черновики, редактирование, approval/rejection и audit history без автономной отправки.", next: "Telegram/WhatsApp delivery подключать только отдельными согласованными интеграциями." },
       { name: "OCR и распознавание эскизов", progress: 0, state: "planned", status: "План", detail: "Извлечение текста, размеров и деталей эскиза.", next: "Сделать безопасный intake-прототип." },
       { name: "SketchUp MCP", progress: 0, state: "planned", status: "План", detail: "Контролируемое построение модели из спецификации.", next: "Подготовить Windows node и MCP-прототип." },
       { name: "3D-рендер заказа", progress: 0, state: "planned", status: "План", detail: "Возврат визуализации в заказ и CRM workflow.", next: "Определить render contract после SketchUp." }
     ];
 
     const stages = [
-      { date: "13.06.2026", state: "active", title: "AI communications foundation", detail: "Добавлены human-approval policy, безопасный ручной черновик ответа и CRM-кнопка. Production endpoint проверен с выключенным флагом.", result: "205 тестов. Endpoint вернул безопасный 503 до AI-вызова." },
+      { date: "13.06.2026", state: "complete", title: "AI communications safe MVP", detail: "AI-черновики сохраняются, менеджер редактирует, одобряет или отклоняет, история доступна в CRM.", result: "Автономная отправка и изменение заказа запрещены." },
+      { date: "13.06.2026", state: "complete", title: "AI communications foundation", detail: "Добавлены human-approval policy, безопасный ручной черновик ответа и CRM-кнопка. Production endpoint проверен с выключенным флагом.", result: "205 тестов. Endpoint вернул безопасный 503 до AI-вызова." },
       { date: "13.06.2026", state: "complete", title: "Визуальный progress control", detail: "Создан автономный HTML-дашборд для наблюдения за всеми направлениями.", result: "Дальше обновлять после каждого этапа." },
       { date: "12.06.2026", state: "complete", title: "AI production verification", detail: "Manual AI успешно проверен в production на синтетической заявке.", result: "AI manual-only path завершён." },
       { date: "12.06.2026", state: "blocked", title: "Infrastructure audit", detail: "Cloudflare core работает; SSH и VPS control недоступны.", result: "Нужно восстановить VPS." },
