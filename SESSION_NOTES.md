@@ -1141,3 +1141,6 @@ Conclusion:
   `https://12022ac5.furniture-orders-mvp.pages.dev`.
 - Direct production HTML verification was blocked by a local connection failure
   to `pages.dev`; Cloudflare reported the deployment as complete.
+- On 2026-06-14, `wrangler pages deployment list` confirmed deployment
+  `12022ac5-8e08-4c5f-b7b1-a1af8bacac17` is the latest Production deployment
+  for `main`, sourced from implementation commit `3ba1ce6`.

@@ -29,3 +29,5 @@ was unavailable.
   `https://12022ac5.furniture-orders-mvp.pages.dev`.
 - Cloudflare reported a completed deployment. Direct HTML verification from the
   local machine was blocked by a connection failure to `pages.dev`.
+- On 2026-06-14, Cloudflare deployment history confirmed `12022ac5` as the
+  latest Production deployment for `main`, sourced from commit `3ba1ce6`.
