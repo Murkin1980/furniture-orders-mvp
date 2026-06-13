@@ -142,6 +142,20 @@ Do not use `docs/raw/` directly in application logic. Convert, review, and recor
 
 Do not add hosted memory, context compression, production migrations, or automatic AI analysis unless the task explicitly requests it.
 
+## SaaS interface design rule
+
+For admin panels, CRM systems, dashboards, tables, and complex operational
+forms, read and apply:
+
+```text
+skills/saas-product-interface/SKILL.md
+```
+
+Start with frequent user tasks, navigation, system states, error recovery,
+mobile workflows, and accessibility. Apply visual styling after the working UX
+is clear. Do not add charts, themes, personalization, or integrations without a
+concrete product need.
+
 Use this format:
 
 ```md

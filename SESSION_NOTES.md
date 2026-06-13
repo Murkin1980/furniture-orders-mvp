@@ -1175,3 +1175,32 @@ Conclusion:
 - Implementation commit: `f3dfde2`.
 - Cloudflare Pages production deployment:
   `https://8cf4b37a.furniture-orders-mvp.pages.dev`.
+
+## 2026-06-14 - SaaS product interface skill
+
+### What changed
+- Converted the UPROCK SaaS interface article into a reusable project skill.
+- Qualified broad article recommendations with Nielsen usability heuristics and
+  WCAG 2.2 implementation checks.
+- Added a practical workflow, operational SaaS checklist, and source notes.
+- Updated repository instructions to require the skill for admin/CRM UI work.
+
+### Files changed
+- `skills/saas-product-interface/`
+- `AGENTS.md`
+- `README.md`
+- `PROJECT_PROGRESS.md`
+- `PROJECT_PROGRESS.html`
+
+### Checks
+- Skill frontmatter, name, description, references, and OpenAI metadata:
+  structurally verified.
+- Workspace and installed Codex skill copies: hash matched.
+- Repository and workspace skill copies: hash matched.
+- `npm.cmd test`: 212 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed before documentation update.
+- Official quick validator could not run because `PyYAML` is unavailable.
+
+### Next
+- Apply the skill to Admin/CRM UI Slice 2.

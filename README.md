@@ -41,6 +41,11 @@ a persistent desktop sidebar, compact mobile navigation, clearer section
 hierarchy, and a restrained furniture-workshop palette. Existing forms, IDs,
 API contracts, and manager workflows remain unchanged.
 
+Future admin/CRM interface work follows the repository skill
+`skills/saas-product-interface/`. It turns SaaS UX guidance into a practical
+workflow and review checklist focused on frequent tasks, system states, error
+recovery, responsive behavior, and accessibility.
+
 - CRM Slice 1: architecture and safety decision in `CRM_INTEGRATION_DECISION.md`.
 - CRM Slice 2: pure person, opportunity, note, and sync payload mapping in `src/crm/twenty-mapper.js`.
 - CRM Slice 3: pure request objects for people, opportunities, and notes in
