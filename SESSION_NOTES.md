@@ -1259,3 +1259,21 @@ Conclusion:
 ### Next
 - Audit admin endpoints and define read/write/ops token boundaries before
   implementing auth hardening.
+
+## 2026-06-14 - Auth hardening audit
+
+### Finding
+- `ADMIN_TOKEN` checks are duplicated across many Functions and protect normal
+  reads, business writes, AI/CRM actions, and VPS operations.
+- Safe token separation requires a shared scoped auth helper, endpoint
+  classification, tests, UI handling, and staged secret rotation.
+
+### Decision
+- Use `ADMIN_READ_TOKEN`, `ADMIN_WRITE_TOKEN`, and `OPS_TOKEN`.
+- Permit write credentials to perform read actions, but keep operations
+  credentials separate.
+- Keep `ADMIN_TOKEN` only as a temporary documented migration fallback.
+
+### Next
+- Implement the shared pure auth helper and focused scope tests before migrating
+  endpoint files.
