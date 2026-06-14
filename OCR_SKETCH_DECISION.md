@@ -110,7 +110,7 @@ placement.
 1. Pure result schema, default result, parser, and tests. Complete.
 2. Provider-neutral prompt/request builder without network calls. Complete.
 3. Orchestration with injected fake sender. Complete.
-4. D1 draft/approved storage model and pure persistence helpers.
+4. D1 draft/approved storage model and pure persistence helpers. Complete.
 5. Protected manual recognition endpoint.
 6. Admin review UI with original image and editable result.
 7. Real provider sender and synthetic local smoke.

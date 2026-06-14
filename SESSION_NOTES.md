@@ -1368,3 +1368,21 @@ Conclusion:
 
 ### Next
 - OCR Slice 4: D1 draft/approved storage model and pure persistence helpers.
+
+## 2026-06-14 - OCR Slice 4 persistence contract
+
+### What changed
+- Added migration `0017_ocr_recognitions.sql` for versioned recognition records
+  linked to orders and source media.
+- Added pure helpers for draft/failed creation, manager approval/rejection,
+  normalized JSON serialization, and safe stored-result parsing.
+- Added the same table to local runtime schema initialization.
+- Added focused persistence-contract tests.
+
+### Safety
+- Migration was not applied to production.
+- No provider call, endpoint, UI, deploy, or production setting changed.
+- Only manager-reviewed records can become `approved`.
+
+### Next
+- OCR Slice 5: protected manual recognition endpoint using an injected sender.
