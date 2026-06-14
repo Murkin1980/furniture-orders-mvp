@@ -34,7 +34,9 @@ is enabled yet. A write-protected manual endpoint,
 `POST /api/orders/:id/ocr/recognize`, accepts an already stored image reference
 and can currently run only through an injected sender. Recognition treats
 submitted images as furniture-related by default, but must warn or use `other`
-instead of inventing unclear details.
+instead of inventing unclear details. The admin OCR review panel lists records,
+shows the original image or stored reference, allows structured JSON correction,
+and requires an explicit manager approve/reject action.
 
 Production landing/VPS operations, known failures, and verified solutions:
 [`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).

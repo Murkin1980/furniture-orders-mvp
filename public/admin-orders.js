@@ -48,6 +48,39 @@ export function getOrderCrmViewModel(order = {}) {
   };
 }
 
+export function getOcrRecognitionViewModel(record = {}) {
+  const result = record.result && typeof record.result === "object" ? record.result : {};
+  const imageSource = clean(record.imageSource);
+  return {
+    id: record.id ?? null,
+    status: clean(record.status) || "draft",
+    imageSource,
+    canPreviewImage: /^https?:\/\//i.test(imageSource) || imageSource.startsWith("/"),
+    furnitureType: clean(result.furnitureType) || "other",
+    documentType: clean(result.documentType) || "other",
+    rawText: clean(result.rawText),
+    confidence: Number.isFinite(Number(result.confidence)) ? Number(result.confidence) : 0,
+    warnings: normalizeList(result.warnings),
+    missingInfo: normalizeList(result.missingInfo),
+    error: clean(record.error),
+    editableJson: JSON.stringify(result, null, 2)
+  };
+}
+
+export function parseOcrReviewJson(value) {
+  try {
+    const parsed = JSON.parse(clean(value));
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error();
+    return parsed;
+  } catch {
+    throw new TypeError("OCR result must be a valid JSON object.");
+  }
+}
+
+function normalizeList(value) {
+  return Array.isArray(value) ? value.map(clean).filter(Boolean) : [];
+}
+
 function clean(value) {
   if (value === undefined || value === null) {
     return "";

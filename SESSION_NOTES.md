@@ -1403,3 +1403,30 @@ Conclusion:
 
 ### Next
 - OCR Slice 6: manager review UI with original image and editable result.
+
+## 2026-06-14 - OCR Slice 6 manager review workflow
+
+### What changed
+- Added migration `0018_ocr_image_source.sql` so recognition records can retain
+  the original stored image reference.
+- Added read-protected recognition listing and write-protected explicit review.
+- Added an admin OCR review panel with original preview/reference, warnings,
+  missing information, editable structured JSON, and approve/reject actions.
+- Added pure OCR admin view-model and JSON validation tests.
+
+### Safety
+- Approval and rejection require an explicit manager action.
+- Read tokens cannot approve or reject.
+- No real provider sender, automatic approval, deploy, production migration, or
+  production setting changed.
+
+### Checks
+- Focused OCR/admin tests: 28 passed.
+- Full project tests: 274 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed.
+- Local dev server compiled and served the admin route; in-app browser runtime
+  was unavailable for screenshot verification.
+
+### Next
+- OCR Slice 7: real provider sender and synthetic local smoke only.

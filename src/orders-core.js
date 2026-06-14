@@ -195,6 +195,7 @@ async function ensureSchema(db, env) {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       order_id INTEGER NOT NULL,
       media_id TEXT,
+      image_source TEXT,
       status TEXT NOT NULL DEFAULT 'draft',
       result_json TEXT NOT NULL,
       provider TEXT,

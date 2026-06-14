@@ -20,6 +20,7 @@ test("builds a draft create payload with recognition metadata", () => {
   });
   assert.equal(payload.order_id, 7);
   assert.equal(payload.media_id, "12");
+  assert.equal(payload.image_source, null);
   assert.equal(payload.status, "draft");
   assert.equal(payload.processing_time_ms, 43);
   assert.equal(payload.created_by, "manager-1");

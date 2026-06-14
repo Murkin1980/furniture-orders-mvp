@@ -1,5 +1,5 @@
     const statuses = ["new", "in_review", "quoted", "in_production", "completed", "canceled"];
-    import { getOrderAiViewModel, getOrderCrmViewModel } from "./admin-orders.js";
+    import { getOcrRecognitionViewModel, getOrderAiViewModel, getOrderCrmViewModel, parseOcrReviewJson } from "./admin-orders.js";
     import { calculateAdminSummary, filterAdminOrders } from "./admin-core.js";
 
     const stepStatuses = ["pending", "done", "skipped"];
@@ -13,6 +13,8 @@
     const projectTitle = document.querySelector("#project-title");
     const projectProgress = document.querySelector("#project-progress");
     const projectSteps = document.querySelector("#project-steps");
+    const ocrReviewTitle = document.querySelector("#ocr-review-title");
+    const ocrReviewList = document.querySelector("#ocr-review-list");
     const createCalculatorButton = document.querySelector("#create-calculator");
     const calculatorList = document.querySelector("#calculator-list");
     const embedCode = document.querySelector("#embed-code");
@@ -141,6 +143,7 @@
               <textarea name="notes" placeholder="Заметка менеджера">${escapeHtml(item.notes || "")}</textarea>
               <button type="submit">Обновить</button>
               <button class="secondary" type="button" data-project-id="${escapeHtml(item.id)}">Открыть проект</button>
+              <button class="secondary" type="button" data-ocr-order-id="${escapeHtml(item.id)}">OCR review</button>
               <button class="secondary" type="button" data-ai-order-id="${escapeHtml(item.id)}">${escapeHtml(getOrderAiViewModel(item).buttonLabel)}</button>
               <button class="secondary" type="button" data-crm-order-id="${escapeHtml(item.id)}">${escapeHtml(getOrderCrmViewModel(item).buttonLabel)}</button>
               ${renderOrderCrm(item)}
@@ -157,6 +160,9 @@
       }
       for (const button of tbody.querySelectorAll("[data-ai-order-id]")) {
         button.addEventListener("click", () => analyzeOrderWithAi(Number(button.dataset.aiOrderId), button));
+      }
+      for (const button of tbody.querySelectorAll("[data-ocr-order-id]")) {
+        button.addEventListener("click", () => openOcrReview(Number(button.dataset.ocrOrderId)));
       }
       for (const button of tbody.querySelectorAll("[data-crm-order-id]")) {
         button.addEventListener("click", () => syncOrderToCrm(Number(button.dataset.crmOrderId), button));
@@ -251,11 +257,99 @@
     function viewFromHash() {
       return ({
         "#project-title": "project",
+        "#ocr-review-title": "ocr",
         "#calculator-title": "calculators",
         "#portfolio-title": "portfolio",
         "#sites-title": "sites",
         "#vps-title": "infrastructure"
       })[window.location.hash] || "orders";
+    }
+
+    async function openOcrReview(orderId) {
+      showAdminView("ocr");
+      ocrReviewTitle.textContent = `OCR review заказа #${orderId}`;
+      ocrReviewList.innerHTML = '<div class="muted">Загрузка распознаваний...</div>';
+      try {
+        const json = await adminFetchJson(`/api/orders/${orderId}/ocr/recognitions`, {
+          fallbackMessage: "Не удалось загрузить OCR-распознавания."
+        });
+        renderOcrReviews(orderId, json.items || []);
+      } catch (error) {
+        ocrReviewList.innerHTML = `<div class="ai-error">${escapeHtml(error.message)}</div>`;
+        setMessage(error.message, "bad");
+      }
+    }
+
+    function renderOcrReviews(orderId, items) {
+      if (!items.length) {
+        ocrReviewList.innerHTML = '<div class="muted">Для заказа ещё нет OCR-распознаваний.</div>';
+        return;
+      }
+      ocrReviewList.innerHTML = items.map((item) => {
+        const view = getOcrRecognitionViewModel(item);
+        const original = view.canPreviewImage
+          ? `<img class="ocr-original" src="${escapeHtml(view.imageSource)}" alt="Оригинал мебельного эскиза" />`
+          : `<div><strong>Источник изображения</strong><pre>${escapeHtml(view.imageSource || "Не указан")}</pre></div>`;
+        return `
+          <form class="ocr-review-item" data-ocr-review-id="${escapeHtml(view.id)}" data-order-id="${escapeHtml(orderId)}">
+            <div class="project-head">
+              <div><strong>Распознавание #${escapeHtml(view.id)}</strong><div class="status-pill" data-status="${escapeHtml(view.status)}">${escapeHtml(view.status)}</div></div>
+              <span class="muted">${escapeHtml(view.documentType)} · ${escapeHtml(view.furnitureType)} · confidence ${escapeHtml(view.confidence)}</span>
+            </div>
+            <div class="ocr-review-grid">
+              <div>
+                ${original}
+                ${view.error ? `<div class="ai-error">${escapeHtml(view.error)}</div>` : ""}
+                <p><strong>Warnings:</strong> ${escapeHtml(view.warnings.join(", ") || "—")}</p>
+                <p><strong>Missing:</strong> ${escapeHtml(view.missingInfo.join(", ") || "—")}</p>
+              </div>
+              <label>Проверенный структурированный результат
+                <textarea class="ocr-editor" name="resultJson">${escapeHtml(view.editableJson)}</textarea>
+              </label>
+            </div>
+            <div class="ocr-review-actions">
+              <button type="button" data-ocr-decision="approved">Одобрить проверенный результат</button>
+              <button class="secondary" type="button" data-ocr-decision="rejected">Отклонить</button>
+            </div>
+          </form>`;
+      }).join("");
+      for (const button of ocrReviewList.querySelectorAll("[data-ocr-decision]")) {
+        button.addEventListener("click", () => reviewOcrRecognition(button));
+      }
+    }
+
+    async function reviewOcrRecognition(button) {
+      const form = button.closest("[data-ocr-review-id]");
+      const status = button.dataset.ocrDecision;
+      let result;
+      try {
+        result = parseOcrReviewJson(form.elements.resultJson.value);
+      } catch (error) {
+        setMessage(error.message, "bad");
+        form.elements.resultJson.focus();
+        return;
+      }
+      const buttons = [...form.querySelectorAll("button")];
+      buttons.forEach((item) => { item.disabled = true; });
+      try {
+        await adminFetchJson(`/api/orders/${form.dataset.orderId}/ocr/recognitions`, {
+          method: "PATCH",
+          payload: {
+            recognitionId: Number(form.dataset.ocrReviewId),
+            status,
+            result,
+            reviewedBy: "manager",
+            reviewedAt: new Date().toISOString()
+          },
+          fallbackMessage: "OCR review не сохранён."
+        });
+        setMessage(`OCR-распознавание #${form.dataset.ocrReviewId}: ${status}.`, status === "approved" ? "ok" : "");
+        await openOcrReview(Number(form.dataset.orderId));
+      } catch (error) {
+        setMessage(error.message, "bad");
+      } finally {
+        buttons.forEach((item) => { item.disabled = false; });
+      }
     }
 
     async function updateOrder(event) {

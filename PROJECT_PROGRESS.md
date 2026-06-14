@@ -35,7 +35,7 @@ and `SESSION_NOTES.md` together.
 | Admin and CRM interface | `[##########] 100%` | Complete MVP UI: focused modules, actionable dashboard, responsive orders, efficient CRM cards, states and accessibility polish | Extend only from real manager feedback |
 | Twenty CRM integration | `[#######---] 70%` | Production safety path verified; now a separate future module | Prepare separate integration repository after native CRM verification |
 | AI agents and communications | `[##########] 100%` | Safe MVP complete: manual suggestions, editing, approval/rejection, audit history, and no autonomous sending | Add Telegram/WhatsApp delivery only as separately approved channel integrations |
-| OCR and sketch recognition | `[######----] 60%` | Safe furniture-first recognition through protected manual endpoint complete | Admin review UI with original image and editable result |
+| OCR and sketch recognition | `[#######---] 70%` | Manual furniture-first recognition and manager review workflow complete | Real provider sender and synthetic local smoke |
 | SketchUp MCP | `[----------] 0%` | Planned | Windows node and controlled MCP prototype |
 | 3D rendering pipeline | `[----------] 0%` | Planned | Render contract after SketchUp prototype |
 
@@ -131,3 +131,4 @@ flowchart LR
 | OCR Slice 3 | 2026-06-14 | Injected-sender orchestration, safe metadata/errors, and explicit parse-failure handling | Design draft/approved persistence model and pure helpers |
 | OCR Slice 4 | 2026-06-14 | D1 draft/approved/failed record model plus pure create/review serialization helpers | Add protected manual recognition endpoint |
 | OCR Slice 5 | 2026-06-14 | Write-protected manual endpoint saves injected-sender output as draft/failed without fetch | Build manager review UI for original image and editable result |
+| OCR Slice 6 | 2026-06-14 | Read/write-protected review API and admin panel show original reference, editable JSON, and explicit approve/reject | Add real provider sender and synthetic local smoke |

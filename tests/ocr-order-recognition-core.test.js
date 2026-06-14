@@ -1,7 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { recognizeOrderImageCore } from "../src/ocr/order-recognition-core.js";
+import {
+  listOrderRecognitionsCore,
+  recognizeOrderImageCore,
+  reviewOrderRecognitionCore
+} from "../src/ocr/order-recognition-core.js";
 import { onRequestPost } from "../functions/api/orders/[id]/ocr/recognize.js";
+import { onRequestGet, onRequestPatch } from "../functions/api/orders/[id]/ocr/recognitions.js";
 
 const validResult = {
   documentType: "furniture_sketch", furnitureType: "wardrobe", rawText: "2400 x 1800",
@@ -33,6 +38,7 @@ test("successful recognition saves a draft linked to order and media", async () 
   assert.equal(db.records[0].status, "draft");
   assert.equal(db.records[0].orderId, 1);
   assert.equal(db.records[0].mediaId, "media-1");
+  assert.equal(db.records[0].imageSource, "r2://orders/sketch.webp");
   assert.equal(response.body.item.result.furnitureType, "wardrobe");
 });
 
@@ -86,11 +92,61 @@ test("endpoint uses injected sender and does not call fetch", async () => {
   }
 });
 
+test("lists recognition records for an order", async () => {
+  const db = createDb(order());
+  await recognizeOrderImageCore({ db }, 1, input, { sendRecognitionRequest: async () => JSON.stringify(validResult) });
+  const response = await listOrderRecognitionsCore({ db }, 1);
+  assert.equal(response.status, 200);
+  assert.equal(response.body.items[0].imageSource, "r2://orders/sketch.webp");
+  assert.equal(response.body.items[0].result.rawText, "2400 x 1800");
+});
+
+test("manager explicitly approves an edited recognition result", async () => {
+  const db = createDb(order());
+  await recognizeOrderImageCore({ db }, 1, input, { sendRecognitionRequest: async () => JSON.stringify(validResult) });
+  const edited = { ...validResult, rawText: "checked by manager" };
+  const response = await reviewOrderRecognitionCore({ db }, 1, {
+    recognitionId: 1, status: "approved", result: edited,
+    reviewedBy: "manager", reviewedAt: "2026-06-14T18:00:00Z"
+  });
+  assert.equal(response.status, 200);
+  assert.equal(response.body.item.status, "approved");
+  assert.equal(response.body.item.result.rawText, "checked by manager");
+});
+
+test("review rejects draft status and mismatched recognition", async () => {
+  const db = createDb(order());
+  await recognizeOrderImageCore({ db }, 1, input, { sendRecognitionRequest: async () => JSON.stringify(validResult) });
+  assert.equal((await reviewOrderRecognitionCore({ db }, 1, { recognitionId: 1, status: "draft", result: validResult })).status, 400);
+  assert.equal((await reviewOrderRecognitionCore({ db }, 2, { recognitionId: 1, status: "approved", result: validResult })).status, 404);
+});
+
+test("list endpoint allows read token and review endpoint requires write token", async () => {
+  const db = createDb(order());
+  await recognizeOrderImageCore({ db }, 1, input, { sendRecognitionRequest: async () => JSON.stringify(validResult) });
+  const listResponse = await onRequestGet({
+    request: requestFor("GET", undefined, "read"), env: { ADMIN_READ_TOKEN: "read", DB: db }, params: { id: "1" }
+  });
+  const rejectedReview = await onRequestPatch({
+    request: requestFor("PATCH", { recognitionId: 1, status: "approved", result: validResult }, "read"),
+    env: { ADMIN_READ_TOKEN: "read", DB: db }, params: { id: "1" }
+  });
+  assert.equal(listResponse.status, 200);
+  assert.equal(rejectedReview.status, 401);
+});
+
 function request(body, token = "") {
   return new Request("https://example.test/api/orders/1/ocr/recognize", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify(body)
+  });
+}
+function requestFor(method, body, token = "") {
+  return new Request("https://example.test/api/orders/1/ocr/recognitions", {
+    method,
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: body === undefined ? undefined : JSON.stringify(body)
   });
 }
 function order() { return { id: 1, source: "site", city: "Almaty", furnitureType: "wardrobe", description: "Wardrobe" }; }
@@ -102,15 +158,31 @@ function createDb(existingOrder) {
       let values = [];
       return {
         bind(...inputValues) { values = inputValues; return this; },
-        async first() { return sql.includes("FROM orders") && existingOrder && values[0] === existingOrder.id ? { ...existingOrder } : null; },
+        async first() {
+          if (sql.includes("FROM orders")) return existingOrder && values[0] === existingOrder.id ? { ...existingOrder } : null;
+          if (sql.includes("FROM ocr_recognitions") && sql.includes("order_id = ?")) {
+            return records.find((record) => record.id === values[0] && record.orderId === values[1]) || null;
+          }
+          if (sql.includes("FROM ocr_recognitions")) return records.find((record) => record.id === values[0]) || null;
+          return null;
+        },
+        async all() { return { results: records.filter((record) => record.orderId === values[0]).reverse() }; },
         async run() {
           if (sql.includes("INSERT INTO ocr_recognitions")) {
             records.push({
-              id: records.length + 1, orderId: values[0], mediaId: values[1], status: values[2],
-              resultJson: values[3], provider: values[4], model: values[5],
-              processingTimeMs: values[6], error: values[7], createdBy: values[8]
+              id: records.length + 1, orderId: values[0], mediaId: values[1], imageSource: values[2],
+              status: values[3], resultJson: values[4], provider: values[5], model: values[6],
+              processingTimeMs: values[7], error: values[8], createdBy: values[9],
+              createdAt: "2026-06-14", updatedAt: "2026-06-14"
             });
             return { meta: { last_row_id: records.length } };
+          }
+          if (sql.includes("UPDATE ocr_recognitions")) {
+            const record = records.find((item) => item.id === values[4] && item.orderId === values[5]);
+            Object.assign(record, {
+              status: values[0], resultJson: values[1], reviewedBy: values[2],
+              reviewedAt: values[3], updatedAt: "2026-06-14"
+            });
           }
           return { success: true };
         }

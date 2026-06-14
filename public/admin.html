@@ -181,6 +181,28 @@
     .order-ai span { display: block; }
     .order-ai.bad,
     .ai-error { color: var(--danger); }
+    .ocr-review-grid {
+      display: grid;
+      grid-template-columns: minmax(240px, .8fr) minmax(320px, 1.2fr);
+      gap: 14px;
+    }
+    .ocr-review-item {
+      display: grid;
+      gap: 10px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .ocr-review-item:last-child { border-bottom: 0; }
+    .ocr-original {
+      width: 100%;
+      max-height: 420px;
+      object-fit: contain;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+    }
+    .ocr-editor { min-height: 280px; font-family: ui-monospace, Consolas, monospace; }
+    .ocr-review-actions { display: flex; gap: 8px; flex-wrap: wrap; }
     .project-panel {
       margin-top: 18px;
       border: 1px solid var(--line);
@@ -577,6 +599,7 @@
       .sidebar-nav a { white-space: nowrap; }
       .dashboard-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .orders-toolbar { grid-template-columns: 1fr; }
+      .ocr-review-grid { grid-template-columns: 1fr; }
       .bar {
         align-items: stretch;
       }
@@ -651,6 +674,7 @@
       <a class="active" href="#orders" data-admin-view="orders">Обзор и заказы</a>
       <a href="/crm.html">CRM-воронка</a>
       <a href="#project-title" data-admin-view="project">Этапы проекта</a>
+      <a href="#ocr-review-title" data-admin-view="ocr">OCR review</a>
       <a href="#calculator-title" data-admin-view="calculators">Калькуляторы</a>
       <a href="#portfolio-title" data-admin-view="portfolio">Портфолио</a>
       <a href="#sites-title" data-admin-view="sites">Лендинги</a>
@@ -718,6 +742,12 @@
         </tbody>
       </table>
       </div>
+    </section>
+    <section class="project-panel admin-section" data-admin-section="ocr" aria-labelledby="ocr-review-title">
+      <div class="project-head">
+        <div><h2 id="ocr-review-title">OCR review</h2><p class="section-intro">Проверка распознанных мебельных эскизов перед одобрением.</p></div>
+      </div>
+      <div id="ocr-review-list" class="muted">Откройте OCR review из строки заказа.</div>
     </section>
     <section class="project-panel admin-section" data-admin-section="project" aria-labelledby="project-title">
       <div class="project-head">

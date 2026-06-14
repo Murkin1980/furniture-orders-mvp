@@ -112,7 +112,7 @@ placement.
 3. Orchestration with injected fake sender. Complete.
 4. D1 draft/approved storage model and pure persistence helpers. Complete.
 5. Protected manual recognition endpoint. Complete.
-6. Admin review UI with original image and editable result.
+6. Admin review UI with original image and editable result. Complete.
 7. Real provider sender and synthetic local smoke.
 8. Production secrets, consent/retention policy, and controlled smoke.
 9. SketchUp mapping from approved data into a versioned furniture model.

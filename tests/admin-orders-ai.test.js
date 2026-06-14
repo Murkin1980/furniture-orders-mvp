@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { getOrderAiViewModel, getOrderCrmViewModel, parseOrderAiMissingInfo } from "../public/admin-orders.js";
+import {
+  getOcrRecognitionViewModel, getOrderAiViewModel, getOrderCrmViewModel,
+  parseOcrReviewJson, parseOrderAiMissingInfo
+} from "../public/admin-orders.js";
 
 test("builds AI view model for analyzed order", () => {
   const view = getOrderAiViewModel({
@@ -53,4 +56,21 @@ test("builds safe empty CRM view model", () => {
   const view = getOrderCrmViewModel({});
   assert.equal(view.hasSync, false);
   assert.equal(view.buttonLabel, "Отправить в CRM");
+});
+
+test("builds OCR review view model with preview and explicit draft state", () => {
+  const view = getOcrRecognitionViewModel({
+    id: 4, status: "draft", imageSource: "/media/sketch.webp",
+    result: { furnitureType: "wardrobe", documentType: "furniture_sketch", rawText: "2400", warnings: ["Check depth"], missingInfo: ["depth"], confidence: 0.8 }
+  });
+  assert.equal(view.canPreviewImage, true);
+  assert.equal(view.status, "draft");
+  assert.deepEqual(view.warnings, ["Check depth"]);
+  assert.match(view.editableJson, /wardrobe/);
+});
+
+test("OCR review JSON parser rejects invalid and array input", () => {
+  assert.equal(parseOcrReviewJson('{"furnitureType":"kitchen"}').furnitureType, "kitchen");
+  assert.throws(() => parseOcrReviewJson("{bad"), /valid JSON object/);
+  assert.throws(() => parseOcrReviewJson("[]"), /valid JSON object/);
 });
