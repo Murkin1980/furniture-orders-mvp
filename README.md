@@ -26,7 +26,8 @@ reviewed slice.
 The future OCR and sketch-recognition path is defined in
 [`OCR_SKETCH_DECISION.md`](OCR_SKETCH_DECISION.md). OCR extraction, furniture
 sketch interpretation, and SketchUp automation remain separate, manual-first
-layers. No OCR runtime or provider call is enabled yet.
+layers. OCR Slice 1 adds a pure strict result parser in
+`src/ocr/recognition-result.js`; no OCR runtime or provider call is enabled yet.
 
 Production landing/VPS operations, known failures, and verified solutions:
 [`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).

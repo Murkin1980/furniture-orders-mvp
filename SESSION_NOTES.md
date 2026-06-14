@@ -1313,3 +1313,20 @@ Conclusion:
 ### Next
 - Finish representative scoped-auth endpoint migration.
 - Implement OCR Slice 1 as a pure schema/parser slice with tests.
+
+## 2026-06-14 - OCR Slice 1 pure parser/schema
+
+### What changed
+- Added `src/ocr/recognition-result.js` with a strict recognition draft schema,
+  safe default, code-fence parsing, allowlists, and confidence normalization.
+- Unknown units remain `unknown` with warnings.
+- Invalid or empty dimensions are ignored with warnings instead of being
+  silently trusted.
+- Added focused parser tests and included the module in `npm run check`.
+
+### Safety
+- No provider call, endpoint, UI, migration, storage write, deploy, or
+  production setting changed.
+
+### Next
+- OCR Slice 2: provider-neutral prompt/request builder without network calls.

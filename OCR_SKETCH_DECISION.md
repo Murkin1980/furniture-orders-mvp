@@ -95,7 +95,7 @@ placement.
 
 ## Future Slices
 
-1. Pure result schema, default result, parser, and tests.
+1. Pure result schema, default result, parser, and tests. Complete.
 2. Provider-neutral prompt/request builder without network calls.
 3. Orchestration with injected fake sender.
 4. D1 draft/approved storage model and pure persistence helpers.
