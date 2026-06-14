@@ -1480,3 +1480,34 @@ Conclusion:
     `response_format`.
 - Production and remote D1 were not touched.
 - A second synthetic smoke remains pending for a later explicit run.
+
+### OCR local runtime D1 diagnosis
+- A second controlled provider request also returned `server_error`; no retry
+  loop was used.
+- Confirmed that `npm run dev -- --d1 DB` made Pages dev use a separate
+  `local-DB`, while Wrangler CLI migrations targeted configured
+  `furniture_orders`.
+- Starting Pages dev without the override exposed the configured orders,
+  migrations, and OCR diagnostic record correctly.
+- Removed `--d1 DB` from the project dev script and updated README/AI setup
+  guidance.
+- Added a regression test that keeps Pages dev on configured local D1.
+- Applied migrations `0013` and `0014` only to configured local D1 so the
+  current local order list loads during OCR verification.
+- No production D1, deploy, or customer data was touched.
+- Next: run checks, then perform at most one final synthetic OCR provider smoke.
+
+### OCR Slice 7 successful synthetic smoke
+- Sent exactly one final provider request after fixing the local D1 dev path.
+- `POST /api/orders/2/ocr/recognize` returned `201`.
+- Saved recognition record `2` as `draft`; no automatic approval occurred.
+- Correctly recognized a synthetic wardrobe and dimensions `2400 x 600 x
+  2600 mm` with confidence `1`.
+- Data image URL was not persisted.
+- Full project tests: `282` passed; `npm.cmd run check` and `git diff --check`
+  passed.
+- README and both project progress files now mark OCR Slice 7 complete and the
+  OCR workstream at `90%`.
+- Production migration, deployment, settings, and customer data were not
+  touched.
+- Next: separately review production migrations and manual-only OCR enablement.

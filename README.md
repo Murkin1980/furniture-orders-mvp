@@ -26,13 +26,14 @@ reviewed slice.
 The future OCR and sketch-recognition path is defined in
 [`OCR_SKETCH_DECISION.md`](OCR_SKETCH_DECISION.md). OCR extraction, furniture
 sketch interpretation, and SketchUp automation remain separate, manual-first
-layers. OCR Slices 1-3 add a pure strict result parser, a provider-neutral
-prompt/request builder, injected-sender orchestration, and safe draft/approved
-record helpers in `src/ocr/`. Migration `0017_ocr_recognitions.sql` defines the
-future D1 storage model, but is not applied to production. No real provider call
-is enabled yet. A write-protected manual endpoint,
+layers. OCR Slices 1-7 add a pure strict result parser, provider-neutral
+prompt/request builder, injected-sender orchestration, safe draft/approved
+storage, protected manual API, manager review UI, and an explicitly gated real
+vision sender. Migrations `0017_ocr_recognitions.sql` and
+`0018_ocr_image_source.sql` define the D1 storage model, but are not applied to
+production. A write-protected manual endpoint,
 `POST /api/orders/:id/ocr/recognize`, accepts an already stored image reference
-and can currently run only through an injected sender. Recognition treats
+and can use an injected sender or the gated real sender. Recognition treats
 submitted images as furniture-related by default, but must warn or use `other`
 instead of inventing unclear details. The admin OCR review panel lists records,
 shows the original image or stored reference, allows structured JSON correction,
@@ -40,8 +41,10 @@ and requires an explicit manager approve/reject action.
 
 The first real OCR transport is an explicitly gated OpenAI-compatible vision
 sender. It accepts only HTTPS or image data URLs, stops immediately on HTTP 429,
-and remains disabled unless `OCR_RECOGNITION_ENABLED=true`. A synthetic local
-provider smoke test is still required before production use.
+and remains disabled unless `OCR_RECOGNITION_ENABLED=true`. The local synthetic
+provider smoke passed on June 14, 2026: a wardrobe sketch was saved as a draft
+with dimensions `2400 x 600 x 2600 mm`. Production migration and enablement
+remain pending and require a separate reviewed step.
 
 Production landing/VPS operations, known failures, and verified solutions:
 [`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).
@@ -493,7 +496,11 @@ npm run dev
 
 Runtime-создание схемы включается только в `npm run dev` через `RUNTIME_SCHEMA_INIT=true`. Для production используйте D1 migrations; это основной способ закреплять схему базы.
 
-Для ручного AI smoke test используйте configured local D1 `furniture_orders` с migration `0011`. Команда `npm run dev` содержит override `--d1 DB` и может создать или использовать отдельную local D1 без AI-полей. Точная команда запуска AI smoke test приведена в `AI_SETUP.md`.
+`npm run dev` использует configured local D1 `furniture_orders` из `wrangler.toml`.
+Применяйте нужные миграции к той же базе через
+`wrangler d1 execute DB --local --persist-to=.wrangler/state ...`. Не добавляйте
+к Pages dev override `--d1 DB`: он создаёт отдельную `local-DB`, из-за чего
+runtime не видит миграции и тестовые данные configured D1.
 
 Локальная админка доступна по адресу `http://127.0.0.1:8788/admin`. Dev token по умолчанию:
 

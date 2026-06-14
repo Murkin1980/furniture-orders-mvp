@@ -18,8 +18,8 @@ and `SESSION_NOTES.md` together.
 | Target | Progress | Meaning |
 |---|---:|---|
 | Commercial platform | `[########--] 75%` | Landings, orders, calculators, portfolio, CRM, and stable operations |
-| AI-assisted platform | `[######----] 60%` | AI qualification and safe manager-approved communication assistance; OCR remains future |
-| Complete vision | `[###-------] 30%` | Commercial platform plus vision, SketchUp MCP, and 3D render pipeline |
+| AI-assisted platform | `[#######---] 70%` | AI qualification, safe communications, and locally verified manager-reviewed OCR |
+| Complete vision | `[####------] 35%` | Commercial platform plus vision, SketchUp MCP, and 3D render pipeline |
 
 ## Workstreams
 
@@ -35,7 +35,7 @@ and `SESSION_NOTES.md` together.
 | Admin and CRM interface | `[##########] 100%` | Complete MVP UI: focused modules, actionable dashboard, responsive orders, efficient CRM cards, states and accessibility polish | Extend only from real manager feedback |
 | Twenty CRM integration | `[#######---] 70%` | Production safety path verified; now a separate future module | Prepare separate integration repository after native CRM verification |
 | AI agents and communications | `[##########] 100%` | Safe MVP complete: manual suggestions, editing, approval/rejection, audit history, and no autonomous sending | Add Telegram/WhatsApp delivery only as separately approved channel integrations |
-| OCR and sketch recognition | `[########--] 80%` | Gated vision sender and local OCR schema ready; production remains disabled | Run one synthetic local smoke |
+| OCR and sketch recognition | `[#########-] 90%` | Synthetic local provider smoke passed; result stays draft until manager review; production remains disabled | Plan and review production migration/enablement |
 | SketchUp MCP | `[----------] 0%` | Planned | Windows node and controlled MCP prototype |
 | 3D rendering pipeline | `[----------] 0%` | Planned | Render contract after SketchUp prototype |
 
@@ -132,3 +132,4 @@ flowchart LR
 | OCR Slice 4 | 2026-06-14 | D1 draft/approved/failed record model plus pure create/review serialization helpers | Add protected manual recognition endpoint |
 | OCR Slice 5 | 2026-06-14 | Write-protected manual endpoint saves injected-sender output as draft/failed without fetch | Build manager review UI for original image and editable result |
 | OCR Slice 6 | 2026-06-14 | Read/write-protected review API and admin panel show original reference, editable JSON, and explicit approve/reject | Add real provider sender and synthetic local smoke |
+| OCR Slice 7 | 2026-06-14 | Gated OpenAI-compatible vision sender, unified configured local D1, and successful synthetic wardrobe smoke saved as draft | Plan production migration and manual-only enablement |

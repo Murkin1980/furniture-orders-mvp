@@ -67,10 +67,13 @@ For an ordinary non-AI local run, use:
 npm.cmd run dev
 ```
 
-The current `npm run dev` script passes `--d1 DB`, which may create or use a separate local D1 without migration `0011`. For a manual AI smoke test, start Pages with the configured `furniture_orders` binding instead:
+`npm run dev` uses the configured local D1 `furniture_orders` binding from
+`wrangler.toml`. Keep the explicit `--d1 DB` override out of Pages dev
+commands: Wrangler treats it as a separate `local-DB`, so migrations applied
+to configured D1 are not visible to the runtime.
 
 ```powershell
-npx.cmd wrangler pages dev public --binding RUNTIME_SCHEMA_INIT=true --binding ADMIN_TOKEN=dev-admin-token --compatibility-date=2026-05-29 --persist-to=.wrangler/state
+npm.cmd run dev
 ```
 
 Open `/admin`, enter `dev-admin-token`, load an existing order, and manually start AI analysis.
@@ -96,7 +99,9 @@ npm.cmd run check
 git diff --check
 ```
 
-To verify a real provider locally, configure `.dev.vars`, ensure migration `0011` is applied to configured local D1 `furniture_orders`, start Pages without the `--d1 DB` override, and trigger analysis manually from the admin order list.
+To verify a real provider locally, configure `.dev.vars`, ensure migration
+`0011` is applied to configured local D1 `furniture_orders`, run
+`npm.cmd run dev`, and trigger analysis manually from the admin order list.
 
 ## Production status
 
