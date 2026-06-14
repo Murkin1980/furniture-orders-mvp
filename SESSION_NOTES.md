@@ -1295,3 +1295,21 @@ Conclusion:
   tests.
 - After the security slice, create the OCR/sketch recognition decision before
   writing OCR code.
+
+## 2026-06-14 - OCR and sketch recognition decision
+
+### Decision
+- Keep OCR extraction, furniture-sketch interpretation, and future SketchUp
+  automation as separate layers.
+- Recognition is manual-first and produces an editable draft with confidence,
+  warnings, and missing information.
+- Only manager-approved structured data may later enter the order or SketchUp
+  workflow.
+
+### Safety
+- No code, endpoint, UI, migration, provider call, deploy, or production
+  setting changed.
+
+### Next
+- Finish representative scoped-auth endpoint migration.
+- Implement OCR Slice 1 as a pure schema/parser slice with tests.

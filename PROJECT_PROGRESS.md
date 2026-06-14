@@ -35,7 +35,7 @@ and `SESSION_NOTES.md` together.
 | Admin and CRM interface | `[##########] 100%` | Complete MVP UI: focused modules, actionable dashboard, responsive orders, efficient CRM cards, states and accessibility polish | Extend only from real manager feedback |
 | Twenty CRM integration | `[#######---] 70%` | Production safety path verified; now a separate future module | Prepare separate integration repository after native CRM verification |
 | AI agents and communications | `[##########] 100%` | Safe MVP complete: manual suggestions, editing, approval/rejection, audit history, and no autonomous sending | Add Telegram/WhatsApp delivery only as separately approved channel integrations |
-| OCR and sketch recognition | `[----------] 0%` | Planned | Safe document/image intake prototype |
+| OCR and sketch recognition | `[#---------] 10%` | Architecture and safety decision complete | Pure result schema, parser, and tests |
 | SketchUp MCP | `[----------] 0%` | Planned | Windows node and controlled MCP prototype |
 | 3D rendering pipeline | `[----------] 0%` | Planned | Render contract after SketchUp prototype |
 
@@ -125,3 +125,4 @@ flowchart LR
 | Admin/CRM UI completion | 2026-06-14 | Focused admin modules, actionable order dashboard/search, responsive order cards, progressive CRM workspace, accessibility polish; commit `7f1c768`, deploy `2423fa56` | Extend only from real manager feedback |
 | Repository hygiene | 2026-06-14 | Historical stage files and architecture attachment moved under `docs/`; development logs removed from tracking and ignored | Keep root limited to active entry points and decisions |
 | Auth hardening foundation | 2026-06-14 | Pure read/write/ops authorization helper and scope tests added without changing endpoint behavior | Migrate representative read, write, and ops endpoints |
+| OCR/sketch decision | 2026-06-14 | Manual-first workflow, strict draft contract, storage/provider boundaries, safety rules, and implementation slices defined | Build pure parser/schema slice after auth endpoint migration |
