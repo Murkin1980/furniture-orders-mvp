@@ -13,12 +13,11 @@ furniture sketch.
 
 ## Exact next work
 
-1. Apply migrations `0017` and `0018` only to local dev D1.
-2. Prepare one synthetic furniture-sketch image with no customer data.
-3. Set `OCR_RECOGNITION_ENABLED=true`, `OCR_PROVIDER=openai`, `OCR_MODEL`, and
+1. Prepare one synthetic furniture-sketch image with no customer data.
+2. Set `OCR_RECOGNITION_ENABLED=true`, `OCR_PROVIDER=openai`, `OCR_MODEL`, and
    a local API key.
-4. Run exactly one manual recognition request and stop immediately on 429.
-5. Verify the saved record is `draft` or safely `failed`, then review it
+3. Run exactly one manual recognition request and stop immediately on 429.
+4. Verify the saved record is `draft` or safely `failed`, then review it
    manually in admin.
 
 ## Safety boundaries
@@ -32,6 +31,9 @@ furniture sketch.
 - Full project tests: 280 passed.
 - `npm.cmd run check`: passed.
 - `git diff --check`: passed.
+- OCR migrations `0017` and `0018` applied and verified only in local D1.
+- Historical local migration drift remains at `0002`; do not rerun the full
+  local migration chain until that drift is reconciled.
 
 ## Do not commit
 

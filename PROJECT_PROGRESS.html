@@ -491,7 +491,7 @@
       { name: "Portfolio и media", progress: 60, state: "active", status: "В работе", detail: "Галерея работает, R2-ready upload flow реализован.", next: "Завершить production R2 operations." },
       { name: "Twenty CRM модуль", progress: 70, state: "active", status: "Опционально", detail: "Безопасный manual sync path и отдельная граница модуля.", next: "Проверить контракт реального Twenty workspace." },
       { name: "AI-агенты и коммуникации", progress: 100, state: "complete", status: "Готово", detail: "Safe MVP: AI-черновики, редактирование, approval/rejection и audit history без автономной отправки.", next: "Telegram/WhatsApp delivery подключать только отдельными согласованными интеграциями." },
-      { name: "OCR и распознавание эскизов", progress: 80, state: "active", status: "Vision sender готов", detail: "Gated OpenAI-compatible sender принимает только HTTPS/data image, останавливается на 429 и по умолчанию выключен.", next: "Применить local migrations и выполнить один synthetic local smoke." },
+      { name: "OCR и распознавание эскизов", progress: 80, state: "active", status: "Готов к synthetic smoke", detail: "Gated vision sender и local OCR schema готовы; production остаётся выключен.", next: "Выполнить один synthetic local smoke без повторов после 429." },
       { name: "SketchUp MCP", progress: 0, state: "planned", status: "План", detail: "Контролируемое построение модели из спецификации.", next: "Подготовить Windows node и MCP-прототип." },
       { name: "3D-рендер заказа", progress: 0, state: "planned", status: "План", detail: "Возврат визуализации в заказ и CRM workflow.", next: "Определить render contract после SketchUp." }
     ];

@@ -25,3 +25,10 @@ Date: 2026-06-14
 - No real provider request was sent.
 - Synthetic local smoke is still pending.
 - Production migrations, deploy, and settings remain unchanged.
+
+## Local D1 preparation
+
+- Full local migration runner stopped on historical `updated_at` schema drift.
+- Applied only OCR migrations `0017` and `0018` directly to local D1.
+- Verified `ocr_recognitions` and `image_source`.
+- Remote D1 was not touched.

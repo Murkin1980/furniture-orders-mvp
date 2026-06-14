@@ -1456,3 +1456,12 @@ Conclusion:
 ### Next
 - Apply migrations `0017` and `0018` only to local D1 and run one synthetic
   furniture-sketch smoke request.
+
+### Local D1 follow-up
+- Full `wrangler d1 migrations apply DB --local` stopped on historical drift:
+  migration `0002` attempted to add an already existing `updated_at` column.
+- No retry loop was used.
+- Applied only `0017_ocr_recognitions.sql` and `0018_ocr_image_source.sql`
+  directly to local D1.
+- Verified local `ocr_recognitions` exists and includes `image_source`.
+- Remote/production D1 was not touched.
