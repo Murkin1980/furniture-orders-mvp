@@ -20,6 +20,10 @@ furniture sketch.
 4. Verify the saved record is `draft` or safely `failed`, then review it
    manually in admin.
 
+A synthetic three-door wardrobe sketch was generated during the session, but
+it still needs to be saved as a local PNG or hosted HTTPS test asset before the
+single provider request can be sent.
+
 ## Safety boundaries
 
 - No customer images, automatic recognition, production migration, deploy,
