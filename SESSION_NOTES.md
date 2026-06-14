@@ -1277,3 +1277,21 @@ Conclusion:
 ### Next
 - Implement the shared pure auth helper and focused scope tests before migrating
   endpoint files.
+
+## 2026-06-14 - Auth hardening foundation
+
+### What changed
+- Added `src/auth.js` with explicit read, write, and operations scopes.
+- Added token extraction, safe scope hierarchy, default-deny failures, and a
+  temporary legacy `ADMIN_TOKEN` migration fallback.
+- Added focused scope tests.
+
+### Safety
+- No endpoint, UI, secret, migration, deployment, or production behavior
+  changed in this slice.
+
+### Next
+- Migrate one representative read, write, and operations endpoint with focused
+  tests.
+- After the security slice, create the OCR/sketch recognition decision before
+  writing OCR code.

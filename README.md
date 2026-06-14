@@ -17,6 +17,12 @@ Repository navigation:
 - completed session summaries live in `docs/sessions/`;
 - runtime logs and local archives are ignored and must not be committed.
 
+Auth hardening is now staged behind a pure shared scope helper in `src/auth.js`.
+It defines separate read, write, and operations permissions plus a temporary
+legacy `ADMIN_TOKEN` fallback. Existing endpoints have not been migrated yet,
+so current production authorization behavior remains unchanged until the next
+reviewed slice.
+
 Production landing/VPS operations, known failures, and verified solutions:
 [`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).
 

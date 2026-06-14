@@ -124,3 +124,4 @@ flowchart LR
 | SaaS UI workflow skill | 2026-06-14 | Reusable implementation/review workflow created from UPROCK guidance, Nielsen heuristics, and WCAG 2.2 | Apply it to Admin/CRM UI Slice 2 |
 | Admin/CRM UI completion | 2026-06-14 | Focused admin modules, actionable order dashboard/search, responsive order cards, progressive CRM workspace, accessibility polish; commit `7f1c768`, deploy `2423fa56` | Extend only from real manager feedback |
 | Repository hygiene | 2026-06-14 | Historical stage files and architecture attachment moved under `docs/`; development logs removed from tracking and ignored | Keep root limited to active entry points and decisions |
+| Auth hardening foundation | 2026-06-14 | Pure read/write/ops authorization helper and scope tests added without changing endpoint behavior | Migrate representative read, write, and ops endpoints |
