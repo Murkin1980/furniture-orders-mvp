@@ -1330,3 +1330,20 @@ Conclusion:
 
 ### Next
 - OCR Slice 2: provider-neutral prompt/request builder without network calls.
+
+## 2026-06-14 - OCR Slice 2 provider-neutral request
+
+### What changed
+- Added `src/ocr/recognition-prompt.js`.
+- Added strict recognition prompt construction from safe optional context.
+- Added a provider-neutral request object with normalized image reference and
+  expected JSON response format.
+- Added focused tests for schema, safety rules, snake_case support, missing
+  image source, no fetch, and input immutability.
+
+### Safety
+- No provider URL, API key, model, fetch, endpoint, UI, migration, storage
+  write, deploy, or production behavior changed.
+
+### Next
+- OCR Slice 3: orchestration with an injected fake sender and Slice 1 parser.

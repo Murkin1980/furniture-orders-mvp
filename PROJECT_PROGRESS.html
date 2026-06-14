@@ -491,12 +491,13 @@
       { name: "Portfolio и media", progress: 60, state: "active", status: "В работе", detail: "Галерея работает, R2-ready upload flow реализован.", next: "Завершить production R2 operations." },
       { name: "Twenty CRM модуль", progress: 70, state: "active", status: "Опционально", detail: "Безопасный manual sync path и отдельная граница модуля.", next: "Проверить контракт реального Twenty workspace." },
       { name: "AI-агенты и коммуникации", progress: 100, state: "complete", status: "Готово", detail: "Safe MVP: AI-черновики, редактирование, approval/rejection и audit history без автономной отправки.", next: "Telegram/WhatsApp delivery подключать только отдельными согласованными интеграциями." },
-      { name: "OCR и распознавание эскизов", progress: 20, state: "active", status: "Parser готов", detail: "Manual-first workflow и pure safe parser готовы; неизвестные единицы и размеры не принимаются молча.", next: "Создать provider-neutral prompt/request builder без network calls." },
+      { name: "OCR и распознавание эскизов", progress: 30, state: "active", status: "Request contract готов", detail: "Pure parser и provider-neutral prompt/request builder готовы без network calls.", next: "Создать orchestration с injected fake sender." },
       { name: "SketchUp MCP", progress: 0, state: "planned", status: "План", detail: "Контролируемое построение модели из спецификации.", next: "Подготовить Windows node и MCP-прототип." },
       { name: "3D-рендер заказа", progress: 0, state: "planned", status: "План", detail: "Возврат визуализации в заказ и CRM workflow.", next: "Определить render contract после SketchUp." }
     ];
 
     const stages = [
+      { date: "14.06.2026", state: "complete", title: "OCR Slice 2", detail: "Добавлены provider-neutral prompt/request builder, строгая JSON-схема и нормализованная image reference.", result: "Нет fetch, provider URL, API key, endpoint, UI или production change." },
       { date: "14.06.2026", state: "complete", title: "OCR Slice 1", detail: "Добавлены pure schema/parser, safe default, enum/confidence normalization и строгая обработка размеров.", result: "Неизвестные единицы и невалидные размеры требуют review; provider calls и production не менялись." },
       { date: "14.06.2026", state: "complete", title: "OCR/sketch recognition decision", detail: "Разделены OCR, мебельная интерпретация эскиза и будущий SketchUp; определены manual-first workflow и строгий draft contract.", result: "Код, provider calls и production не менялись; следующий шаг — pure parser/schema." },
       { date: "14.06.2026", state: "complete", title: "Auth hardening foundation", detail: "Добавлен pure helper для read/write/ops scopes и временного legacy fallback без подключения к endpoint.", result: "7 целевых тестов; production authorization пока не изменена." },

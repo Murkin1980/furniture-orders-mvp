@@ -35,7 +35,7 @@ and `SESSION_NOTES.md` together.
 | Admin and CRM interface | `[##########] 100%` | Complete MVP UI: focused modules, actionable dashboard, responsive orders, efficient CRM cards, states and accessibility polish | Extend only from real manager feedback |
 | Twenty CRM integration | `[#######---] 70%` | Production safety path verified; now a separate future module | Prepare separate integration repository after native CRM verification |
 | AI agents and communications | `[##########] 100%` | Safe MVP complete: manual suggestions, editing, approval/rejection, audit history, and no autonomous sending | Add Telegram/WhatsApp delivery only as separately approved channel integrations |
-| OCR and sketch recognition | `[##--------] 20%` | Decision and pure safe result parser complete | Provider-neutral prompt/request builder without network calls |
+| OCR and sketch recognition | `[###-------] 30%` | Decision, pure parser, and provider-neutral request builder complete | Orchestration with injected fake sender |
 | SketchUp MCP | `[----------] 0%` | Planned | Windows node and controlled MCP prototype |
 | 3D rendering pipeline | `[----------] 0%` | Planned | Render contract after SketchUp prototype |
 
@@ -127,3 +127,4 @@ flowchart LR
 | Auth hardening foundation | 2026-06-14 | Pure read/write/ops authorization helper and scope tests added without changing endpoint behavior | Migrate representative read, write, and ops endpoints |
 | OCR/sketch decision | 2026-06-14 | Manual-first workflow, strict draft contract, storage/provider boundaries, safety rules, and implementation slices defined | Build pure parser/schema slice after auth endpoint migration |
 | OCR Slice 1 | 2026-06-14 | Pure strict result schema/parser, safe defaults, no unit guessing, and focused tests | Build provider-neutral prompt/request builder |
+| OCR Slice 2 | 2026-06-14 | Provider-neutral prompt/request builder with strict schema and no network calls | Build orchestration with injected fake sender |
