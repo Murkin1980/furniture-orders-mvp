@@ -26,9 +26,11 @@ reviewed slice.
 The future OCR and sketch-recognition path is defined in
 [`OCR_SKETCH_DECISION.md`](OCR_SKETCH_DECISION.md). OCR extraction, furniture
 sketch interpretation, and SketchUp automation remain separate, manual-first
-layers. OCR Slices 1-2 add a pure strict result parser and a provider-neutral
-prompt/request builder in `src/ocr/`; no OCR runtime or provider call is
-enabled yet.
+layers. OCR Slices 1-3 add a pure strict result parser, a provider-neutral
+prompt/request builder, and injected-sender orchestration in `src/ocr/`; no
+real provider call, endpoint, or OCR storage is enabled yet. Recognition treats
+submitted images as furniture-related by default, but must warn or use `other`
+instead of inventing unclear details.
 
 Production landing/VPS operations, known failures, and verified solutions:
 [`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).

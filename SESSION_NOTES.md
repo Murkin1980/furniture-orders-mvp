@@ -1347,3 +1347,24 @@ Conclusion:
 
 ### Next
 - OCR Slice 3: orchestration with an injected fake sender and Slice 1 parser.
+
+## 2026-06-14 - OCR Slice 3 injected-sender orchestration
+
+### What changed
+- Added `src/ocr/recognize-image.js`.
+- Added orchestration from provider-neutral request through injected sender to
+  strict result parser.
+- Added safe processing metadata and explicit parse-failure reporting.
+- Added support for raw string, content, and OpenAI-like choices responses.
+- Added focused tests for missing sender, sender errors, missing image source,
+  invalid JSON, response forms, no fetch, and input immutability.
+- Strengthened the OCR prompt so every input starts as furniture-related, while
+  unclear details remain `other`, omitted, or warnings instead of invented
+  unrelated content.
+
+### Safety
+- No fetch, provider client, endpoint, UI, migration, storage write, deploy, or
+  production behavior changed.
+
+### Next
+- OCR Slice 4: D1 draft/approved storage model and pure persistence helpers.

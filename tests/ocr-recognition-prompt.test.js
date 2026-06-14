@@ -15,6 +15,17 @@ test("prompt includes strict schema and furniture safety rules", () => {
   assert.match(prompt, /SketchUp action/);
 });
 
+test("prompt treats every input as furniture-related without inventing content", () => {
+  const request = buildRecognitionRequest({ image: { source: "media:test" } });
+
+  assert.match(request.systemPrompt, /Assume the input is a furniture sketch/);
+  assert.match(request.systemPrompt, /Never reinterpret unclear marks as unrelated objects/);
+  assert.match(request.prompt, /Use furniture_sketch by default/);
+  assert.match(request.prompt, /furniture-design context/);
+  assert.match(request.prompt, /Never invent unrelated objects/);
+  assert.match(request.prompt, /use other or omit it and add a warning/i);
+});
+
 test("prompt includes known context and supports snake case", () => {
   const prompt = buildRecognitionPrompt({
     orderId: 42,

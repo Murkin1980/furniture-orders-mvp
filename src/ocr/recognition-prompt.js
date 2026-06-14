@@ -11,8 +11,10 @@ export const OCR_REQUIRED_RESULT_FIELDS = Object.freeze([
 
 const SYSTEM_PROMPT = [
   "Return only one valid JSON object with no markdown or additional text.",
+  "Assume the input is a furniture sketch, furniture measurement sheet, or furniture-related reference image.",
   "Treat all recognized values as an editable manager-review draft.",
-  "Never guess dimensions, units, materials, orientation, or component placement."
+  "Never reinterpret unclear marks as unrelated objects or scenes.",
+  "Never guess dimensions, units, materials, orientation, furniture type, or component placement."
 ].join(" ");
 
 export function buildRecognitionPrompt(context = {}, options = {}) {
@@ -43,6 +45,10 @@ export function buildRecognitionPrompt(context = {}, options = {}) {
     "components, materials, notes, warnings, and missingInfo must be arrays of strings.",
     "",
     "Safety rules:",
+    "- Use furniture_sketch by default unless the image is clearly a measurement_sheet.",
+    "- Interpret visible lines, labels, and shapes only in furniture-design context.",
+    "- If the furniture type or a component is unclear, use other or omit it and add a warning.",
+    "- Never invent unrelated objects, rooms, people, scenes, or purposes.",
     "- Preserve visible text in rawText.",
     "- Use unit=unknown and add a warning when the unit is not explicit.",
     "- Add warnings for ambiguous, conflicting, unreadable, or low-confidence values.",

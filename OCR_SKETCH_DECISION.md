@@ -41,6 +41,18 @@ There is no automatic recognition on public order intake.
 
 PDF, multi-page documents, CAD files, and video remain later extensions.
 
+## Furniture-First Interpretation Rule
+
+Every image submitted to this OCR workflow is treated as furniture-related by
+default: a furniture sketch, measurement sheet, or reference image. Recognition
+must interpret visible lines, labels, and shapes only in a furniture-design
+context.
+
+This assumption does not permit invention. If the furniture type, component,
+dimension, or meaning of a mark is unclear, the result must use `other`, omit
+the uncertain item, or add a warning. It must not reinterpret unclear marks as
+unrelated objects, rooms, people, scenes, or purposes.
+
 ## Structured Draft Contract
 
 Recognition output must normalize into a strict draft structure:
@@ -97,7 +109,7 @@ placement.
 
 1. Pure result schema, default result, parser, and tests. Complete.
 2. Provider-neutral prompt/request builder without network calls. Complete.
-3. Orchestration with injected fake sender.
+3. Orchestration with injected fake sender. Complete.
 4. D1 draft/approved storage model and pure persistence helpers.
 5. Protected manual recognition endpoint.
 6. Admin review UI with original image and editable result.
