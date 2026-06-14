@@ -1386,3 +1386,20 @@ Conclusion:
 
 ### Next
 - OCR Slice 5: protected manual recognition endpoint using an injected sender.
+
+## 2026-06-14 - OCR Slice 5 protected manual endpoint
+
+### What changed
+- Added `recognizeOrderImageCore` to validate the order and stored image source,
+  invoke only an injected recognition sender, and save a draft/failed record.
+- Added write-protected `POST /api/orders/:id/ocr/recognize`.
+- Added tests for order/image validation, authorization, draft/failed storage,
+  sender errors, invalid output, and no-fetch behavior.
+
+### Safety
+- Endpoint has no real provider sender and cannot call fetch.
+- Recognition never becomes approved automatically.
+- No UI, deploy, production migration, or production setting changed.
+
+### Next
+- OCR Slice 6: manager review UI with original image and editable result.

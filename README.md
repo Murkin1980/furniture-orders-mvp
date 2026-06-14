@@ -30,7 +30,9 @@ layers. OCR Slices 1-3 add a pure strict result parser, a provider-neutral
 prompt/request builder, injected-sender orchestration, and safe draft/approved
 record helpers in `src/ocr/`. Migration `0017_ocr_recognitions.sql` defines the
 future D1 storage model, but is not applied to production. No real provider call
-or endpoint is enabled yet. Recognition treats
+is enabled yet. A write-protected manual endpoint,
+`POST /api/orders/:id/ocr/recognize`, accepts an already stored image reference
+and can currently run only through an injected sender. Recognition treats
 submitted images as furniture-related by default, but must warn or use `other`
 instead of inventing unclear details.
 
