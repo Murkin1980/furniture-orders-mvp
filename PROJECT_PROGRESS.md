@@ -123,3 +123,4 @@ flowchart LR
 | Admin/CRM UI Slice 1 | 2026-06-14 | Shared Serenite-inspired operational shell, responsive navigation, visual verification, and production deploy `8cf4b37a` | Refine high-frequency dashboard and CRM surfaces without changing backend contracts |
 | SaaS UI workflow skill | 2026-06-14 | Reusable implementation/review workflow created from UPROCK guidance, Nielsen heuristics, and WCAG 2.2 | Apply it to Admin/CRM UI Slice 2 |
 | Admin/CRM UI completion | 2026-06-14 | Focused admin modules, actionable order dashboard/search, responsive order cards, progressive CRM workspace, accessibility polish; commit `7f1c768`, deploy `2423fa56` | Extend only from real manager feedback |
+| Repository hygiene | 2026-06-14 | Historical stage files and architecture attachment moved under `docs/`; development logs removed from tracking and ignored | Keep root limited to active entry points and decisions |

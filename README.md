@@ -7,6 +7,16 @@ Visual roadmap and current readiness:
 After every completed stage, update the visual HTML dashboard, the canonical
 Markdown progress tracker, and `SESSION_NOTES.md`.
 
+Repository navigation:
+
+- active product and architecture decisions remain in the repository root;
+- historical stage instructions and handoffs live in
+  [`docs/internal/`](docs/internal/README.md);
+- architecture attachments live in
+  [`docs/architecture/`](docs/architecture/README.md);
+- completed session summaries live in `docs/sessions/`;
+- runtime logs and local archives are ignored and must not be committed.
+
 Production landing/VPS operations, known failures, and verified solutions:
 [`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).
 

@@ -1240,3 +1240,22 @@ Conclusion:
 
 ### Next
 - Extend the completed MVP interface only from real manager feedback.
+
+## 2026-06-14 - Repository hygiene
+
+### What changed
+- Moved historical Stage 1-4 instructions, briefs, handoffs, and implementation
+  summaries from the repository root to `docs/internal/stages/`.
+- Moved NotebookLM context to `docs/internal/notebooklm/`.
+- Moved the architecture PDF to `docs/architecture/`.
+- Removed development logs from Git tracking and added `*.log` to `.gitignore`.
+- Added concise navigation documents for the new documentation folders.
+
+### Safety
+- Application code, API contracts, migrations, deploy configuration, and
+  production settings were not changed.
+- Existing untracked working instructions and handoffs remain untouched.
+
+### Next
+- Audit admin endpoints and define read/write/ops token boundaries before
+  implementing auth hardening.
