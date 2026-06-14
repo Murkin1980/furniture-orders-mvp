@@ -66,6 +66,15 @@ test("endpoint requires write authorization", async () => {
   assert.equal(response.status, 401);
 });
 
+test("endpoint stays disabled without injected sender or explicit env flag", async () => {
+  const response = await onRequestPost({
+    request: request(input, "secret"), env: { ADMIN_WRITE_TOKEN: "secret", DB: createDb(order()) },
+    params: { id: "1" }, data: {}
+  });
+  assert.equal(response.status, 503);
+  assert.equal((await response.json()).error, "ocr_recognition_disabled");
+});
+
 test("read token cannot trigger recognition", async () => {
   const response = await onRequestPost({
     request: request(input, "read"), env: { ADMIN_READ_TOKEN: "read", DB: createDb(order()) },

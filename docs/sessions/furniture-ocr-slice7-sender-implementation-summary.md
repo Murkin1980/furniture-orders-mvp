@@ -1,0 +1,27 @@
+# OCR Slice 7 Sender Implementation Summary
+
+Date: 2026-06-14
+
+## Completed
+
+- Added `src/ocr/openai-vision.js`.
+- Builds an OpenAI-compatible multimodal request from the provider-neutral OCR
+  request.
+- Accepts only HTTPS or image data URLs.
+- Reuses the existing safe AI transport and injected `fetchFn`.
+- Stops after the first HTTP 429 response with no retry.
+- Added explicit `OCR_RECOGNITION_ENABLED` endpoint gating.
+- Added env examples and focused tests.
+
+## Checks
+
+- Focused OCR sender/core tests: 28 passed.
+- Full project tests: 280 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed.
+
+## Not completed
+
+- No real provider request was sent.
+- Synthetic local smoke is still pending.
+- Production migrations, deploy, and settings remain unchanged.

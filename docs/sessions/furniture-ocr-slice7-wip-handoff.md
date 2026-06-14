@@ -13,11 +13,13 @@ furniture sketch.
 
 ## Exact next work
 
-1. Decide the first supported vision provider and request shape.
-2. Add a sender with injected `fetchFn` and focused error tests.
-3. Wire the sender to the manual endpoint only when OCR is explicitly enabled.
-4. Apply migrations `0017` and `0018` only to local dev D1.
-5. Run one synthetic furniture-sketch smoke test.
+1. Apply migrations `0017` and `0018` only to local dev D1.
+2. Prepare one synthetic furniture-sketch image with no customer data.
+3. Set `OCR_RECOGNITION_ENABLED=true`, `OCR_PROVIDER=openai`, `OCR_MODEL`, and
+   a local API key.
+4. Run exactly one manual recognition request and stop immediately on 429.
+5. Verify the saved record is `draft` or safely `failed`, then review it
+   manually in admin.
 
 ## Safety boundaries
 
@@ -27,7 +29,7 @@ furniture sketch.
 
 ## Last verified state
 
-- Full project tests: 274 passed.
+- Full project tests: 280 passed.
 - `npm.cmd run check`: passed.
 - `git diff --check`: passed.
 

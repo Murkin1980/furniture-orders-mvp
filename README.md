@@ -38,6 +38,11 @@ instead of inventing unclear details. The admin OCR review panel lists records,
 shows the original image or stored reference, allows structured JSON correction,
 and requires an explicit manager approve/reject action.
 
+The first real OCR transport is an explicitly gated OpenAI-compatible vision
+sender. It accepts only HTTPS or image data URLs, stops immediately on HTTP 429,
+and remains disabled unless `OCR_RECOGNITION_ENABLED=true`. A synthetic local
+provider smoke test is still required before production use.
+
 Production landing/VPS operations, known failures, and verified solutions:
 [`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).
 

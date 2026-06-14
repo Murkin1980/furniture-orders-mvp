@@ -1430,3 +1430,29 @@ Conclusion:
 
 ### Next
 - OCR Slice 7: real provider sender and synthetic local smoke only.
+
+## 2026-06-14 - OCR Slice 7 gated vision sender
+
+### What changed
+- Added an OpenAI-compatible multimodal OCR request builder and sender.
+- Sender accepts only HTTPS or image data URLs and reuses the existing safe AI
+  transport error handling.
+- Manual OCR endpoint uses the real sender only when
+  `OCR_RECOGNITION_ENABLED=true`; injected test senders remain supported.
+- Added OCR env examples and focused sender/gating tests.
+
+### Safety
+- No external provider request or synthetic smoke was run.
+- No retries are made after HTTP 429.
+- No customer images, production migration, deploy, or production setting
+  changed.
+
+### Checks
+- Focused OCR sender/core tests: 28 passed.
+- Full project tests: 280 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed.
+
+### Next
+- Apply migrations `0017` and `0018` only to local D1 and run one synthetic
+  furniture-sketch smoke request.

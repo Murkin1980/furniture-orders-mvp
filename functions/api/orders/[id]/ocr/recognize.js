@@ -1,5 +1,6 @@
 import { AUTH_SCOPES, authorizeRequest } from "../../../../../src/auth.js";
 import { recognizeOrderImageCore } from "../../../../../src/ocr/order-recognition-core.js";
+import { sendOpenAiVisionRequest } from "../../../../../src/ocr/openai-vision.js";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,6 +15,14 @@ export async function onRequestOptions() {
 export async function onRequestPost(context) {
   const auth = authorizeRequest(context.request, context.env, AUTH_SCOPES.WRITE);
   if (!auth.ok) return jsonResponse({ success: false, error: auth.error, message: auth.message }, auth.status);
+  const injectedSender = context.data?.sendRecognitionRequest;
+  if (typeof injectedSender !== "function" && context.env.OCR_RECOGNITION_ENABLED !== "true") {
+    return jsonResponse({
+      success: false,
+      error: "ocr_recognition_disabled",
+      message: "OCR recognition provider is disabled."
+    }, 503);
+  }
 
   let input;
   try {
@@ -24,9 +33,13 @@ export async function onRequestPost(context) {
 
   try {
     const result = await recognizeOrderImageCore({ db: context.env.DB }, context.params.id, input, {
-      sendRecognitionRequest: context.data?.sendRecognitionRequest,
-      provider: context.data?.provider,
-      model: context.data?.model,
+      sendRecognitionRequest: injectedSender || ((request) => sendOpenAiVisionRequest(request, {
+        providerName: context.env.OCR_PROVIDER,
+        model: context.env.OCR_MODEL,
+        env: context.env
+      })),
+      provider: context.data?.provider || context.env.OCR_PROVIDER || "openai",
+      model: context.data?.model || context.env.OCR_MODEL,
       createdBy: context.data?.createdBy || "manager"
     });
     return jsonResponse(result.body, result.status);
