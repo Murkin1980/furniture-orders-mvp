@@ -1465,3 +1465,18 @@ Conclusion:
   directly to local D1.
 - Verified local `ocr_recognitions` exists and includes `image_source`.
 - Remote/production D1 was not touched.
+
+### Synthetic provider smoke attempt
+- Used one fully synthetic three-door wardrobe sketch and local order `#2`.
+- Two preliminary requests were rejected by local authorization before any
+  provider call.
+- After configuring a temporary local write token, exactly one external
+  provider request was sent.
+- The endpoint returned `server_error` and no OCR record was saved.
+- No retry was made.
+- Investigation identified and fixed two integration defects:
+  - large image data URLs are no longer persisted into D1 `image_source`;
+  - internal `requiredFields` metadata is no longer sent inside provider
+    `response_format`.
+- Production and remote D1 were not touched.
+- A second synthetic smoke remains pending for a later explicit run.

@@ -8,7 +8,7 @@ export function buildRecognitionRecordCreate(result, meta = {}) {
   return {
     order_id: normalizePositiveInteger(safeMeta.orderId),
     media_id: cleanText(safeMeta.mediaId),
-    image_source: cleanText(safeMeta.imageSource),
+    image_source: normalizeStoredImageSource(safeMeta.imageSource),
     status: error ? "failed" : "draft",
     result_json: serializeRecognitionResult(result),
     provider: cleanText(safeMeta.provider),
@@ -65,6 +65,11 @@ function cleanText(value) {
   if (value === undefined || value === null) return null;
   const text = String(value).trim();
   return text || null;
+}
+
+function normalizeStoredImageSource(value) {
+  const source = cleanText(value);
+  return source?.startsWith("data:image/") ? null : source;
 }
 
 function isPlainObject(value) {

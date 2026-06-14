@@ -16,14 +16,13 @@ Date: 2026-06-14
 ## Checks
 
 - Focused OCR sender/core tests: 28 passed.
-- Full project tests: 280 passed.
+- Full project tests: 281 passed.
 - `npm.cmd run check`: passed.
 - `git diff --check`: passed.
 
 ## Not completed
 
-- No real provider request was sent.
-- Synthetic local smoke is still pending.
+- One synthetic provider request was sent; a successful repeat remains pending.
 - Production migrations, deploy, and settings remain unchanged.
 
 ## Local D1 preparation
@@ -32,3 +31,17 @@ Date: 2026-06-14
 - Applied only OCR migrations `0017` and `0018` directly to local D1.
 - Verified `ocr_recognitions` and `image_source`.
 - Remote D1 was not touched.
+
+## First synthetic smoke findings
+
+- Sent exactly one external provider request with a synthetic wardrobe sketch.
+- Runtime returned `server_error`; no OCR record was saved.
+- Did not retry.
+- Fixed two defects discovered by the smoke:
+  - data image URLs are not persisted into D1;
+  - provider `response_format` now contains only supported fields.
+- Added regression tests for both fixes.
+- Full project tests after fixes: 281 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed.
+- A successful second synthetic smoke remains pending.

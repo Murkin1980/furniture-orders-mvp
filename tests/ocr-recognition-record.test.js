@@ -87,3 +87,13 @@ test("handles empty input safely and never returns undefined", () => {
   assert.deepEqual(JSON.parse(payload.result_json), getDefaultRecognitionResult());
   assert.equal(JSON.stringify(payload).includes("undefined"), false);
 });
+
+test("does not persist large image data URLs in D1 record payload", () => {
+  const payload = buildRecognitionRecordCreate(result, {
+    orderId: 1,
+    mediaId: "synthetic-image",
+    imageSource: "data:image/png;base64,AAAA"
+  });
+  assert.equal(payload.image_source, null);
+  assert.equal(payload.media_id, "synthetic-image");
+});

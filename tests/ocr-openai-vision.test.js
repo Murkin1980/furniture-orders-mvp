@@ -17,6 +17,7 @@ test("builds an OpenAI-compatible multimodal OCR request", () => {
   assert.equal(request.body.messages[1].content[1].type, "image_url");
   assert.equal(request.body.messages[1].content[1].image_url.url, "https://media.example.test/sketch.webp");
   assert.equal(request.body.response_format.type, "json_object");
+  assert.equal(Object.hasOwn(request.body.response_format, "requiredFields"), false);
 });
 
 test("supports data image URLs but rejects internal and insecure sources", () => {

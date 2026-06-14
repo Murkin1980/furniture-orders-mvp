@@ -29,7 +29,7 @@ export function buildOpenAiVisionRequest(request, options = {}) {
       ],
       temperature: 0.1,
       max_tokens: 1600,
-      response_format: request.responseFormat
+      response_format: { type: "json_object" }
     }
   };
 }

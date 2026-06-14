@@ -16,13 +16,20 @@ furniture sketch.
 1. Prepare one synthetic furniture-sketch image with no customer data.
 2. Set `OCR_RECOGNITION_ENABLED=true`, `OCR_PROVIDER=openai`, `OCR_MODEL`, and
    a local API key.
-3. Run exactly one manual recognition request and stop immediately on 429.
+3. Run one second manual recognition request and stop immediately on 429.
 4. Verify the saved record is `draft` or safely `failed`, then review it
    manually in admin.
 
 A synthetic three-door wardrobe sketch was generated during the session, but
-it still needs to be saved as a local PNG or hosted HTTPS test asset before the
-single provider request can be sent.
+it remains in the Codex generated-images directory and was used as a data URL.
+
+## First smoke result
+
+- Exactly one external provider request was sent.
+- It returned runtime `server_error`; no OCR record was saved.
+- No retry was made.
+- Fixed data URL persistence and unsupported provider response-format metadata.
+- Run the second smoke only after reviewing commit checks.
 
 ## Safety boundaries
 
@@ -32,7 +39,8 @@ single provider request can be sent.
 
 ## Last verified state
 
-- Full project tests: 280 passed.
+- Focused regression tests: 28 passed.
+- Full project tests: 281 passed.
 - `npm.cmd run check`: passed.
 - `git diff --check`: passed.
 - OCR migrations `0017` and `0018` applied and verified only in local D1.
