@@ -1616,3 +1616,34 @@ Conclusion:
 - Before any customer pilot, review/apply migration `0019`, bind
   `OCR_MEDIA_BUCKET`, approve consent/retention policy, and verify deletion
   using one synthetic stored object.
+
+## 2026-06-15 - SketchUp Slice 1 versioned furniture model
+
+### What changed
+- Added a pure `furniture-model/v1` mapper that accepts only manager-approved
+  OCR recognition records.
+- Supported measurements are converted to millimeters; unknown units are
+  warnings and are not used.
+- Overall width/height/depth use explicit aliases and higher-confidence values.
+- Components remain semantic labels; no geometry or placement is invented.
+- Added the staged SketchUp integration decision, handoff, reviewer summary,
+  and synchronized project progress.
+
+### Files changed
+- `src/sketchup/furniture-model.js`
+- `tests/sketchup-furniture-model.test.js`
+- `SKETCHUP_INTEGRATION_DECISION.md`
+- README, OCR decision, progress, session/handoff/reviewer files
+
+### Safety
+- No MCP call, SketchUp process, arbitrary Ruby, endpoint, UI, migration,
+  deploy, or production setting was added.
+
+### Checks
+- Focused mapper tests: 10 passed.
+- Full project tests: 310 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed.
+
+### Next
+- Build a pure allowlisted command-plan contract without MCP or network calls.

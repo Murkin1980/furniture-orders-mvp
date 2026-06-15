@@ -1,0 +1,56 @@
+# SketchUp Integration Decision
+
+Date: 2026-06-15
+Status: accepted for staged implementation
+
+## Decision
+
+SketchUp is a separate controlled execution node. The Cloudflare platform must
+never send raw OCR output directly to SketchUp.
+
+The integration boundary is a versioned, provider-neutral furniture model:
+
+```text
+manager-approved OCR result
+-> furniture-model/v1
+-> future validated SketchUp command plan
+-> explicit manager execution
+-> Windows SketchUp/MCP node
+-> returned model/render artifact
+```
+
+## Slice 1 Contract
+
+`src/sketchup/furniture-model.js` creates `furniture-model/v1` only from an OCR
+record with `status=approved`.
+
+The model:
+
+- preserves recognition/order approval audit;
+- converts supported measurements to millimeters;
+- maps only explicit width/height/depth aliases;
+- keeps components as semantic labels without invented geometry;
+- preserves materials, notes, warnings, and missing information;
+- marks `readyForSketchUp=true` only when width, height, and depth exist.
+
+Unknown units, missing dimensions, and ambiguous data block readiness instead
+of being guessed.
+
+## Safety Boundaries
+
+- No MCP call.
+- No SketchUp process or plugin.
+- No generated Ruby commands.
+- No automatic model creation.
+- No endpoint, UI, migration, deploy, or production change.
+- Only manager-approved OCR data can cross the mapping boundary.
+
+## Future Slices
+
+1. Pure approved OCR -> `furniture-model/v1` mapper. Complete.
+2. Pure validated command-plan builder without MCP/network calls.
+3. SketchUp node request builder and signed job contract.
+4. Injected client and local fake-node smoke.
+5. Manual protected endpoint and job audit storage.
+6. Windows SketchUp/MCP prototype with explicit manager execution.
+7. Render artifact return and order attachment.
