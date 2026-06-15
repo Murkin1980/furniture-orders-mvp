@@ -81,7 +81,8 @@ single-attempt injected fake-node client for local contract smoke testing. It
 never falls back to global fetch and still does not connect MCP, SketchUp, or
 production. Slice 5 adds Web Crypto HMAC signing/verification and a signed
 HTTPS request builder without fetch; no production secret or node URL is
-configured.
+configured. Slice 6 adds a single-attempt injected HTTPS sender that never
+falls back to global fetch and never retries, including on HTTP 429.
 
 Production landing/VPS operations, known failures, and verified solutions:
 [`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).

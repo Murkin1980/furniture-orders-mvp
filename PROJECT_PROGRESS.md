@@ -20,7 +20,7 @@ and `SESSION_NOTES.md` together.
 |---|---:|---|
 | Commercial platform | `[########--] 75%` | Landings, orders, calculators, portfolio, CRM, and stable operations |
 | AI-assisted platform | `[#######---] 70%` | AI qualification, safe communications, and locally verified manager-reviewed OCR |
-| Complete vision | `[#####-----] 46%` | Commercial platform plus vision, signed SketchUp request foundation, SketchUp MCP, and 3D render pipeline |
+| Complete vision | `[#####-----] 48%` | Commercial platform plus vision, tested SketchUp transport foundation, SketchUp MCP, and 3D render pipeline |
 
 ## Workstreams
 
@@ -37,7 +37,7 @@ and `SESSION_NOTES.md` together.
 | Twenty CRM integration | `[#######---] 70%` | Production safety path verified; now a separate future module | Prepare separate integration repository after native CRM verification |
 | AI agents and communications | `[##########] 100%` | Safe MVP complete: manual suggestions, editing, approval/rejection, audit history, and no autonomous sending | Add Telegram/WhatsApp delivery only as separately approved channel integrations |
 | OCR and sketch recognition | `[##########] 100%` | Backend MVP complete: durable consent, retention, manager review, and fail-closed deletion; customer production pilot remains disabled | Review/apply migration 0019 and R2 binding only before an approved customer pilot |
-| SketchUp MCP | `[######----] 55%` | Signed request foundation complete: HMAC verify and HTTPS request object exist without transport | Add injected HTTPS sender with no global fallback or retries |
+| SketchUp MCP | `[#######---] 65%` | Safe transport foundation complete: signed HTTPS request sender is injected, single-attempt, and fail closed | Design manual protected endpoint and job audit storage without production deploy |
 | 3D rendering pipeline | `[----------] 0%` | Planned | Render contract after SketchUp prototype |
 
 ## Dependency Map
@@ -143,3 +143,4 @@ flowchart LR
 | SketchUp Slice 3 | 2026-06-15 | Short-lived idempotent `sketchup-node-job/v1`, canonical signature input, expiry and tamper checks | Add injected fake-node client and local smoke |
 | SketchUp Slice 4 | 2026-06-15 | Injected single-attempt fake-node client, normalized result, local accepted/rejected/error smoke | Add pure HMAC signing/verification and request builder without fetch |
 | SketchUp Slice 5 | 2026-06-15 | Web Crypto HMAC sign/verify and signed HTTPS request builder without fetch or secrets in output | Add injected HTTPS sender without global fallback or retries |
+| SketchUp Slice 6 | 2026-06-15 | Injected signed HTTPS sender, one attempt, no global fallback, no retries on 429 | Design manual protected endpoint and job audit storage |

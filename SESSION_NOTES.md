@@ -1765,3 +1765,27 @@ Conclusion:
 
 ### Next
 - Add an injected HTTPS sender without global fetch fallback or retries.
+
+## 2026-06-15 - SketchUp Slice 6 injected HTTPS sender
+
+### What changed
+- Added a single-attempt sender for prebuilt signed SketchUp HTTPS requests.
+- Requires injected `fetchFn`, never falls back to global fetch, and never
+  retries, including on HTTP 429.
+- Normalizes authorization, rate-limit, server, invalid-response, and network
+  failures.
+
+### Safety
+- No real node URL, endpoint, MCP, SketchUp process, migration, deploy, or
+  production setting was added.
+
+### Checks
+- Focused sender tests: 6 passed.
+- Full project tests: 360 passed.
+- `npm.cmd run check`: passed.
+- `node --check src/sketchup/node-http.js`: passed.
+- `git diff --check`: passed.
+
+### Next
+- Design manual protected endpoint and job audit storage without production
+  deploy.

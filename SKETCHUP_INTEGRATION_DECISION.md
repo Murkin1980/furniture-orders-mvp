@@ -105,6 +105,15 @@ The signing boundary:
 
 No sender, real node URL, endpoint, or production secret is configured.
 
+## Slice 6 Contract
+
+`src/sketchup/node-http.js` sends only a prebuilt signed HTTPS request through
+an injected `fetchFn`.
+
+It never falls back to global fetch, calls the sender once, never retries
+including on HTTP 429, and normalizes authorization, rate-limit, server,
+invalid-response, and network errors.
+
 ## Safety Boundaries
 
 - No MCP call.
@@ -121,7 +130,7 @@ No sender, real node URL, endpoint, or production secret is configured.
 3. SketchUp node request builder and signature-ready job contract. Complete.
 4. Injected client and local fake-node smoke. Complete.
 5. Pure HMAC signing/verification and request builder without fetch. Complete.
-6. Injected HTTPS sender with no global fallback and no retries.
+6. Injected HTTPS sender with no global fallback and no retries. Complete.
 7. Manual protected endpoint and job audit storage.
 8. Windows SketchUp/MCP prototype with explicit manager execution.
 9. Render artifact return and order attachment.

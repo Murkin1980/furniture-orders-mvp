@@ -9,19 +9,17 @@
   accepted/rejected/error smoke.
 - SketchUp Slice 5 adds Web Crypto HMAC signing/verification and a signed HTTPS
   request builder without fetch.
+- SketchUp Slice 6 adds an injected single-attempt HTTPS sender without global
+  fetch fallback or retries.
 - Only manager-approved OCR records and ready furniture models can cross these
   boundaries.
 - No SketchUp/MCP execution path exists.
 
 ## Next safe slice
 
-Build an injected HTTPS sender that:
-
-- accepts only the signed request object;
-- requires injected `fetchFn` and never falls back to global fetch;
-- calls it once and does not retry, including on 429;
-- normalizes accepted/rejected/error responses;
-- performs no real SketchUp/MCP call in tests.
+Design the manual protected endpoint and job audit storage. Do not apply a
+production migration or deploy until the contract and rollback path are
+reviewed.
 
 ## Do not do yet
 
