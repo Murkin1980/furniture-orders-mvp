@@ -88,6 +88,23 @@ The client:
 No real node URL, transport, signature, MCP process, or SketchUp process is
 connected.
 
+## Slice 5 Contract
+
+`src/sketchup/node-auth.js` signs and verifies only the canonical node-job
+signature input using HMAC-SHA256 through Web Crypto.
+
+The signing boundary:
+
+- requires an explicit secret of at least 32 characters;
+- never stores or returns the secret;
+- verifies signatures through `crypto.subtle.verify`;
+- keeps unsigned validation fail closed unless signed validation is explicitly
+  requested;
+- builds a transport-neutral HTTPS request object without calling fetch;
+- rejects unsigned jobs and insecure node URLs.
+
+No sender, real node URL, endpoint, or production secret is configured.
+
 ## Safety Boundaries
 
 - No MCP call.
@@ -103,7 +120,8 @@ connected.
 2. Pure validated command-plan builder without MCP/network calls. Complete.
 3. SketchUp node request builder and signature-ready job contract. Complete.
 4. Injected client and local fake-node smoke. Complete.
-5. Pure HMAC signing/verification and request builder without fetch.
-6. Manual protected endpoint and job audit storage.
-7. Windows SketchUp/MCP prototype with explicit manager execution.
-8. Render artifact return and order attachment.
+5. Pure HMAC signing/verification and request builder without fetch. Complete.
+6. Injected HTTPS sender with no global fallback and no retries.
+7. Manual protected endpoint and job audit storage.
+8. Windows SketchUp/MCP prototype with explicit manager execution.
+9. Render artifact return and order attachment.

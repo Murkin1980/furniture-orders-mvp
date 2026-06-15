@@ -1734,3 +1734,34 @@ Conclusion:
 
 ### Next
 - Add pure HMAC signing/verification and a request builder without fetch.
+
+## 2026-06-15 - SketchUp Slice 5 HMAC signing and request
+
+### What changed
+- Added Web Crypto HMAC-SHA256 signing and verification for canonical node-job
+  signature input.
+- Added signed-job validation mode while preserving unsigned fail-closed
+  behavior by default.
+- Added a transport-neutral signed HTTPS request builder without fetch.
+- Completed checkpoint review for SketchUp Slices 1-5.
+
+### Files changed
+- `src/sketchup/node-auth.js`
+- `src/sketchup/node-job.js`
+- `tests/sketchup-node-auth.test.js`
+- SketchUp decision, README, progress, handoff, and reviewer summary
+
+### Safety
+- Signing secrets are input-only and never returned or stored.
+- No fetch, sender, real node URL, endpoint, MCP, SketchUp process, migration,
+  deploy, or production setting was added.
+
+### Checks
+- Focused SketchUp tests: 54 passed.
+- Full project tests: 354 passed.
+- `npm.cmd run check`: passed.
+- `node --check src/sketchup/node-auth.js`: passed.
+- `git diff --check`: passed.
+
+### Next
+- Add an injected HTTPS sender without global fetch fallback or retries.

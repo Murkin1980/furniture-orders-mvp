@@ -79,7 +79,9 @@ a short-lived, idempotent, signature-ready `sketchup-node-job/v1`; it detects
 payload tampering and expiry but does not sign the job. Slice 4 adds a
 single-attempt injected fake-node client for local contract smoke testing. It
 never falls back to global fetch and still does not connect MCP, SketchUp, or
-production.
+production. Slice 5 adds Web Crypto HMAC signing/verification and a signed
+HTTPS request builder without fetch; no production secret or node URL is
+configured.
 
 Production landing/VPS operations, known failures, and verified solutions:
 [`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).

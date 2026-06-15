@@ -1,11 +1,12 @@
 # Project Progress Dashboard
 
-Last reviewed: 2026-06-14
-Current checkpoint: 3
+Last reviewed: 2026-06-15
+Current checkpoint: 4
 Next checkpoint review: after 5 more completed slices
 
-Current product focus: restore the VPS operational path and use the verified
-manual AI analysis flow safely on synthetic/test data.
+Current product focus: continue the controlled SketchUp integration path from
+signed request contracts toward an injected sender, while keeping execution
+and production disabled.
 
 This is the canonical visual progress tracker for the complete furniture platform. Percentages are engineering estimates based on implemented, tested, deployed, and operationally verified behavior. A feature is not considered complete only because code exists.
 
@@ -19,7 +20,7 @@ and `SESSION_NOTES.md` together.
 |---|---:|---|
 | Commercial platform | `[########--] 75%` | Landings, orders, calculators, portfolio, CRM, and stable operations |
 | AI-assisted platform | `[#######---] 70%` | AI qualification, safe communications, and locally verified manager-reviewed OCR |
-| Complete vision | `[####------] 44%` | Commercial platform plus vision, locally smoke-tested SketchUp job foundation, SketchUp MCP, and 3D render pipeline |
+| Complete vision | `[#####-----] 46%` | Commercial platform plus vision, signed SketchUp request foundation, SketchUp MCP, and 3D render pipeline |
 
 ## Workstreams
 
@@ -36,7 +37,7 @@ and `SESSION_NOTES.md` together.
 | Twenty CRM integration | `[#######---] 70%` | Production safety path verified; now a separate future module | Prepare separate integration repository after native CRM verification |
 | AI agents and communications | `[##########] 100%` | Safe MVP complete: manual suggestions, editing, approval/rejection, audit history, and no autonomous sending | Add Telegram/WhatsApp delivery only as separately approved channel integrations |
 | OCR and sketch recognition | `[##########] 100%` | Backend MVP complete: durable consent, retention, manager review, and fail-closed deletion; customer production pilot remains disabled | Review/apply migration 0019 and R2 binding only before an approved customer pilot |
-| SketchUp MCP | `[#####-----] 45%` | Local fake-node contract smoke complete; requests are injected, single-attempt, and fail closed | Add pure HMAC signing/verification and request builder without fetch |
+| SketchUp MCP | `[######----] 55%` | Signed request foundation complete: HMAC verify and HTTPS request object exist without transport | Add injected HTTPS sender with no global fallback or retries |
 | 3D rendering pipeline | `[----------] 0%` | Planned | Render contract after SketchUp prototype |
 
 ## Dependency Map
@@ -118,6 +119,7 @@ flowchart LR
 | AI production verification | 2026-06-12 | Production secrets, migration, deploy, and synthetic manual analysis | Manual AI is complete; no autorun and no real customer-data smoke |
 | Infrastructure audit | 2026-06-12 | Cloudflare/D1/R2 verified; VPS proxy and SSH timed out | Treat VPS as degraded until provider access is restored and checks pass |
 | 3 | 2026-06-13 | Interactive project progress dashboard | Record every completed stage in Markdown, HTML, and session notes |
+| 4 | 2026-06-15 | SketchUp Slices 1-5: approved model, strict plan, node job, fake-node smoke, HMAC signing/request | Continue with injected transport; keep endpoint, execution, and production disabled |
 | AI communications foundation | 2026-06-13 | Human-approval policy, pure suggestion layer, protected endpoint, CRM draft control, and disabled production smoke | Add approved draft history before enabling synthetic reply smoke |
 | AI communications safe MVP | 2026-06-13 | Persistent drafts, manager editing, approval/rejection, and communication audit history | Optional delivery adapters remain separate future integrations |
 | Admin/CRM UI Slice 1 | 2026-06-14 | Shared Serenite-inspired operational shell, responsive navigation, visual verification, and production deploy `8cf4b37a` | Refine high-frequency dashboard and CRM surfaces without changing backend contracts |
@@ -140,3 +142,4 @@ flowchart LR
 | SketchUp Slice 2 | 2026-06-15 | Strict `sketchup-command-plan/v1` with allowlisted units/envelope/metadata commands and fail-closed validation | Build signed node job/request contract without network calls |
 | SketchUp Slice 3 | 2026-06-15 | Short-lived idempotent `sketchup-node-job/v1`, canonical signature input, expiry and tamper checks | Add injected fake-node client and local smoke |
 | SketchUp Slice 4 | 2026-06-15 | Injected single-attempt fake-node client, normalized result, local accepted/rejected/error smoke | Add pure HMAC signing/verification and request builder without fetch |
+| SketchUp Slice 5 | 2026-06-15 | Web Crypto HMAC sign/verify and signed HTTPS request builder without fetch or secrets in output | Add injected HTTPS sender without global fallback or retries |

@@ -78,7 +78,11 @@ export function validateSketchUpNodeJob(job = {}, options = {}) {
     || !hasOnlyKeys(job.signature, ["algorithm", "value"])) {
     return invalid("invalid_job_shape");
   }
-  if (job.signature.algorithm !== "hmac-sha256" || job.signature.value !== "") {
+  const signatureValue = clean(job.signature.value);
+  const signatureAllowed = options.allowSigned
+    ? signatureValue === "" || /^[a-f0-9]{64}$/.test(signatureValue)
+    : signatureValue === "";
+  if (job.signature.algorithm !== "hmac-sha256" || !signatureAllowed) {
     return invalid("invalid_signature_contract");
   }
 

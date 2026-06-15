@@ -7,19 +7,21 @@
 - SketchUp Slice 3 defines short-lived, signature-ready `sketchup-node-job/v1`.
 - SketchUp Slice 4 adds an injected, single-attempt fake-node client and local
   accepted/rejected/error smoke.
+- SketchUp Slice 5 adds Web Crypto HMAC signing/verification and a signed HTTPS
+  request builder without fetch.
 - Only manager-approved OCR records and ready furniture models can cross these
   boundaries.
 - No SketchUp/MCP execution path exists.
 
 ## Next safe slice
 
-Build pure HMAC signing/verification and request builder that:
+Build an injected HTTPS sender that:
 
-- signs only the canonical `signatureInput` using an injected secret;
-- verifies signatures with constant-time comparison where available;
-- creates a transport-neutral request object without fetch;
-- keeps the secret out of returned jobs and logs;
-- performs no real SketchUp/MCP call.
+- accepts only the signed request object;
+- requires injected `fetchFn` and never falls back to global fetch;
+- calls it once and does not retry, including on 429;
+- normalizes accepted/rejected/error responses;
+- performs no real SketchUp/MCP call in tests.
 
 ## Do not do yet
 
