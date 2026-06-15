@@ -1,6 +1,7 @@
 import { AUTH_SCOPES, authorizeRequest } from "../../../../../src/auth.js";
 import { recognizeOrderImageCore } from "../../../../../src/ocr/order-recognition-core.js";
 import { sendOpenAiVisionRequest } from "../../../../../src/ocr/openai-vision.js";
+import { evaluateRecognitionPolicy } from "../../../../../src/ocr/recognition-policy.js";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -29,6 +30,11 @@ export async function onRequestPost(context) {
     input = await context.request.json();
   } catch {
     return jsonResponse({ success: false, error: "invalid_json", message: "Request body must be valid JSON." }, 400);
+  }
+
+  const policy = evaluateRecognitionPolicy(input, context.env);
+  if (!policy.ok) {
+    return jsonResponse({ success: false, error: policy.error, message: policy.message }, policy.status);
   }
 
   try {

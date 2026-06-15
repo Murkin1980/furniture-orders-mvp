@@ -13,7 +13,14 @@ const validResult = {
   dimensions: [], components: ["doors"], materials: [], notes: [], warnings: [],
   missingInfo: ["depth"], confidence: 0.8
 };
-const input = { image: { source: "r2://orders/sketch.webp", mediaId: "media-1", mimeType: "image/webp" } };
+const input = {
+  image: {
+    source: "r2://orders/sketch.webp",
+    mediaId: "media-1",
+    mimeType: "image/webp",
+    synthetic: true
+  }
+};
 
 test("returns 404 when order is not found", async () => {
   const response = await recognizeOrderImageCore({ db: createDb(null) }, 99, input, {
@@ -99,6 +106,43 @@ test("endpoint uses injected sender and does not call fetch", async () => {
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+test("endpoint blocks customer images before calling the sender", async () => {
+  let senderCalls = 0;
+  const response = await onRequestPost({
+    request: request({
+      image: { source: "https://media.example.test/customer-sketch.webp" },
+      consentConfirmed: true
+    }, "secret"),
+    env: { ADMIN_WRITE_TOKEN: "secret", DB: createDb(order()) },
+    params: { id: "1" },
+    data: { sendRecognitionRequest: async () => { senderCalls += 1; } }
+  });
+
+  assert.equal(response.status, 503);
+  assert.equal((await response.json()).error, "ocr_customer_images_disabled");
+  assert.equal(senderCalls, 0);
+});
+
+test("endpoint allows an explicitly enabled and consented stored customer image", async () => {
+  const db = createDb(order());
+  const response = await onRequestPost({
+    request: request({
+      image: { source: "https://media.example.test/customer-sketch.webp" },
+      consentConfirmed: true
+    }, "secret"),
+    env: {
+      ADMIN_WRITE_TOKEN: "secret",
+      OCR_CUSTOMER_IMAGES_ENABLED: "true",
+      DB: db
+    },
+    params: { id: "1" },
+    data: { sendRecognitionRequest: async () => JSON.stringify(validResult) }
+  });
+
+  assert.equal(response.status, 201);
+  assert.equal(db.records[0].status, "draft");
 });
 
 test("lists recognition records for an order", async () => {

@@ -113,15 +113,19 @@ placement.
 4. D1 draft/approved storage model and pure persistence helpers. Complete.
 5. Protected manual recognition endpoint. Complete.
 6. Admin review UI with original image and editable result. Complete.
-7. Real provider sender and synthetic local smoke. Sender complete; synthetic
-   local smoke pending.
-8. Production secrets, consent/retention policy, and controlled smoke.
+7. Real provider sender and synthetic local smoke. Complete.
+8. Production safety and controlled smoke:
+   - Slice 8A: customer-image policy gate and production runbook. Complete.
+   - Slice 8B: reviewed production migrations, secrets, and one synthetic-only
+     controlled smoke. Pending explicit approval.
 9. SketchUp mapping from approved data into a versioned furniture model.
 
 ## Explicitly Not Now
 
-- No external OCR or vision API calls.
-- No endpoint, UI, migration, deploy, or production secret.
+- No automatic OCR or vision API calls.
+- No unreviewed production migration, deploy, or production secret.
+- No customer image provider call until durable consent audit and retention
+  operations are reviewed.
 - No automatic processing of new orders.
 - No direct SketchUp MCP invocation.
 - No automatic dimensions, quote, or customer communication.

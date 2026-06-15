@@ -491,12 +491,13 @@
       { name: "Portfolio и media", progress: 60, state: "active", status: "В работе", detail: "Галерея работает, R2-ready upload flow реализован.", next: "Завершить production R2 operations." },
       { name: "Twenty CRM модуль", progress: 70, state: "active", status: "Опционально", detail: "Безопасный manual sync path и отдельная граница модуля.", next: "Проверить контракт реального Twenty workspace." },
       { name: "AI-агенты и коммуникации", progress: 100, state: "complete", status: "Готово", detail: "Safe MVP: AI-черновики, редактирование, approval/rejection и audit history без автономной отправки.", next: "Telegram/WhatsApp delivery подключать только отдельными согласованными интеграциями." },
-      { name: "OCR и распознавание эскизов", progress: 90, state: "active", status: "Local smoke пройден", detail: "Synthetic wardrobe распознан через gated vision sender и сохранён как draft; production остаётся выключен.", next: "Спланировать production migration и manual-only enablement." },
+      { name: "OCR и распознавание эскизов", progress: 95, state: "active", status: "Production safety готова", detail: "Local smoke пройден; customer-image provider calls блокируются по умолчанию; production выключен.", next: "После отдельного approval применить migrations и выполнить один synthetic-only production smoke." },
       { name: "SketchUp MCP", progress: 0, state: "planned", status: "План", detail: "Контролируемое построение модели из спецификации.", next: "Подготовить Windows node и MCP-прототип." },
       { name: "3D-рендер заказа", progress: 0, state: "planned", status: "План", detail: "Возврат визуализации в заказ и CRM workflow.", next: "Определить render contract после SketchUp." }
     ];
 
     const stages = [
+      { date: "15.06.2026", state: "complete", title: "OCR Slice 8A", detail: "Добавлен customer-image policy gate и production/rollback runbook.", result: "Synthetic smoke разрешён вручную; customer images блокируются до consent audit и retention operations; production не менялся." },
       { date: "14.06.2026", state: "complete", title: "OCR Slice 7", detail: "Добавлены gated OpenAI-compatible vision sender, единая configured local D1 и regression test dev-конфигурации.", result: "Synthetic wardrobe smoke вернул draft с размерами 2400 × 600 × 2600 мм; production не менялся." },
       { date: "14.06.2026", state: "complete", title: "OCR Slice 6", detail: "Добавлены list/review API и manager review UI с original reference и editable JSON.", result: "Approve/reject требует явного действия менеджера; production migration и real provider не подключались." },
       { date: "14.06.2026", state: "complete", title: "OCR Slice 5", detail: "Добавлены write-protected manual endpoint и core для injected recognition sender.", result: "Успех сохраняется как draft, ошибки как failed; fetch, UI и production не менялись." },

@@ -46,6 +46,14 @@ provider smoke passed on June 14, 2026: a wardrobe sketch was saved as a draft
 with dimensions `2400 x 600 x 2600 mm`. Production migration and enablement
 remain pending and require a separate reviewed step.
 
+OCR Slice 8A adds a safety gate before the provider call. Synthetic images can
+be used for controlled manual smoke tests. Customer images remain blocked by
+default through `OCR_CUSTOMER_IMAGES_ENABLED=false`; enabling them also
+requires request-level consent and a stored HTTPS image reference. This gate
+does not replace durable consent audit storage or retention operations, so
+customer-image production use remains disabled. See
+[`OCR_PRODUCTION_READINESS.md`](OCR_PRODUCTION_READINESS.md).
+
 Production landing/VPS operations, known failures, and verified solutions:
 [`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).
 

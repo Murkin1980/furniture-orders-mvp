@@ -1511,3 +1511,40 @@ Conclusion:
 - Production migration, deployment, settings, and customer data were not
   touched.
 - Next: separately review production migrations and manual-only OCR enablement.
+
+## 2026-06-15 - OCR Slice 8A production safety foundation
+
+### What changed
+- Added a pure recognition policy gate before the manual OCR provider call.
+- Explicitly synthetic images remain available for controlled smoke tests.
+- Customer images are blocked by default through
+  `OCR_CUSTOMER_IMAGES_ENABLED=false`.
+- Customer recognition additionally requires request-level consent and a
+  stored HTTPS image reference.
+- Added `OCR_PRODUCTION_READINESS.md` with migration review, synthetic smoke,
+  stop conditions, and rollback instructions.
+
+### Files changed
+- `src/ocr/recognition-policy.js`
+- `functions/api/orders/[id]/ocr/recognize.js`
+- `tests/ocr-recognition-policy.test.js`
+- `tests/ocr-order-recognition-core.test.js`
+- `.env.example`
+- `OCR_PRODUCTION_READINESS.md`
+- OCR decision, README, progress, handoff, and reviewer summary files
+
+### Safety
+- Request-level consent is not durable audit storage; customer production use
+  remains disabled until consent audit and retention operations are reviewed.
+- No remote migration, secret, deploy, provider call, or production setting
+  changed.
+
+### Checks
+- Focused OCR policy/endpoint/sender tests: 26 passed.
+- Full project tests: 290 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed.
+
+### Next
+- OCR Slice 8B: after explicit approval, review/apply production migrations and
+  run exactly one synthetic-only production smoke.

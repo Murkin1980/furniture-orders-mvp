@@ -2,22 +2,23 @@
 
 ## Current goal
 
-Prepare a separately reviewed production migration and manual-only OCR
-enablement plan.
+After explicit approval, apply reviewed production migrations and run exactly
+one synthetic-only production smoke.
 
 ## Completed
 
-- OCR Slices 1-7 are complete.
+- OCR Slices 1-7 and Slice 8A are complete.
 - Manual recognition, draft/failed storage, and explicit manager review work.
 - Admin review can show the original image/reference and edit structured JSON.
 
 ## Exact next work
 
-1. Review migrations `0017` and `0018` for production application.
-2. Define production OCR env values and keep recognition disabled by default.
-3. Apply migrations only after explicit approval.
-4. Enable manual-only OCR and verify one synthetic production draft.
-5. Confirm manager edit/approve/reject flow before considering customer data.
+1. Review `OCR_PRODUCTION_READINESS.md`.
+2. Inspect remote D1 for existing OCR schema.
+3. Apply migrations `0017` and `0018` only after explicit approval.
+4. Set production OCR secrets/settings while keeping customer images disabled.
+5. Run exactly one synthetic production draft and disable recognition after
+   verification.
 
 ## Provider smoke results
 
@@ -41,6 +42,9 @@ enablement plan.
 - Applied migrations `0013` and `0014` only to configured local D1 so the
   current order list can load during local verification.
 - Dev-script fix and full project checks passed.
+- Slice 8A blocks customer images by default before any provider request.
+- Customer recognition requires explicit env enablement, request-level consent,
+  and a stored HTTPS source; durable consent audit remains future work.
 
 ## Safety boundaries
 
@@ -51,7 +55,7 @@ enablement plan.
 ## Last verified state
 
 - Focused regression tests: 28 passed.
-- Full project tests: 282 passed.
+- Full project tests: 290 passed.
 - `npm.cmd run check`: passed.
 - `git diff --check`: passed.
 - Migrations `0013`, `0014`, `0017`, and `0018` applied and verified only in
