@@ -1816,3 +1816,25 @@ Conclusion:
 ### Next
 - Build a Windows fake execution-node contract before connecting real
   SketchUp/MCP.
+
+## 2026-06-16 - SketchUp Slice 8 fake receiving node
+
+### What changed
+- Added a pure fake receiving-node trust boundary.
+- Signed jobs are verified for HMAC and expiry before idempotency access.
+- Injected replay storage blocks duplicate jobs.
+- Accepted jobs return a safe dry-run summary with `executed=false`.
+
+### Safety
+- No service listener, filesystem write, executable command, Ruby, MCP,
+  SketchUp process, migration apply, deploy, or production setting was added.
+
+### Checks
+- Focused fake-node tests: 7 passed.
+- Full project tests: 376 passed.
+- `npm.cmd run check`: passed.
+- `node --check src/sketchup/fake-node.js`: passed.
+- `git diff --check`: passed.
+
+### Next
+- Build a separate Windows service wrapper before connecting real SketchUp/MCP.

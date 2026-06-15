@@ -13,19 +13,22 @@
   fetch fallback or retries.
 - SketchUp Slice 7 adds an ops-scoped manual endpoint and pending-first audit
   storage. Migration `0020` is not applied.
+- SketchUp Slice 8 adds a pure receiving fake node with HMAC, expiry, and
+  replay checks. It always returns `executed=false`.
 - Only manager-approved OCR records and ready furniture models can cross these
   boundaries.
 - No SketchUp/MCP execution path exists.
 
 ## Next safe slice
 
-Build a separate Windows fake execution-node contract before connecting real
-SketchUp/MCP. Keep migration `0020`, production deploy, and real node disabled.
+Build a separate Windows service wrapper around the fake-node contract before
+connecting real SketchUp/MCP. Keep migration `0020`, production deploy, and
+real execution disabled.
 
 ## Do not do yet
 
 - Do not connect a real SketchUp node.
 - Do not generate arbitrary Ruby.
-- Do not add automatic execution, endpoint, migration, deploy, or production
-  settings.
+- Do not enable automatic execution or real endpoint transport, apply migration
+  `0020`, deploy, or change production settings.
 - Do not commit unrelated existing handoff files.

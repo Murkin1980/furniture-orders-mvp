@@ -128,13 +128,23 @@ storage excludes HMAC signatures and signing secrets.
 The endpoint accepts only an injected sender in this slice. It cannot call a
 real node or global fetch, and migration `0020` remains unapplied.
 
+## Slice 8 Contract
+
+`src/sketchup/fake-node.js` models the receiving Windows-node trust boundary
+without starting SketchUp.
+
+It verifies HMAC and expiry before idempotency access, requires an injected
+replay store, rejects duplicate jobs, and returns a non-executable dry-run
+summary. Every accepted response explicitly contains `executed=false`.
+
 ## Safety Boundaries
 
 - No MCP call.
 - No SketchUp process or plugin.
 - No generated Ruby commands.
 - No automatic model creation.
-- No endpoint, UI, migration, deploy, or production change.
+- No production-enabled transport, applied migration, UI, deploy, or production
+  setting change.
 - Only manager-approved OCR data can cross the mapping boundary.
 
 ## Future Slices
@@ -146,5 +156,6 @@ real node or global fetch, and migration `0020` remains unapplied.
 5. Pure HMAC signing/verification and request builder without fetch. Complete.
 6. Injected HTTPS sender with no global fallback and no retries. Complete.
 7. Manual protected endpoint and job audit storage. Complete in code; migration unapplied.
-8. Windows SketchUp/MCP prototype with explicit manager execution.
-9. Render artifact return and order attachment.
+8. Pure fake Windows execution-node contract with replay protection. Complete.
+9. Windows service wrapper and SketchUp/MCP prototype with explicit manager execution.
+10. Render artifact return and order attachment.
