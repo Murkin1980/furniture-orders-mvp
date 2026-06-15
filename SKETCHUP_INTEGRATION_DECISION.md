@@ -147,6 +147,16 @@ size, verifies transport headers, and uses the Slice 8 fake-node contract.
 Its replay store is in memory and every accepted job remains a dry-run with
 `executed=false`. It does not start SketchUp, MCP, Ruby, or another process.
 
+## Slice 9B Contract
+
+`sketchup-node-service/src/execution-adapter.js` defines a disabled-by-default
+injected executor boundary. Enabling the function alone is insufficient: it
+also requires explicit manager approval matching the job, manager identity,
+approval time, and an injected executor.
+
+The adapter is not connected to the HTTP service. No real SketchUp, MCP, Ruby,
+child process, or filesystem executor exists in the repository.
+
 ## Safety Boundaries
 
 - No MCP call.
@@ -167,5 +177,5 @@ Its replay store is in memory and every accepted job remains a dry-run with
 6. Injected HTTPS sender with no global fallback and no retries. Complete.
 7. Manual protected endpoint and job audit storage. Complete in code; migration unapplied.
 8. Pure fake Windows execution-node contract with replay protection. Complete.
-9. Windows service wrapper and SketchUp/MCP prototype with explicit manager execution. Dry-run wrapper complete; real adapter pending.
+9. Windows service wrapper and SketchUp/MCP prototype with explicit manager execution. Safe wrapper and disabled injected-adapter contract complete; real adapter pending.
 10. Render artifact return and order attachment.

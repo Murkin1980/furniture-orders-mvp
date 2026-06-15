@@ -1862,3 +1862,26 @@ Conclusion:
 
 ### Next
 - Add an injected execution-adapter contract that remains disabled by default.
+
+## 2026-06-16 - SketchUp Slice 9B guarded execution adapter
+
+### What changed
+- Added a disabled-by-default injected execution-adapter contract.
+- Added matching job approval, manager identity, and approval-time checks.
+- Added safe normalization for confirmed, unconfirmed, missing, and failed
+  injected executors.
+
+### Safety
+- Adapter is not wired into HTTP.
+- No real SketchUp, MCP, Ruby, child process, filesystem artifact, migration
+  apply, deploy, or production setting was added.
+
+### Checks
+- Focused SketchUp node service tests: 13 passed.
+- Full project tests: 389 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed.
+
+### Next
+- Define the render-artifact return and order-attachment contract without real
+  SketchUp output.

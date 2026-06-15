@@ -34,3 +34,8 @@ Endpoints:
 The in-memory replay store is intentionally suitable only for local prototype
 verification. A durable store and explicit execution adapter are required
 before any real SketchUp integration.
+
+`src/execution-adapter.js` defines the next disabled-by-default boundary. It
+requires matching explicit manager approval and an injected executor. The HTTP
+service does not call this adapter, and the repository contains no real
+SketchUp/MCP/process executor.

@@ -92,7 +92,9 @@ and an explicitly non-executable dry-run summary. Slice 9A adds the separate
 [`sketchup-node-service`](sketchup-node-service/README.md) Windows-side HTTP
 wrapper. It binds to `127.0.0.1` by default, validates transport headers and
 signed jobs, rejects replay in memory, and still always reports
-`executionEnabled=false`.
+`executionEnabled=false`. Slice 9B adds a disabled-by-default injected
+execution-adapter contract requiring matching explicit manager approval. It is
+not wired into HTTP and no real SketchUp/MCP/process executor exists.
 
 Production landing/VPS operations, known failures, and verified solutions:
 [`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).

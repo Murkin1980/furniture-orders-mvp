@@ -17,15 +17,16 @@
   replay checks. It always returns `executed=false`.
 - SketchUp Slice 9A adds a separate local Windows-side HTTP service around the
   fake node. It binds to loopback by default and keeps execution disabled.
+- SketchUp Slice 9B adds a disabled-by-default injected execution adapter that
+  requires matching explicit manager approval. It is not wired into HTTP.
 - Only manager-approved OCR records and ready furniture models can cross these
   boundaries.
 - No SketchUp/MCP execution path exists.
 
 ## Next safe slice
 
-Add a narrow injected execution-adapter contract that remains disabled by
-default. Keep migration `0020`, production deploy, real SketchUp/MCP, and
-process execution disabled.
+Define the Slice 10 render-artifact return and order-attachment contract
+without filesystem writes, endpoint wiring, or real SketchUp output.
 
 ## Do not do yet
 
