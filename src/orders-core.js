@@ -205,13 +205,22 @@ async function ensureSchema(db, env) {
       created_by TEXT NOT NULL DEFAULT 'manager',
       reviewed_by TEXT,
       reviewed_at TEXT,
+      consent_status TEXT NOT NULL DEFAULT 'not_required',
+      consent_policy_version TEXT,
+      consent_confirmed_by TEXT,
+      consent_confirmed_at TEXT,
+      retention_until TEXT,
+      deleted_by TEXT,
+      deleted_at TEXT,
+      deletion_reason TEXT,
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
     )`,
     "CREATE INDEX IF NOT EXISTS idx_ocr_recognitions_order_id ON ocr_recognitions(order_id)",
     "CREATE INDEX IF NOT EXISTS idx_ocr_recognitions_status ON ocr_recognitions(status)",
-    "CREATE INDEX IF NOT EXISTS idx_ocr_recognitions_media_id ON ocr_recognitions(media_id)"
+    "CREATE INDEX IF NOT EXISTS idx_ocr_recognitions_media_id ON ocr_recognitions(media_id)",
+    "CREATE INDEX IF NOT EXISTS idx_ocr_recognitions_retention_until ON ocr_recognitions(retention_until)"
   ];
 
   for (const statement of statements) {

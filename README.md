@@ -30,8 +30,8 @@ layers. OCR Slices 1-7 add a pure strict result parser, provider-neutral
 prompt/request builder, injected-sender orchestration, safe draft/approved
 storage, protected manual API, manager review UI, and an explicitly gated real
 vision sender. Migrations `0017_ocr_recognitions.sql` and
-`0018_ocr_image_source.sql` define the D1 storage model, but are not applied to
-production. A write-protected manual endpoint,
+`0018_ocr_image_source.sql` define the deployed D1 storage model. A
+write-protected manual endpoint,
 `POST /api/orders/:id/ocr/recognize`, accepts an already stored image reference
 and can use an injected sender or the gated real sender. Recognition treats
 submitted images as furniture-related by default, but must warn or use `other`
@@ -43,15 +43,14 @@ The first real OCR transport is an explicitly gated OpenAI-compatible vision
 sender. It accepts only HTTPS or image data URLs, stops immediately on HTTP 429,
 and remains disabled unless `OCR_RECOGNITION_ENABLED=true`. The local synthetic
 provider smoke passed on June 14, 2026: a wardrobe sketch was saved as a draft
-with dimensions `2400 x 600 x 2600 mm`. Production migration and enablement
-remain pending and require a separate reviewed step.
+with dimensions `2400 x 600 x 2600 mm`. Production recognition is disabled
+after the controlled smoke.
 
 OCR Slice 8A adds a safety gate before the provider call. Synthetic images can
 be used for controlled manual smoke tests. Customer images remain blocked by
 default through `OCR_CUSTOMER_IMAGES_ENABLED=false`; enabling them also
-requires request-level consent and a stored HTTPS image reference. This gate
-does not replace durable consent audit storage or retention operations, so
-customer-image production use remains disabled. See
+requires durable consent metadata and a stored HTTPS image reference. Customer
+image production use remains disabled. See
 [`OCR_PRODUCTION_READINESS.md`](OCR_PRODUCTION_READINESS.md).
 
 OCR Slice 8B completed the synthetic-only production path on June 15, 2026.
@@ -60,6 +59,13 @@ recognition draft `1` with wardrobe dimensions `2400 x 600 x 2600 mm`.
 Production recognition was disabled after the smoke by deleting the enable
 secret and redeploying; the final disabled check returned
 `503 ocr_recognition_disabled`. Customer images remain disabled.
+
+OCR Slice 9 adds durable customer consent metadata, future retention deadlines,
+and fail-closed manual deletion of the original image plus recognition data.
+The admin OCR review exposes the destructive action only with explicit manager
+confirmation and a deletion reason. Migration
+`0019_ocr_consent_retention.sql` and the `OCR_MEDIA_BUCKET` production binding
+remain intentionally unapplied; customer-image recognition remains disabled.
 
 Production landing/VPS operations, known failures, and verified solutions:
 [`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).

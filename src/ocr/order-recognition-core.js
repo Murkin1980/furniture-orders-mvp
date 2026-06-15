@@ -4,6 +4,8 @@ import {
   buildRecognitionReviewUpdate,
   parseStoredRecognitionResult
 } from "./recognition-record.js";
+import { buildRecognitionDeletionAudit } from "./recognition-consent.js";
+import { getDefaultRecognitionResult } from "./recognition-result.js";
 
 export async function recognizeOrderImageCore({ db }, orderId, input = {}, options = {}) {
   if (!db) throw new Error("D1 binding DB is not configured.");
@@ -33,14 +35,21 @@ export async function recognizeOrderImageCore({ db }, orderId, input = {}, optio
     model: options.model,
     processingTimeMs: recognition.meta?.processingTimeMs,
     error: recognition.meta?.error || (recognition.meta?.parseFailed ? "Recognition response could not be parsed." : ""),
-    createdBy: options.createdBy
+    createdBy: options.createdBy,
+    consentStatus: options.consentAudit?.status,
+    consentPolicyVersion: options.consentAudit?.policyVersion,
+    consentConfirmedBy: options.consentAudit?.confirmedBy,
+    consentConfirmedAt: options.consentAudit?.confirmedAt,
+    retentionUntil: options.consentAudit?.retentionUntil
   });
 
   const insert = await db.prepare(
     `INSERT INTO ocr_recognitions
       (order_id, media_id, image_source, status, result_json, provider, model,
-       processing_time_ms, error, created_by)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       processing_time_ms, error, created_by, consent_status,
+       consent_policy_version, consent_confirmed_by, consent_confirmed_at,
+       retention_until)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).bind(...Object.values(payload)).run();
 
   return okResult({
@@ -54,7 +63,12 @@ export async function recognizeOrderImageCore({ db }, orderId, input = {}, optio
       provider: payload.provider,
       model: payload.model,
       processingTimeMs: payload.processing_time_ms,
-      error: payload.error
+      error: payload.error,
+      consentStatus: payload.consent_status,
+      consentPolicyVersion: payload.consent_policy_version,
+      consentConfirmedBy: payload.consent_confirmed_by,
+      consentConfirmedAt: payload.consent_confirmed_at,
+      retentionUntil: payload.retention_until
     }
   }, 201);
 }
@@ -71,6 +85,10 @@ export async function listOrderRecognitionsCore({ db }, orderId) {
             status, result_json AS resultJson, provider, model,
             processing_time_ms AS processingTimeMs, error, created_by AS createdBy,
             reviewed_by AS reviewedBy, reviewed_at AS reviewedAt,
+            consent_status AS consentStatus, consent_policy_version AS consentPolicyVersion,
+            consent_confirmed_by AS consentConfirmedBy, consent_confirmed_at AS consentConfirmedAt,
+            retention_until AS retentionUntil, deleted_by AS deletedBy,
+            deleted_at AS deletedAt, deletion_reason AS deletionReason,
             created_at AS createdAt, updated_at AS updatedAt
      FROM ocr_recognitions WHERE order_id = ? ORDER BY created_at DESC, id DESC`
   ).bind(id).all();
@@ -84,9 +102,12 @@ export async function reviewOrderRecognitionCore({ db }, orderId, input = {}) {
   if (!id || !recognitionId) return errorResult(400, "invalid_review_request", "Order and recognition IDs must be positive integers.");
   if (!isPlainObject(input.result)) return errorResult(400, "recognition_result_required", "A reviewed recognition result is required.");
   const existing = await db.prepare(
-    "SELECT id, order_id AS orderId FROM ocr_recognitions WHERE id = ? AND order_id = ?"
+    "SELECT id, order_id AS orderId, status, deleted_at AS deletedAt FROM ocr_recognitions WHERE id = ? AND order_id = ?"
   ).bind(recognitionId, id).first();
   if (!existing) return errorResult(404, "recognition_not_found", "Recognition record was not found.");
+  if (existing.deletedAt || existing.status === "deleted") {
+    return errorResult(409, "recognition_deleted", "Deleted recognition data cannot be reviewed.");
+  }
 
   const update = buildRecognitionReviewUpdate(input.result, {
     status: input.status, reviewedBy: input.reviewedBy, reviewedAt: input.reviewedAt
@@ -103,10 +124,68 @@ export async function reviewOrderRecognitionCore({ db }, orderId, input = {}) {
             status, result_json AS resultJson, provider, model,
             processing_time_ms AS processingTimeMs, error, created_by AS createdBy,
             reviewed_by AS reviewedBy, reviewed_at AS reviewedAt,
+            consent_status AS consentStatus, consent_policy_version AS consentPolicyVersion,
+            consent_confirmed_by AS consentConfirmedBy, consent_confirmed_at AS consentConfirmedAt,
+            retention_until AS retentionUntil, deleted_by AS deletedBy,
+            deleted_at AS deletedAt, deletion_reason AS deletionReason,
             created_at AS createdAt, updated_at AS updatedAt
      FROM ocr_recognitions WHERE id = ?`
   ).bind(recognitionId).first();
   return okResult({ item: normalizeRecord(row) });
+}
+
+export async function deleteOrderRecognitionCore({ db, deleteStoredImage }, orderId, input = {}, options = {}) {
+  if (!db) throw new Error("D1 binding DB is not configured.");
+  const id = normalizeId(orderId);
+  const recognitionId = normalizeId(input.recognitionId);
+  if (!id || !recognitionId) return errorResult(400, "invalid_deletion_request", "Order and recognition IDs must be positive integers.");
+
+  const audit = buildRecognitionDeletionAudit(input, options);
+  if (!audit.ok) return errorResult(400, audit.error, audit.message);
+
+  const existing = await db.prepare(
+    `SELECT id, order_id AS orderId, media_id AS mediaId, image_source AS imageSource,
+            status, deleted_at AS deletedAt
+     FROM ocr_recognitions WHERE id = ? AND order_id = ?`
+  ).bind(recognitionId, id).first();
+  if (!existing) return errorResult(404, "recognition_not_found", "Recognition record was not found.");
+  if (existing.deletedAt || existing.status === "deleted") {
+    return errorResult(409, "recognition_already_deleted", "Recognition data was already deleted.");
+  }
+  if (existing.imageSource && !clean(existing.mediaId)) {
+    return errorResult(409, "ocr_storage_key_missing", "Stored image deletion requires a media ID.");
+  }
+  if (existing.imageSource && typeof deleteStoredImage !== "function") {
+    return errorResult(503, "ocr_storage_deletion_unavailable", "Stored image deletion is not configured.");
+  }
+  if (existing.imageSource) {
+    await deleteStoredImage({ mediaId: existing.mediaId, imageSource: existing.imageSource });
+  }
+
+  await db.prepare(
+    `UPDATE ocr_recognitions SET status = 'deleted', result_json = ?, image_source = NULL,
+       deleted_by = ?, deleted_at = ?, deletion_reason = ?, updated_at = CURRENT_TIMESTAMP
+     WHERE id = ? AND order_id = ?`
+  ).bind(
+    JSON.stringify(getDefaultRecognitionResult()),
+    audit.deletedBy,
+    audit.deletedAt,
+    audit.reason,
+    recognitionId,
+    id
+  ).run();
+
+  return okResult({
+    item: {
+      id: recognitionId,
+      orderId: id,
+      status: "deleted",
+      imageSource: null,
+      deletedBy: audit.deletedBy,
+      deletedAt: audit.deletedAt,
+      deletionReason: audit.reason
+    }
+  });
 }
 
 function normalizeRecord(row) {

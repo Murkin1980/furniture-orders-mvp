@@ -65,8 +65,13 @@ test("builds OCR review view model with preview and explicit draft state", () =>
   });
   assert.equal(view.canPreviewImage, true);
   assert.equal(view.status, "draft");
+  assert.equal(view.canDelete, true);
   assert.deepEqual(view.warnings, ["Check depth"]);
   assert.match(view.editableJson, /wardrobe/);
+});
+
+test("deleted OCR record no longer exposes deletion action", () => {
+  assert.equal(getOcrRecognitionViewModel({ status: "deleted" }).canDelete, false);
 });
 
 test("OCR review JSON parser rejects invalid and array input", () => {

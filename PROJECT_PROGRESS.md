@@ -35,7 +35,7 @@ and `SESSION_NOTES.md` together.
 | Admin and CRM interface | `[##########] 100%` | Complete MVP UI: focused modules, actionable dashboard, responsive orders, efficient CRM cards, states and accessibility polish | Extend only from real manager feedback |
 | Twenty CRM integration | `[#######---] 70%` | Production safety path verified; now a separate future module | Prepare separate integration repository after native CRM verification |
 | AI agents and communications | `[##########] 100%` | Safe MVP complete: manual suggestions, editing, approval/rejection, audit history, and no autonomous sending | Add Telegram/WhatsApp delivery only as separately approved channel integrations |
-| OCR and sketch recognition | `[#########-] 95%` | Synthetic-only production path verified and disabled after smoke; customer images remain blocked | Add durable consent audit and retention/deletion operations |
+| OCR and sketch recognition | `[##########] 100%` | Backend MVP complete: durable consent, retention, manager review, and fail-closed deletion; customer production pilot remains disabled | Review/apply migration 0019 and R2 binding only before an approved customer pilot |
 | SketchUp MCP | `[----------] 0%` | Planned | Windows node and controlled MCP prototype |
 | 3D rendering pipeline | `[----------] 0%` | Planned | Render contract after SketchUp prototype |
 
@@ -135,3 +135,4 @@ flowchart LR
 | OCR Slice 7 | 2026-06-14 | Gated OpenAI-compatible vision sender, unified configured local D1, and successful synthetic wardrobe smoke saved as draft | Plan production migration and manual-only enablement |
 | OCR Slice 8A | 2026-06-15 | Customer-image policy gate, synthetic-only path, production/rollback runbook, and focused tests | Review/apply OCR migrations and run one synthetic-only production smoke after explicit approval |
 | OCR Slice 8B | 2026-06-15 | Production migrations applied, safety gate verified, synthetic wardrobe saved as draft, and OCR disabled after smoke; deploy `b78a1ccd` | Build consent audit and retention/deletion operations before customer images |
+| OCR Slice 9 | 2026-06-15 | Durable consent and retention audit, fail-closed source/data deletion, protected DELETE endpoint, and manager deletion action | Keep customer OCR disabled; review migration 0019 and OCR media bucket before a controlled pilot |

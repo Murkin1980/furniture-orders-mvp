@@ -16,20 +16,21 @@ Status: synthetic-only production smoke completed; customer images disabled
 
 ## Customer Image Policy
 
-Customer image recognition is not ready to enable.
+Customer image recognition remains disabled pending an explicit production
+pilot, but the required code-level controls now exist.
 
 Before setting `OCR_CUSTOMER_IMAGES_ENABLED=true`, the project must add and
 review:
 
-1. durable consent audit fields;
-2. an approved consent text and policy version;
-3. an approved retention period;
-4. deletion operations for original media and recognition data;
-5. a manager-facing confirmation workflow;
-6. a privacy review for the selected provider.
+1. apply reviewed migration `0019_ocr_consent_retention.sql`;
+2. approve the consent text, policy version, and retention period;
+3. bind the managed R2 bucket as `OCR_MEDIA_BUCKET`;
+4. verify deletion against a synthetic stored object;
+5. complete a privacy review for the selected provider.
 
-The current request-level `consentConfirmed=true` gate is defense in depth. It
-is not a durable consent audit record.
+Customer recognition requests must include a durable consent object with
+`confirmed`, `managerConfirmed`, `policyVersion`, `confirmedBy`, `confirmedAt`,
+and a future `retentionUntil`. These values are stored with the recognition.
 
 Customer recognition also requires a stored HTTPS image reference. Temporary
 data URLs are accepted only for explicitly synthetic tests and are never
@@ -111,3 +112,14 @@ returned the expected `503 ocr_recognition_disabled`.
 
 Do not drop OCR tables during routine rollback. Existing draft/review history
 must remain available for investigation.
+
+## Slice 9 Deletion Contract
+
+`DELETE /api/orders/:id/ocr/recognitions` requires write authorization,
+`recognitionId`, `managerConfirmed=true`, `deletedBy`, and `reason`.
+
+Deletion fails closed when the original image exists but `OCR_MEDIA_BUCKET`
+cannot delete it. After successful source deletion, the endpoint removes the
+stored image reference, replaces the structured result with a safe empty
+result, and stores the deletion audit. Migration `0019` has not been applied
+to production and no production deploy was performed for Slice 9.

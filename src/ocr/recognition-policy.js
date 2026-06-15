@@ -1,9 +1,11 @@
-export function evaluateRecognitionPolicy(input = {}, env = {}) {
+import { buildRecognitionConsentAudit } from "./recognition-consent.js";
+
+export function evaluateRecognitionPolicy(input = {}, env = {}, options = {}) {
   const image = isPlainObject(input?.image) ? input.image : {};
   const source = clean(image.source);
 
   if (image.synthetic === true) {
-    return allow("synthetic");
+    return allow("synthetic", buildRecognitionConsentAudit(input, options));
   }
 
   if (env.OCR_CUSTOMER_IMAGES_ENABLED !== "true") {
@@ -14,27 +16,28 @@ export function evaluateRecognitionPolicy(input = {}, env = {}) {
     );
   }
 
-  if (input.consentConfirmed !== true) {
+  const consentAudit = buildRecognitionConsentAudit(input, options);
+  if (!consentAudit.ok) {
     return deny(
       400,
-      "ocr_consent_required",
-      "Explicit customer consent is required before image recognition."
+      consentAudit.error,
+      consentAudit.message
     );
   }
 
-  if (!/^https:\/\//i.test(source)) {
+  if (!/^https:\/\//i.test(source) || !clean(image.mediaId ?? image.media_id)) {
     return deny(
       400,
       "ocr_stored_image_required",
-      "Customer recognition requires a stored HTTPS image reference."
+      "Customer recognition requires a stored HTTPS image reference and media ID."
     );
   }
 
-  return allow("customer");
+  return allow("customer", consentAudit);
 }
 
-function allow(mode) {
-  return { ok: true, status: 200, mode };
+function allow(mode, consentAudit) {
+  return { ok: true, status: 200, mode, consentAudit };
 }
 
 function deny(status, error, message) {

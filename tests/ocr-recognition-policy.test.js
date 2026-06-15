@@ -7,13 +7,15 @@ test("allows an explicitly synthetic image without customer-image enablement", (
     image: { source: "data:image/png;base64,AAAA", synthetic: true }
   });
 
-  assert.deepEqual(result, { ok: true, status: 200, mode: "synthetic" });
+  assert.equal(result.ok, true);
+  assert.equal(result.mode, "synthetic");
+  assert.equal(result.consentAudit.status, "not_required");
 });
 
 test("blocks customer images by default", () => {
   const result = evaluateRecognitionPolicy({
     image: { source: "https://media.example.test/customer-sketch.webp" },
-    consentConfirmed: true
+    consent: durableConsent()
   });
 
   assert.equal(result.status, 503);
@@ -34,7 +36,7 @@ test("requires a stored HTTPS source for customer recognition", () => {
   const result = evaluateRecognitionPolicy(
     {
       image: { source: "data:image/png;base64,AAAA" },
-      consentConfirmed: true
+      consent: durableConsent()
     },
     { OCR_CUSTOMER_IMAGES_ENABLED: "true" }
   );
@@ -46,14 +48,27 @@ test("requires a stored HTTPS source for customer recognition", () => {
 test("allows a consented stored customer image only after explicit enablement", () => {
   const result = evaluateRecognitionPolicy(
     {
-      image: { source: "https://media.example.test/customer-sketch.webp" },
-      consentConfirmed: true
+      image: { source: "https://media.example.test/customer-sketch.webp", mediaId: "orders/sketch.webp" },
+      consent: durableConsent()
     },
     { OCR_CUSTOMER_IMAGES_ENABLED: "true" }
   );
 
-  assert.deepEqual(result, { ok: true, status: 200, mode: "customer" });
+  assert.equal(result.ok, true);
+  assert.equal(result.mode, "customer");
+  assert.equal(result.consentAudit.status, "confirmed");
 });
+
+function durableConsent() {
+  return {
+    confirmed: true,
+    managerConfirmed: true,
+    policyVersion: "ocr-consent-v1",
+    confirmedBy: "manager",
+    confirmedAt: "2026-06-15T10:00:00Z",
+    retentionUntil: "2027-06-15T10:00:00Z"
+  };
+}
 
 test("handles empty and malformed input safely", () => {
   assert.doesNotThrow(() => evaluateRecognitionPolicy());

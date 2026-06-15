@@ -2,22 +2,22 @@
 
 ## Current goal
 
-Build durable consent audit and retention/deletion operations before enabling
-customer-image recognition.
+Prepare the separately approved production customer-image pilot without
+weakening the completed OCR safety controls.
 
 ## Completed
 
-- OCR Slices 1-7 and Slices 8A-8B are complete.
+- OCR Slices 1-9 are complete in code.
 - Manual recognition, draft/failed storage, and explicit manager review work.
 - Admin review can show the original image/reference and edit structured JSON.
 
 ## Exact next work
 
-1. Define durable consent audit schema and policy version contract.
-2. Define approved retention period and deletion operations.
-3. Build pure helpers and tests before adding any endpoint/UI.
-4. Keep OCR enable secrets absent throughout the work.
-5. Do not use customer images until the full workflow is reviewed.
+1. Keep OCR enable secrets absent throughout the work.
+2. Review migration `0019_ocr_consent_retention.sql`.
+3. Approve consent text, policy version, and retention period.
+4. Bind a managed R2 bucket as `OCR_MEDIA_BUCKET`.
+5. Verify deletion with one synthetic stored object before customer images.
 
 ## Provider smoke results
 
@@ -42,12 +42,14 @@ customer-image recognition.
   current order list can load during local verification.
 - Dev-script fix and full project checks passed.
 - Slice 8A blocks customer images by default before any provider request.
-- Customer recognition requires explicit env enablement, request-level consent,
-  and a stored HTTPS source; durable consent audit remains future work.
+- Customer recognition requires explicit env enablement, durable consent,
+  manager confirmation, future retention, and a stored HTTPS source/media ID.
 - Production migrations `0017` and `0018` are applied.
 - Synthetic production order `8` produced draft recognition `1`.
 - Final production deployment `b78a1ccd` has OCR disabled.
 - Reliable rollback is deletion of OCR enable secrets followed by deploy.
+- Slice 9 adds consent/retention audit and fail-closed deletion in code only;
+  production migration `0019` and deploy are pending.
 
 ## Safety boundaries
 

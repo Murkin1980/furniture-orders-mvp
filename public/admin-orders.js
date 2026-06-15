@@ -54,6 +54,7 @@ export function getOcrRecognitionViewModel(record = {}) {
   return {
     id: record.id ?? null,
     status: clean(record.status) || "draft",
+    canDelete: clean(record.status) !== "deleted",
     imageSource,
     canPreviewImage: /^https?:\/\//i.test(imageSource) || imageSource.startsWith("/"),
     furnitureType: clean(result.furnitureType) || "other",

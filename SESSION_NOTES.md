@@ -1582,3 +1582,37 @@ Conclusion:
 ### Next
 - OCR Slice 9: durable consent audit, retention/deletion operations, and
   manager confirmation workflow before customer-image recognition.
+
+## 2026-06-15 - OCR Slice 9 consent, retention, and deletion
+
+### What changed
+- Replaced request-only consent with a durable consent audit contract containing
+  policy version, manager confirmation, author/time, and future retention date.
+- Added migration `0019_ocr_consent_retention.sql` and persisted the audit with
+  recognition records.
+- Added fail-closed manual deletion: the stored image must be deleted before
+  OCR data is redacted and deletion audit metadata is saved.
+- Added protected DELETE handling and an explicit manager deletion action in
+  the existing OCR review panel.
+
+### Files changed
+- `src/ocr/recognition-consent.js`, recognition policy/record/core modules
+- OCR recognize/review API functions and `migrations/0019_ocr_consent_retention.sql`
+- Existing OCR admin review module and focused tests
+- OCR decision/runbook, README, progress, handoff, and reviewer summary
+
+### Safety
+- Customer-image OCR remains disabled.
+- Migration `0019`, `OCR_MEDIA_BUCKET`, production deploy, and production
+  settings were not changed.
+
+### Checks
+- Focused OCR/admin tests: 48 passed.
+- Full project tests: 300 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed.
+
+### Next
+- Before any customer pilot, review/apply migration `0019`, bind
+  `OCR_MEDIA_BUCKET`, approve consent/retention policy, and verify deletion
+  using one synthetic stored object.

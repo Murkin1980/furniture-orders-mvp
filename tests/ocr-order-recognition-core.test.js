@@ -1,12 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  deleteOrderRecognitionCore,
   listOrderRecognitionsCore,
   recognizeOrderImageCore,
   reviewOrderRecognitionCore
 } from "../src/ocr/order-recognition-core.js";
 import { onRequestPost } from "../functions/api/orders/[id]/ocr/recognize.js";
-import { onRequestGet, onRequestPatch } from "../functions/api/orders/[id]/ocr/recognitions.js";
+import { onRequestDelete, onRequestGet, onRequestPatch } from "../functions/api/orders/[id]/ocr/recognitions.js";
 
 const validResult = {
   documentType: "furniture_sketch", furnitureType: "wardrobe", rawText: "2400 x 1800",
@@ -112,8 +113,8 @@ test("endpoint blocks customer images before calling the sender", async () => {
   let senderCalls = 0;
   const response = await onRequestPost({
     request: request({
-      image: { source: "https://media.example.test/customer-sketch.webp" },
-      consentConfirmed: true
+      image: { source: "https://media.example.test/customer-sketch.webp", mediaId: "orders/customer-sketch.webp" },
+      consent: durableConsent()
     }, "secret"),
     env: { ADMIN_WRITE_TOKEN: "secret", DB: createDb(order()) },
     params: { id: "1" },
@@ -129,8 +130,8 @@ test("endpoint allows an explicitly enabled and consented stored customer image"
   const db = createDb(order());
   const response = await onRequestPost({
     request: request({
-      image: { source: "https://media.example.test/customer-sketch.webp" },
-      consentConfirmed: true
+      image: { source: "https://media.example.test/customer-sketch.webp", mediaId: "orders/customer-sketch.webp" },
+      consent: durableConsent()
     }, "secret"),
     env: {
       ADMIN_WRITE_TOKEN: "secret",
@@ -143,6 +144,8 @@ test("endpoint allows an explicitly enabled and consented stored customer image"
 
   assert.equal(response.status, 201);
   assert.equal(db.records[0].status, "draft");
+  assert.equal(db.records[0].consentStatus, "confirmed");
+  assert.equal(db.records[0].consentPolicyVersion, "ocr-consent-v1");
 });
 
 test("lists recognition records for an order", async () => {
@@ -188,6 +191,72 @@ test("list endpoint allows read token and review endpoint requires write token",
   assert.equal(rejectedReview.status, 401);
 });
 
+test("manual deletion removes stored image before redacting recognition data", async () => {
+  const db = createDb(order());
+  await recognizeOrderImageCore({ db }, 1, input, { sendRecognitionRequest: async () => JSON.stringify(validResult) });
+  const deleted = [];
+  const response = await deleteOrderRecognitionCore({
+    db,
+    deleteStoredImage: async (image) => deleted.push(image)
+  }, 1, {
+    recognitionId: 1,
+    managerConfirmed: true,
+    deletedBy: "manager-1",
+    reason: "retention expired"
+  }, { now: "2026-06-15T12:00:00Z" });
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(deleted, [{ mediaId: "media-1", imageSource: "r2://orders/sketch.webp" }]);
+  assert.equal(db.records[0].status, "deleted");
+  assert.equal(db.records[0].imageSource, null);
+  assert.equal(db.records[0].deletionReason, "retention expired");
+});
+
+test("deletion fails closed without manager confirmation or storage deleter", async () => {
+  const db = createDb(order());
+  await recognizeOrderImageCore({ db }, 1, input, { sendRecognitionRequest: async () => JSON.stringify(validResult) });
+  assert.equal((await deleteOrderRecognitionCore({ db }, 1, {
+    recognitionId: 1, deletedBy: "manager", reason: "requested"
+  })).body.error, "ocr_deletion_confirmation_required");
+  assert.equal((await deleteOrderRecognitionCore({ db }, 1, {
+    recognitionId: 1, managerConfirmed: true, deletedBy: "manager", reason: "requested"
+  })).body.error, "ocr_storage_deletion_unavailable");
+  assert.equal(db.records[0].status, "draft");
+});
+
+test("storage deletion failure leaves recognition data intact", async () => {
+  const db = createDb(order());
+  await recognizeOrderImageCore({ db }, 1, input, { sendRecognitionRequest: async () => JSON.stringify(validResult) });
+  await assert.rejects(() => deleteOrderRecognitionCore({
+    db,
+    deleteStoredImage: async () => { throw new Error("R2 unavailable"); }
+  }, 1, {
+    recognitionId: 1, managerConfirmed: true, deletedBy: "manager", reason: "requested"
+  }), /R2 unavailable/);
+  assert.equal(db.records[0].status, "draft");
+  assert.equal(db.records[0].imageSource, "r2://orders/sketch.webp");
+});
+
+test("DELETE endpoint requires write auth and supports injected storage deletion", async () => {
+  const db = createDb(order());
+  await recognizeOrderImageCore({ db }, 1, input, { sendRecognitionRequest: async () => JSON.stringify(validResult) });
+  const body = { recognitionId: 1, managerConfirmed: true, deletedBy: "manager", reason: "requested" };
+  const rejected = await onRequestDelete({
+    request: requestFor("DELETE", body, "read"),
+    env: { ADMIN_READ_TOKEN: "read", DB: db },
+    params: { id: "1" },
+    data: {}
+  });
+  const accepted = await onRequestDelete({
+    request: requestFor("DELETE", body, "write"),
+    env: { ADMIN_WRITE_TOKEN: "write", DB: db },
+    params: { id: "1" },
+    data: { deleteStoredImage: async () => {}, now: "2026-06-15T12:00:00Z" }
+  });
+  assert.equal(rejected.status, 401);
+  assert.equal(accepted.status, 200);
+});
+
 function request(body, token = "") {
   return new Request("https://example.test/api/orders/1/ocr/recognize", {
     method: "POST",
@@ -203,6 +272,13 @@ function requestFor(method, body, token = "") {
   });
 }
 function order() { return { id: 1, source: "site", city: "Almaty", furnitureType: "wardrobe", description: "Wardrobe" }; }
+function durableConsent() {
+  return {
+    confirmed: true, managerConfirmed: true, policyVersion: "ocr-consent-v1",
+    confirmedBy: "manager", confirmedAt: "2026-06-15T10:00:00Z",
+    retentionUntil: "2027-06-15T10:00:00Z"
+  };
+}
 function createDb(existingOrder) {
   const records = [];
   return {
@@ -226,11 +302,23 @@ function createDb(existingOrder) {
               id: records.length + 1, orderId: values[0], mediaId: values[1], imageSource: values[2],
               status: values[3], resultJson: values[4], provider: values[5], model: values[6],
               processingTimeMs: values[7], error: values[8], createdBy: values[9],
+              consentStatus: values[10], consentPolicyVersion: values[11],
+              consentConfirmedBy: values[12], consentConfirmedAt: values[13],
+              retentionUntil: values[14],
               createdAt: "2026-06-14", updatedAt: "2026-06-14"
             });
             return { meta: { last_row_id: records.length } };
           }
           if (sql.includes("UPDATE ocr_recognitions")) {
+            if (sql.includes("status = 'deleted'")) {
+              const record = records.find((item) => item.id === values[4] && item.orderId === values[5]);
+              Object.assign(record, {
+                status: "deleted", resultJson: values[0], imageSource: null,
+                deletedBy: values[1], deletedAt: values[2], deletionReason: values[3],
+                updatedAt: "2026-06-15"
+              });
+              return { success: true };
+            }
             const record = records.find((item) => item.id === values[4] && item.orderId === values[5]);
             Object.assign(record, {
               status: values[0], resultJson: values[1], reviewedBy: values[2],

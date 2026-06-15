@@ -308,13 +308,17 @@
               </label>
             </div>
             <div class="ocr-review-actions">
-              <button type="button" data-ocr-decision="approved">Одобрить проверенный результат</button>
-              <button class="secondary" type="button" data-ocr-decision="rejected">Отклонить</button>
+              ${view.canDelete ? `<button type="button" data-ocr-decision="approved">Одобрить проверенный результат</button>` : ""}
+              ${view.canDelete ? `<button class="secondary" type="button" data-ocr-decision="rejected">Отклонить</button>` : ""}
+              ${view.canDelete ? `<button class="secondary" type="button" data-ocr-delete>Удалить OCR-данные</button>` : ""}
             </div>
           </form>`;
       }).join("");
       for (const button of ocrReviewList.querySelectorAll("[data-ocr-decision]")) {
         button.addEventListener("click", () => reviewOcrRecognition(button));
+      }
+      for (const button of ocrReviewList.querySelectorAll("[data-ocr-delete]")) {
+        button.addEventListener("click", () => deleteOcrRecognition(button));
       }
     }
 
@@ -344,6 +348,36 @@
           fallbackMessage: "OCR review не сохранён."
         });
         setMessage(`OCR-распознавание #${form.dataset.ocrReviewId}: ${status}.`, status === "approved" ? "ok" : "");
+        await openOcrReview(Number(form.dataset.orderId));
+      } catch (error) {
+        setMessage(error.message, "bad");
+      } finally {
+        buttons.forEach((item) => { item.disabled = false; });
+      }
+    }
+
+    async function deleteOcrRecognition(button) {
+      const form = button.closest("[data-ocr-review-id]");
+      if (!window.confirm("Удалить исходное изображение и OCR-данные? Это действие нельзя отменить.")) return;
+      const reason = window.prompt("Причина удаления", "Запрос клиента или истечение срока хранения");
+      if (!reason?.trim()) {
+        setMessage("Укажите причину удаления OCR-данных.", "bad");
+        return;
+      }
+      const buttons = [...form.querySelectorAll("button")];
+      buttons.forEach((item) => { item.disabled = true; });
+      try {
+        await adminFetchJson(`/api/orders/${form.dataset.orderId}/ocr/recognitions`, {
+          method: "DELETE",
+          payload: {
+            recognitionId: Number(form.dataset.ocrReviewId),
+            managerConfirmed: true,
+            deletedBy: "manager",
+            reason: reason.trim()
+          },
+          fallbackMessage: "OCR-данные не удалены."
+        });
+        setMessage(`OCR-данные #${form.dataset.ocrReviewId} удалены.`, "ok");
         await openOcrReview(Number(form.dataset.orderId));
       } catch (error) {
         setMessage(error.message, "bad");

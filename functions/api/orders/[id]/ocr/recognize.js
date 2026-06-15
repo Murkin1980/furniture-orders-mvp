@@ -46,7 +46,8 @@ export async function onRequestPost(context) {
       })),
       provider: context.data?.provider || context.env.OCR_PROVIDER || "openai",
       model: context.data?.model || context.env.OCR_MODEL,
-      createdBy: context.data?.createdBy || "manager"
+      createdBy: context.data?.createdBy || "manager",
+      consentAudit: policy.consentAudit
     });
     return jsonResponse(result.body, result.status);
   } catch (error) {

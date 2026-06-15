@@ -1,6 +1,6 @@
 import { getDefaultRecognitionResult, parseRecognitionResult } from "./recognition-result.js";
 
-export const OCR_RECOGNITION_STATUSES = Object.freeze(["draft", "approved", "rejected", "failed"]);
+export const OCR_RECOGNITION_STATUSES = Object.freeze(["draft", "approved", "rejected", "failed", "deleted"]);
 
 export function buildRecognitionRecordCreate(result, meta = {}) {
   const safeMeta = isPlainObject(meta) ? meta : {};
@@ -15,7 +15,12 @@ export function buildRecognitionRecordCreate(result, meta = {}) {
     model: cleanText(safeMeta.model),
     processing_time_ms: normalizeDuration(safeMeta.processingTimeMs),
     error,
-    created_by: cleanText(safeMeta.createdBy) || "manager"
+    created_by: cleanText(safeMeta.createdBy) || "manager",
+    consent_status: normalizeConsentStatus(safeMeta.consentStatus),
+    consent_policy_version: cleanText(safeMeta.consentPolicyVersion),
+    consent_confirmed_by: cleanText(safeMeta.consentConfirmedBy),
+    consent_confirmed_at: cleanText(safeMeta.consentConfirmedAt),
+    retention_until: cleanText(safeMeta.retentionUntil)
   };
 }
 
@@ -43,6 +48,10 @@ export function parseStoredRecognitionResult(value) {
 export function normalizeRecognitionStatus(status) {
   const normalized = cleanText(status)?.toLowerCase();
   return OCR_RECOGNITION_STATUSES.includes(normalized) ? normalized : "draft";
+}
+
+function normalizeConsentStatus(status) {
+  return status === "confirmed" ? "confirmed" : "not_required";
 }
 
 function normalizeRecognitionResult(result) {

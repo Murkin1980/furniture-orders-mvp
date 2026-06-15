@@ -119,7 +119,8 @@ placement.
    - Slice 8B: reviewed production migrations, secrets, and one synthetic-only
      controlled smoke. Complete.
 9. Durable consent audit, retention/deletion operations, and manager
-   confirmation before customer-image recognition. Pending.
+   confirmation before customer-image recognition. Complete in code; production
+   migration and storage binding remain intentionally unapplied.
 10. SketchUp mapping from approved data into a versioned furniture model.
 
 ## Explicitly Not Now
@@ -127,7 +128,8 @@ placement.
 - No automatic OCR or vision API calls.
 - No unreviewed production migration, deploy, or production secret.
 - No customer image provider call until durable consent audit and retention
-  operations are reviewed.
+  operations are reviewed and production migration `0019` plus
+  `OCR_MEDIA_BUCKET` are explicitly approved.
 - No automatic processing of new orders.
 - No direct SketchUp MCP invocation.
 - No automatic dimensions, quote, or customer communication.

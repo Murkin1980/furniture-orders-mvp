@@ -16,7 +16,9 @@ const result = {
 test("builds a draft create payload with recognition metadata", () => {
   const payload = buildRecognitionRecordCreate(result, {
     orderId: "7", mediaId: 12, provider: "vision-provider", model: "vision-1",
-    processingTimeMs: 42.6, createdBy: "manager-1"
+    processingTimeMs: 42.6, createdBy: "manager-1", consentStatus: "confirmed",
+    consentPolicyVersion: "ocr-consent-v1", consentConfirmedBy: "manager-1",
+    consentConfirmedAt: "2026-06-14T12:00:00Z", retentionUntil: "2026-07-14T12:00:00Z"
   });
   assert.equal(payload.order_id, 7);
   assert.equal(payload.media_id, "12");
@@ -24,6 +26,8 @@ test("builds a draft create payload with recognition metadata", () => {
   assert.equal(payload.status, "draft");
   assert.equal(payload.processing_time_ms, 43);
   assert.equal(payload.created_by, "manager-1");
+  assert.equal(payload.consent_status, "confirmed");
+  assert.equal(payload.consent_policy_version, "ocr-consent-v1");
   assert.deepEqual(JSON.parse(payload.result_json).dimensions, result.dimensions);
 });
 

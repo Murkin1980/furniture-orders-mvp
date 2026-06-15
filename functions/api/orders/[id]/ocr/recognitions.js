@@ -1,9 +1,13 @@
 import { AUTH_SCOPES, authorizeRequest } from "../../../../../src/auth.js";
-import { listOrderRecognitionsCore, reviewOrderRecognitionCore } from "../../../../../src/ocr/order-recognition-core.js";
+import {
+  deleteOrderRecognitionCore,
+  listOrderRecognitionsCore,
+  reviewOrderRecognitionCore
+} from "../../../../../src/ocr/order-recognition-core.js";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, PATCH, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Admin-Token"
 };
 
@@ -24,8 +28,29 @@ export async function onRequestPatch(context) {
   return handleAuthorized(() => reviewOrderRecognitionCore({ db: context.env.DB }, context.params.id, input));
 }
 
+export async function onRequestDelete(context) {
+  const auth = authorizeRequest(context.request, context.env, AUTH_SCOPES.WRITE);
+  if (!auth.ok) return jsonResponse({ success: false, error: auth.error, message: auth.message }, auth.status);
+  let input;
+  try { input = await context.request.json(); }
+  catch { return jsonResponse({ success: false, error: "invalid_json", message: "Request body must be valid JSON." }, 400); }
+  const deleteStoredImage = context.data?.deleteStoredImage || buildBucketDeleter(context.env.OCR_MEDIA_BUCKET);
+  return handleAuthorized(() => deleteOrderRecognitionCore(
+    { db: context.env.DB, deleteStoredImage },
+    context.params.id,
+    input,
+    { now: context.data?.now }
+  ));
+}
+
 export async function onRequest() {
-  return jsonResponse({ success: false, error: "method_not_allowed", message: "Use GET or PATCH." }, 405, { Allow: "GET, PATCH, OPTIONS" });
+  return jsonResponse({ success: false, error: "method_not_allowed", message: "Use GET, PATCH, or DELETE." }, 405, { Allow: "GET, PATCH, DELETE, OPTIONS" });
+}
+
+function buildBucketDeleter(bucket) {
+  return bucket && typeof bucket.delete === "function"
+    ? ({ mediaId }) => bucket.delete(mediaId)
+    : undefined;
 }
 
 async function handle(context, scope, action) {
