@@ -19,14 +19,17 @@
   fake node. It binds to loopback by default and keeps execution disabled.
 - SketchUp Slice 9B adds a disabled-by-default injected execution adapter that
   requires matching explicit manager approval. It is not wired into HTTP.
+- SketchUp Slice 10 defines the pure render-artifact manifest and future
+  order-attachment payload. No file or storage operation exists.
 - Only manager-approved OCR records and ready furniture models can cross these
   boundaries.
 - No SketchUp/MCP execution path exists.
 
 ## Next safe slice
 
-Define the Slice 10 render-artifact return and order-attachment contract
-without filesystem writes, endpoint wiring, or real SketchUp output.
+Operational follow-up: provision an approved Windows/SketchUp test environment,
+implement the real injected executor, then design durable replay storage and
+artifact upload. Do not wire production before that review.
 
 ## Do not do yet
 

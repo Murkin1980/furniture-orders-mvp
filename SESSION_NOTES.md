@@ -1885,3 +1885,25 @@ Conclusion:
 ### Next
 - Define the render-artifact return and order-attachment contract without real
   SketchUp output.
+
+## 2026-06-16 - SketchUp Slice 10 render artifact contract
+
+### What changed
+- Added pure `sketchup-render-artifact/v1` manifest builder and validator.
+- Added pure future order-attachment payload builder.
+- Added allowlisted media types, safe relative storage keys, byte counts, and
+  SHA-256 validation.
+
+### Safety
+- No file write, R2 upload, endpoint, migration, real render, deploy, or
+  production order attachment was added.
+
+### Checks
+- Focused render-artifact tests: 8 passed.
+- Full project tests: 397 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed.
+
+### Next
+- Continue only in an approved Windows/SketchUp test environment with a real
+  injected executor; keep production disconnected.

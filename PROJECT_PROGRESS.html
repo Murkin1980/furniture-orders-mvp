@@ -493,10 +493,11 @@
       { name: "AI-агенты и коммуникации", progress: 100, state: "complete", status: "Готово", detail: "Safe MVP: AI-черновики, редактирование, approval/rejection и audit history без автономной отправки.", next: "Telegram/WhatsApp delivery подключать только отдельными согласованными интеграциями." },
       { name: "OCR и распознавание эскизов", progress: 100, state: "complete", status: "Backend MVP завершён", detail: "Есть durable consent, retention, manager review и fail-closed deletion; customer production pilot выключен.", next: "Перед пилотом отдельно проверить migration 0019 и OCR_MEDIA_BUCKET." },
       { name: "SketchUp MCP", progress: 95, state: "active", status: "Guarded execution boundary готов", detail: "Dry-run HTTP service и disabled-by-default adapter требуют явное manager approval; реального executor нет.", next: "Подключать реальный adapter только в одобренной Windows/SketchUp среде." },
-      { name: "3D-рендер заказа", progress: 0, state: "planned", status: "План", detail: "Возврат визуализации в заказ и CRM workflow.", next: "Определить render contract после SketchUp." }
+      { name: "3D-рендер заказа", progress: 10, state: "active", status: "Render manifest contract готов", detail: "Allowlisted media, safe storage keys, bytes и SHA-256; файлов и upload пока нет.", next: "Подключать storage только после одобренного real SketchUp executor." }
     ];
 
     const stages = [
+      { date: "16.06.2026", state: "complete", title: "SketchUp Slice 10 contract", detail: "Добавлен pure render-artifact manifest и future order attachment payload.", result: "Safe storage keys, media allowlist, bytes и SHA-256 проверяются; файлов, R2 и production attachment нет." },
       { date: "16.06.2026", state: "complete", title: "SketchUp Slice 9B", detail: "Добавлен disabled-by-default injected execution-adapter contract.", result: "Нужны matching manager approval и injected executor; HTTP и реальный SketchUp не подключены." },
       { date: "16.06.2026", state: "complete", title: "SketchUp Slice 9A", detail: "Добавлен отдельный local Windows-side dry-run HTTP service.", result: "Health/jobs endpoints, body limit, transport/HMAC/expiry/replay checks; SketchUp execution отключён." },
       { date: "16.06.2026", state: "complete", title: "SketchUp Slice 8", detail: "Добавлен pure replay-protected fake receiving node.", result: "HMAC/expiry проверяются до idempotency store; accepted результат всегда dry-run и executed=false." },

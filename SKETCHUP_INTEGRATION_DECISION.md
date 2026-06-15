@@ -157,6 +157,15 @@ approval time, and an injected executor.
 The adapter is not connected to the HTTP service. No real SketchUp, MCP, Ruby,
 child process, or filesystem executor exists in the repository.
 
+## Slice 10 Contract
+
+`src/sketchup/render-artifact.js` defines `sketchup-render-artifact/v1` and a
+pure future order-attachment payload. It accepts only allowlisted model/image
+media types, relative storage keys, positive byte counts, and SHA-256 hashes.
+
+The contract does not write files, upload to R2, add an endpoint or migration,
+or attach anything to a production order.
+
 ## Safety Boundaries
 
 - No MCP call.
@@ -178,4 +187,4 @@ child process, or filesystem executor exists in the repository.
 7. Manual protected endpoint and job audit storage. Complete in code; migration unapplied.
 8. Pure fake Windows execution-node contract with replay protection. Complete.
 9. Windows service wrapper and SketchUp/MCP prototype with explicit manager execution. Safe wrapper and disabled injected-adapter contract complete; real adapter pending.
-10. Render artifact return and order attachment.
+10. Render artifact return and order attachment. Pure contract complete; storage and production attachment pending.

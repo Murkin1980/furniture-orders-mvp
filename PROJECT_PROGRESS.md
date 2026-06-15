@@ -20,7 +20,7 @@ and `SESSION_NOTES.md` together.
 |---|---:|---|
 | Commercial platform | `[########--] 75%` | Landings, orders, calculators, portfolio, CRM, and stable operations |
 | AI-assisted platform | `[#######---] 70%` | AI qualification, safe communications, and locally verified manager-reviewed OCR |
-| Complete vision | `[######----] 56%` | Commercial platform plus vision, guarded SketchUp execution boundary, real SketchUp MCP, and 3D render pipeline |
+| Complete vision | `[######----] 58%` | Commercial platform plus vision, guarded SketchUp boundary, render manifest contract, and pending real execution |
 
 ## Workstreams
 
@@ -38,7 +38,7 @@ and `SESSION_NOTES.md` together.
 | AI agents and communications | `[##########] 100%` | Safe MVP complete: manual suggestions, editing, approval/rejection, audit history, and no autonomous sending | Add Telegram/WhatsApp delivery only as separately approved channel integrations |
 | OCR and sketch recognition | `[##########] 100%` | Backend MVP complete: durable consent, retention, manager review, and fail-closed deletion; customer production pilot remains disabled | Review/apply migration 0019 and R2 binding only before an approved customer pilot |
 | SketchUp MCP | `[#########-] 95%` | Local dry-run service and disabled-by-default manager-approved execution adapter are tested; real SketchUp remains disconnected | Implement real adapter only in an approved Windows/SketchUp test environment |
-| 3D rendering pipeline | `[----------] 0%` | Planned | Render contract after SketchUp prototype |
+| 3D rendering pipeline | `[#---------] 10%` | Pure render manifest and future order-attachment payload are tested; no real render/storage path | Connect only after approved real SketchUp executor and storage design |
 
 ## Dependency Map
 

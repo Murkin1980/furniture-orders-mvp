@@ -94,7 +94,10 @@ wrapper. It binds to `127.0.0.1` by default, validates transport headers and
 signed jobs, rejects replay in memory, and still always reports
 `executionEnabled=false`. Slice 9B adds a disabled-by-default injected
 execution-adapter contract requiring matching explicit manager approval. It is
-not wired into HTTP and no real SketchUp/MCP/process executor exists.
+not wired into HTTP and no real SketchUp/MCP/process executor exists. Slice 10
+adds the pure `sketchup-render-artifact/v1` manifest and future order-attachment
+payload with allowlisted media types, safe storage keys, byte counts, and
+SHA-256 hashes. It does not write or upload files.
 
 Production landing/VPS operations, known failures, and verified solutions:
 [`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).
