@@ -1676,3 +1676,32 @@ Conclusion:
 
 ### Next
 - Build a pure signed SketchUp node job/request contract without sending it.
+
+## 2026-06-15 - SketchUp Slice 3 signature-ready node job
+
+### What changed
+- Added pure `sketchup-node-job/v1` builder for validated command plans.
+- Added explicit job identity, deterministic idempotency, bounded TTL, source
+  audit, and stable canonical signature input.
+- Added validation for payload tampering, expiry, source mismatch, unsafe
+  identity fields, unsupported contracts, and unverified signature values.
+
+### Files changed
+- `src/sketchup/node-job.js`
+- `tests/sketchup-node-job.test.js`
+- SketchUp decision, README, progress, handoff, and reviewer summary
+
+### Safety
+- The signature slot remains intentionally empty.
+- No secret, signing, network call, MCP, SketchUp process, endpoint, UI,
+  migration, deploy, or production setting was added.
+
+### Checks
+- Focused SketchUp tests: 37 passed.
+- Full project tests: 337 passed.
+- `npm.cmd run check`: passed.
+- `node --check src/sketchup/node-job.js`: passed.
+- `git diff --check`: passed.
+
+### Next
+- Add an injected fake-node client and local smoke without real SketchUp.

@@ -52,6 +52,24 @@ dimensions, unsupported versions, and missing source audit. Components remain
 metadata only; no component geometry, positions, Ruby, or executable code are
 generated.
 
+## Slice 3 Contract
+
+`src/sketchup/node-job.js` wraps only a valid `sketchup-command-plan/v1` in a
+short-lived `sketchup-node-job/v1` contract.
+
+The job:
+
+- requires an explicit safe job ID;
+- preserves order, recognition, model, and plan versions;
+- includes a deterministic idempotency key;
+- expires after five minutes by default and never exceeds fifteen minutes;
+- contains a stable canonical signature input;
+- marks the future HMAC-SHA256 signature slot as intentionally empty.
+
+Validation detects source mismatch, payload tampering, expiry, unsafe identity
+fields, unsupported contracts, and unverified signature values. Slice 3 does
+not sign or send the job.
+
 ## Safety Boundaries
 
 - No MCP call.
@@ -65,7 +83,7 @@ generated.
 
 1. Pure approved OCR -> `furniture-model/v1` mapper. Complete.
 2. Pure validated command-plan builder without MCP/network calls. Complete.
-3. SketchUp node request builder and signed job contract.
+3. SketchUp node request builder and signature-ready job contract. Complete.
 4. Injected client and local fake-node smoke.
 5. Manual protected endpoint and job audit storage.
 6. Windows SketchUp/MCP prototype with explicit manager execution.

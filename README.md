@@ -74,7 +74,9 @@ SketchUp Slice 1 maps only manager-approved OCR records into
 `sketchup-command-plan/v1` with three declarative allowlisted commands:
 millimeter units, confirmed overall envelope, and safe metadata. Unknown
 commands, extra fields, incomplete dimensions, arbitrary Ruby, MCP execution,
-and production changes remain blocked.
+and production changes remain blocked. Slice 3 wraps only a validated plan in
+a short-lived, idempotent, signature-ready `sketchup-node-job/v1`; it detects
+payload tampering and expiry but does not sign or send the job.
 
 Production landing/VPS operations, known failures, and verified solutions:
 [`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).

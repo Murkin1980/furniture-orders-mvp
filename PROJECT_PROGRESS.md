@@ -19,7 +19,7 @@ and `SESSION_NOTES.md` together.
 |---|---:|---|
 | Commercial platform | `[########--] 75%` | Landings, orders, calculators, portfolio, CRM, and stable operations |
 | AI-assisted platform | `[#######---] 70%` | AI qualification, safe communications, and locally verified manager-reviewed OCR |
-| Complete vision | `[####------] 40%` | Commercial platform plus vision, validated SketchUp plan foundation, SketchUp MCP, and 3D render pipeline |
+| Complete vision | `[####------] 42%` | Commercial platform plus vision, validated and signature-ready SketchUp job foundation, SketchUp MCP, and 3D render pipeline |
 
 ## Workstreams
 
@@ -36,7 +36,7 @@ and `SESSION_NOTES.md` together.
 | Twenty CRM integration | `[#######---] 70%` | Production safety path verified; now a separate future module | Prepare separate integration repository after native CRM verification |
 | AI agents and communications | `[##########] 100%` | Safe MVP complete: manual suggestions, editing, approval/rejection, audit history, and no autonomous sending | Add Telegram/WhatsApp delivery only as separately approved channel integrations |
 | OCR and sketch recognition | `[##########] 100%` | Backend MVP complete: durable consent, retention, manager review, and fail-closed deletion; customer production pilot remains disabled | Review/apply migration 0019 and R2 binding only before an approved customer pilot |
-| SketchUp MCP | `[###-------] 25%` | Safe planning foundation: approved OCR maps to a versioned model and strict allowlisted command plan | Build a signed SketchUp node job/request contract without sending it |
+| SketchUp MCP | `[####------] 35%` | Safe job foundation: approved OCR maps to a validated plan and short-lived signature-ready node job | Add an injected fake-node client and local smoke without real SketchUp |
 | 3D rendering pipeline | `[----------] 0%` | Planned | Render contract after SketchUp prototype |
 
 ## Dependency Map
@@ -138,3 +138,4 @@ flowchart LR
 | OCR Slice 9 | 2026-06-15 | Durable consent and retention audit, fail-closed source/data deletion, protected DELETE endpoint, and manager deletion action | Keep customer OCR disabled; review migration 0019 and OCR media bucket before a controlled pilot |
 | SketchUp Slice 1 | 2026-06-15 | Approved OCR-only `furniture-model/v1` mapper, millimeter normalization, confidence selection, and no invented geometry | Build pure allowlisted command-plan contract |
 | SketchUp Slice 2 | 2026-06-15 | Strict `sketchup-command-plan/v1` with allowlisted units/envelope/metadata commands and fail-closed validation | Build signed node job/request contract without network calls |
+| SketchUp Slice 3 | 2026-06-15 | Short-lived idempotent `sketchup-node-job/v1`, canonical signature input, expiry and tamper checks | Add injected fake-node client and local smoke |
