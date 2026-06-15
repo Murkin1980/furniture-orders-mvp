@@ -3,18 +3,21 @@
 ## Current state
 
 - SketchUp Slice 1 defines `furniture-model/v1`.
-- Only manager-approved OCR records can become furniture models.
+- SketchUp Slice 2 defines and validates `sketchup-command-plan/v1`.
+- Only manager-approved OCR records and ready furniture models can cross these
+  boundaries.
 - No SketchUp/MCP execution path exists.
 
 ## Next safe slice
 
-Build a pure validated command-plan builder that:
+Build a pure SketchUp node job/request contract that:
 
-- consumes only `readyForSketchUp=true` furniture models;
-- supports a small allowlist of geometry operations;
-- contains no Ruby/user code and performs no network/MCP call;
-- preserves model version and approval audit;
-- fails closed on incomplete or unsupported models.
+- consumes only a validated `sketchup-command-plan/v1`;
+- includes plan/source versions, traceable order/recognition IDs, job ID,
+  creation time, expiry, and idempotency key;
+- defines a signature-ready canonical payload without storing a secret;
+- performs no network/MCP call;
+- fails closed on invalid, expired, or unsupported plans.
 
 ## Do not do yet
 

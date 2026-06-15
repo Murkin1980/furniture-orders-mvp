@@ -67,12 +67,14 @@ confirmation and a deletion reason. Migration
 `0019_ocr_consent_retention.sql` and the `OCR_MEDIA_BUCKET` production binding
 remain intentionally unapplied; customer-image recognition remains disabled.
 
-The controlled SketchUp path starts with
+The controlled SketchUp path is defined in
 [`SKETCHUP_INTEGRATION_DECISION.md`](SKETCHUP_INTEGRATION_DECISION.md).
-SketchUp Slice 1 adds a pure `furniture-model/v1` mapper that accepts only
-manager-approved OCR records, converts supported measurements to millimeters,
-preserves source approval audit, and refuses to mark incomplete models ready.
-It does not generate commands, call MCP, run SketchUp, or change production.
+SketchUp Slice 1 maps only manager-approved OCR records into
+`furniture-model/v1`. Slice 2 converts only ready models into a validated
+`sketchup-command-plan/v1` with three declarative allowlisted commands:
+millimeter units, confirmed overall envelope, and safe metadata. Unknown
+commands, extra fields, incomplete dimensions, arbitrary Ruby, MCP execution,
+and production changes remain blocked.
 
 Production landing/VPS operations, known failures, and verified solutions:
 [`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).

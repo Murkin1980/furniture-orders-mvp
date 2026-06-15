@@ -36,6 +36,22 @@ The model:
 Unknown units, missing dimensions, and ambiguous data block readiness instead
 of being guessed.
 
+## Slice 2 Contract
+
+`src/sketchup/command-plan.js` converts only a ready `furniture-model/v1` into
+`sketchup-command-plan/v1`.
+
+The plan contains exactly three declarative allowlisted commands:
+
+- `set_units` to millimeters;
+- `create_envelope` using confirmed overall width, height, and depth;
+- `attach_metadata` for furniture type, component labels, materials, and notes.
+
+The validator rejects unknown command types, extra command fields, incomplete
+dimensions, unsupported versions, and missing source audit. Components remain
+metadata only; no component geometry, positions, Ruby, or executable code are
+generated.
+
 ## Safety Boundaries
 
 - No MCP call.
@@ -48,7 +64,7 @@ of being guessed.
 ## Future Slices
 
 1. Pure approved OCR -> `furniture-model/v1` mapper. Complete.
-2. Pure validated command-plan builder without MCP/network calls.
+2. Pure validated command-plan builder without MCP/network calls. Complete.
 3. SketchUp node request builder and signed job contract.
 4. Injected client and local fake-node smoke.
 5. Manual protected endpoint and job audit storage.

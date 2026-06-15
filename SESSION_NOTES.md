@@ -1647,3 +1647,32 @@ Conclusion:
 
 ### Next
 - Build a pure allowlisted command-plan contract without MCP or network calls.
+
+## 2026-06-15 - SketchUp Slice 2 allowlisted command plan
+
+### What changed
+- Added pure `sketchup-command-plan/v1` builder for ready
+  `furniture-model/v1` inputs.
+- Added a strict validator for exactly three declarative commands:
+  `set_units`, `create_envelope`, and `attach_metadata`.
+- Unknown commands, extra command fields, invalid dimensions, missing source
+  audit, and unsupported versions fail closed.
+- Components remain metadata only; no geometry or placement is invented.
+
+### Files changed
+- `src/sketchup/command-plan.js`
+- `tests/sketchup-command-plan.test.js`
+- SketchUp decision, README, progress, handoff, and reviewer summary
+
+### Safety
+- No Ruby, MCP, SketchUp process, network call, endpoint, UI, migration,
+  deploy, or production setting was added.
+
+### Checks
+- Focused SketchUp tests: 24 passed.
+- Full project tests: 324 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed.
+
+### Next
+- Build a pure signed SketchUp node job/request contract without sending it.
