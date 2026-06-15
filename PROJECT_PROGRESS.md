@@ -20,7 +20,7 @@ and `SESSION_NOTES.md` together.
 |---|---:|---|
 | Commercial platform | `[########--] 75%` | Landings, orders, calculators, portfolio, CRM, and stable operations |
 | AI-assisted platform | `[#######---] 70%` | AI qualification, safe communications, and locally verified manager-reviewed OCR |
-| Complete vision | `[#####-----] 48%` | Commercial platform plus vision, tested SketchUp transport foundation, SketchUp MCP, and 3D render pipeline |
+| Complete vision | `[#####-----] 50%` | Commercial platform plus vision, audited manual SketchUp backend path, SketchUp MCP, and 3D render pipeline |
 
 ## Workstreams
 
@@ -37,7 +37,7 @@ and `SESSION_NOTES.md` together.
 | Twenty CRM integration | `[#######---] 70%` | Production safety path verified; now a separate future module | Prepare separate integration repository after native CRM verification |
 | AI agents and communications | `[##########] 100%` | Safe MVP complete: manual suggestions, editing, approval/rejection, audit history, and no autonomous sending | Add Telegram/WhatsApp delivery only as separately approved channel integrations |
 | OCR and sketch recognition | `[##########] 100%` | Backend MVP complete: durable consent, retention, manager review, and fail-closed deletion; customer production pilot remains disabled | Review/apply migration 0019 and R2 binding only before an approved customer pilot |
-| SketchUp MCP | `[#######---] 65%` | Safe transport foundation complete: signed HTTPS request sender is injected, single-attempt, and fail closed | Design manual protected endpoint and job audit storage without production deploy |
+| SketchUp MCP | `[########--] 75%` | Manual ops endpoint and pending-first audit are complete in code; real node and migration remain disabled | Build Windows fake execution node contract before real SketchUp/MCP |
 | 3D rendering pipeline | `[----------] 0%` | Planned | Render contract after SketchUp prototype |
 
 ## Dependency Map
@@ -144,3 +144,4 @@ flowchart LR
 | SketchUp Slice 4 | 2026-06-15 | Injected single-attempt fake-node client, normalized result, local accepted/rejected/error smoke | Add pure HMAC signing/verification and request builder without fetch |
 | SketchUp Slice 5 | 2026-06-15 | Web Crypto HMAC sign/verify and signed HTTPS request builder without fetch or secrets in output | Add injected HTTPS sender without global fallback or retries |
 | SketchUp Slice 6 | 2026-06-15 | Injected signed HTTPS sender, one attempt, no global fallback, no retries on 429 | Design manual protected endpoint and job audit storage |
+| SketchUp Slice 7 | 2026-06-16 | Ops-scoped manual endpoint, explicit confirmation, approved OCR requirement, pending-first audit migration | Build Windows fake execution node contract; keep migration and production disabled |

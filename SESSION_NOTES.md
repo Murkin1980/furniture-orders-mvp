@@ -1789,3 +1789,30 @@ Conclusion:
 ### Next
 - Design manual protected endpoint and job audit storage without production
   deploy.
+
+## 2026-06-16 - SketchUp Slice 7 manual endpoint and audit
+
+### What changed
+- Added operations-scoped `POST /api/orders/:id/sketchup/jobs`.
+- Added a core flow requiring explicit manager confirmation, manager identity,
+  and a specific approved OCR recognition.
+- Added migration `0020_sketchup_jobs.sql` with pending-first audit storage.
+- Audit is inserted before sender access and completed as accepted, rejected,
+  or failed.
+
+### Safety
+- Endpoint accepts only an injected sender and cannot call real/global fetch.
+- Audit excludes signatures and signing secrets.
+- Migration `0020`, deploy, production settings, MCP, and SketchUp were not
+  applied or changed.
+
+### Checks
+- Focused SketchUp tests: 69 passed.
+- Full project tests: 369 passed.
+- `npm.cmd run check`: passed.
+- New SketchUp/endpoint modules `node --check`: passed.
+- `git diff --check`: passed.
+
+### Next
+- Build a Windows fake execution-node contract before connecting real
+  SketchUp/MCP.

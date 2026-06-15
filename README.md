@@ -82,7 +82,11 @@ never falls back to global fetch and still does not connect MCP, SketchUp, or
 production. Slice 5 adds Web Crypto HMAC signing/verification and a signed
 HTTPS request builder without fetch; no production secret or node URL is
 configured. Slice 6 adds a single-attempt injected HTTPS sender that never
-falls back to global fetch and never retries, including on HTTP 429.
+falls back to global fetch and never retries, including on HTTP 429. Slice 7
+adds the operations-scoped manual endpoint
+`POST /api/orders/:id/sketchup/jobs` and pending-first job audit contract.
+The endpoint still accepts only an injected sender; migration `0020` is not
+applied and no real SketchUp node is connected.
 
 Production landing/VPS operations, known failures, and verified solutions:
 [`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).

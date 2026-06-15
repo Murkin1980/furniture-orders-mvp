@@ -11,15 +11,16 @@
   request builder without fetch.
 - SketchUp Slice 6 adds an injected single-attempt HTTPS sender without global
   fetch fallback or retries.
+- SketchUp Slice 7 adds an ops-scoped manual endpoint and pending-first audit
+  storage. Migration `0020` is not applied.
 - Only manager-approved OCR records and ready furniture models can cross these
   boundaries.
 - No SketchUp/MCP execution path exists.
 
 ## Next safe slice
 
-Design the manual protected endpoint and job audit storage. Do not apply a
-production migration or deploy until the contract and rollback path are
-reviewed.
+Build a separate Windows fake execution-node contract before connecting real
+SketchUp/MCP. Keep migration `0020`, production deploy, and real node disabled.
 
 ## Do not do yet
 

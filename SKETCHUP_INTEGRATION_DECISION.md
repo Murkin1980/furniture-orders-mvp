@@ -114,6 +114,20 @@ It never falls back to global fetch, calls the sender once, never retries
 including on HTTP 429, and normalizes authorization, rate-limit, server,
 invalid-response, and network errors.
 
+## Slice 7 Contract
+
+`POST /api/orders/:id/sketchup/jobs` is a manual, operations-scoped endpoint
+backed by `src/sketchup/order-job-core.js` and migration
+`0020_sketchup_jobs.sql`.
+
+The endpoint requires explicit manager confirmation, manager identity, and a
+specific approved OCR recognition. A `pending` audit row is saved before any
+sender access, then updated to `accepted`, `rejected`, or `failed`. Audit
+storage excludes HMAC signatures and signing secrets.
+
+The endpoint accepts only an injected sender in this slice. It cannot call a
+real node or global fetch, and migration `0020` remains unapplied.
+
 ## Safety Boundaries
 
 - No MCP call.
@@ -131,6 +145,6 @@ invalid-response, and network errors.
 4. Injected client and local fake-node smoke. Complete.
 5. Pure HMAC signing/verification and request builder without fetch. Complete.
 6. Injected HTTPS sender with no global fallback and no retries. Complete.
-7. Manual protected endpoint and job audit storage.
+7. Manual protected endpoint and job audit storage. Complete in code; migration unapplied.
 8. Windows SketchUp/MCP prototype with explicit manager execution.
 9. Render artifact return and order attachment.
