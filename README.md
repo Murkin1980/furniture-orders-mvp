@@ -88,7 +88,11 @@ adds the operations-scoped manual endpoint
 The endpoint still accepts only an injected sender; migration `0020` is not
 applied and no real SketchUp node is connected. Slice 8 adds the pure receiving
 fake-node boundary with HMAC/expiry verification, injected replay protection,
-and an explicitly non-executable dry-run summary.
+and an explicitly non-executable dry-run summary. Slice 9A adds the separate
+[`sketchup-node-service`](sketchup-node-service/README.md) Windows-side HTTP
+wrapper. It binds to `127.0.0.1` by default, validates transport headers and
+signed jobs, rejects replay in memory, and still always reports
+`executionEnabled=false`.
 
 Production landing/VPS operations, known failures, and verified solutions:
 [`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).

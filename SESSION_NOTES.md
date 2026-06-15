@@ -1838,3 +1838,27 @@ Conclusion:
 
 ### Next
 - Build a separate Windows service wrapper before connecting real SketchUp/MCP.
+
+## 2026-06-16 - SketchUp Slice 9A local dry-run service
+
+### What changed
+- Added a separate dependency-free `sketchup-node-service` for local Windows
+  prototype verification.
+- Added loopback-by-default health and signed-job HTTP endpoints.
+- Added request-size, transport-header, HMAC, expiry, and in-memory replay
+  checks.
+
+### Safety
+- Service always reports `executionEnabled=false` and accepted jobs remain
+  `executed=false`.
+- No SketchUp, MCP, Ruby, child process, filesystem artifact, migration apply,
+  deploy, or production setting was added.
+
+### Checks
+- Focused service tests: 6 passed.
+- Full project tests: 382 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed.
+
+### Next
+- Add an injected execution-adapter contract that remains disabled by default.

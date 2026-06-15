@@ -15,15 +15,17 @@
   storage. Migration `0020` is not applied.
 - SketchUp Slice 8 adds a pure receiving fake node with HMAC, expiry, and
   replay checks. It always returns `executed=false`.
+- SketchUp Slice 9A adds a separate local Windows-side HTTP service around the
+  fake node. It binds to loopback by default and keeps execution disabled.
 - Only manager-approved OCR records and ready furniture models can cross these
   boundaries.
 - No SketchUp/MCP execution path exists.
 
 ## Next safe slice
 
-Build a separate Windows service wrapper around the fake-node contract before
-connecting real SketchUp/MCP. Keep migration `0020`, production deploy, and
-real execution disabled.
+Add a narrow injected execution-adapter contract that remains disabled by
+default. Keep migration `0020`, production deploy, real SketchUp/MCP, and
+process execution disabled.
 
 ## Do not do yet
 

@@ -20,7 +20,7 @@ and `SESSION_NOTES.md` together.
 |---|---:|---|
 | Commercial platform | `[########--] 75%` | Landings, orders, calculators, portfolio, CRM, and stable operations |
 | AI-assisted platform | `[#######---] 70%` | AI qualification, safe communications, and locally verified manager-reviewed OCR |
-| Complete vision | `[#####-----] 52%` | Commercial platform plus vision, verified fake SketchUp node boundary, real SketchUp MCP, and 3D render pipeline |
+| Complete vision | `[#####-----] 54%` | Commercial platform plus vision, local dry-run SketchUp node service, real SketchUp MCP, and 3D render pipeline |
 
 ## Workstreams
 
@@ -37,7 +37,7 @@ and `SESSION_NOTES.md` together.
 | Twenty CRM integration | `[#######---] 70%` | Production safety path verified; now a separate future module | Prepare separate integration repository after native CRM verification |
 | AI agents and communications | `[##########] 100%` | Safe MVP complete: manual suggestions, editing, approval/rejection, audit history, and no autonomous sending | Add Telegram/WhatsApp delivery only as separately approved channel integrations |
 | OCR and sketch recognition | `[##########] 100%` | Backend MVP complete: durable consent, retention, manager review, and fail-closed deletion; customer production pilot remains disabled | Review/apply migration 0019 and R2 binding only before an approved customer pilot |
-| SketchUp MCP | `[#########-] 85%` | Signed sender and replay-protected fake receiving node are tested; real Windows service/SketchUp remain disconnected | Build separate Windows service wrapper and controlled SketchUp/MCP prototype |
+| SketchUp MCP | `[#########-] 90%` | Local Windows-side dry-run HTTP service validates signed jobs and replay; real SketchUp remains disconnected | Add an injected, disabled-by-default execution adapter before real SketchUp/MCP |
 | 3D rendering pipeline | `[----------] 0%` | Planned | Render contract after SketchUp prototype |
 
 ## Dependency Map
