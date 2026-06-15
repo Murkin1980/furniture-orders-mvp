@@ -117,8 +117,10 @@ placement.
 8. Production safety and controlled smoke:
    - Slice 8A: customer-image policy gate and production runbook. Complete.
    - Slice 8B: reviewed production migrations, secrets, and one synthetic-only
-     controlled smoke. Pending explicit approval.
-9. SketchUp mapping from approved data into a versioned furniture model.
+     controlled smoke. Complete.
+9. Durable consent audit, retention/deletion operations, and manager
+   confirmation before customer-image recognition. Pending.
+10. SketchUp mapping from approved data into a versioned furniture model.
 
 ## Explicitly Not Now
 

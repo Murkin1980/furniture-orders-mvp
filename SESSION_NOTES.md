@@ -1548,3 +1548,37 @@ Conclusion:
 ### Next
 - OCR Slice 8B: after explicit approval, review/apply production migrations and
   run exactly one synthetic-only production smoke.
+
+## 2026-06-15 - OCR Slice 8B synthetic production verification
+
+### What changed
+- Audited production D1 and confirmed only OCR migrations `0017` and `0018`
+  were pending.
+- Applied both migrations and verified the complete empty OCR table.
+- Deployed safety-gated OCR code.
+- Confirmed customer-image recognition returns
+  `503 ocr_customer_images_disabled` before provider access.
+- Created clearly synthetic production order `8`.
+- Ran exactly one planned provider smoke; recognition `1` was saved as `draft`
+  with wardrobe dimensions `2400 x 600 x 2600 mm`, confidence `1`, and no
+  persisted data URL.
+
+### Operational finding
+- Updating the Pages secret `OCR_RECOGNITION_ENABLED` to `"false"` did not
+  reliably disable the deployed endpoint.
+- One control request unexpectedly reached the provider, returned HTTP 400,
+  and saved safe failed recognition `2`. No retry was made.
+- Deleted `OCR_RECOGNITION_ENABLED` and `OCR_CUSTOMER_IMAGES_ENABLED`, then
+  redeployed.
+- Final disabled check returned `503 ocr_recognition_disabled`.
+
+### Production state
+- OCR migrations are applied.
+- OCR provider/model remain configured.
+- OCR enable secrets are absent; recognition and customer images are disabled.
+- Final production deployment: `b78a1ccd`.
+- No customer images or automatic approval were used.
+
+### Next
+- OCR Slice 9: durable consent audit, retention/deletion operations, and
+  manager confirmation workflow before customer-image recognition.

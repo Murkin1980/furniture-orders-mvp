@@ -54,6 +54,13 @@ does not replace durable consent audit storage or retention operations, so
 customer-image production use remains disabled. See
 [`OCR_PRODUCTION_READINESS.md`](OCR_PRODUCTION_READINESS.md).
 
+OCR Slice 8B completed the synthetic-only production path on June 15, 2026.
+Remote migrations `0017` and `0018` are applied. Synthetic order `8` produced
+recognition draft `1` with wardrobe dimensions `2400 x 600 x 2600 mm`.
+Production recognition was disabled after the smoke by deleting the enable
+secret and redeploying; the final disabled check returned
+`503 ocr_recognition_disabled`. Customer images remain disabled.
+
 Production landing/VPS operations, known failures, and verified solutions:
 [`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).
 

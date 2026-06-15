@@ -35,7 +35,7 @@ and `SESSION_NOTES.md` together.
 | Admin and CRM interface | `[##########] 100%` | Complete MVP UI: focused modules, actionable dashboard, responsive orders, efficient CRM cards, states and accessibility polish | Extend only from real manager feedback |
 | Twenty CRM integration | `[#######---] 70%` | Production safety path verified; now a separate future module | Prepare separate integration repository after native CRM verification |
 | AI agents and communications | `[##########] 100%` | Safe MVP complete: manual suggestions, editing, approval/rejection, audit history, and no autonomous sending | Add Telegram/WhatsApp delivery only as separately approved channel integrations |
-| OCR and sketch recognition | `[#########-] 95%` | Local smoke passed and customer-image provider calls are denied by default; production remains disabled | Review migrations and run one synthetic-only production smoke |
+| OCR and sketch recognition | `[#########-] 95%` | Synthetic-only production path verified and disabled after smoke; customer images remain blocked | Add durable consent audit and retention/deletion operations |
 | SketchUp MCP | `[----------] 0%` | Planned | Windows node and controlled MCP prototype |
 | 3D rendering pipeline | `[----------] 0%` | Planned | Render contract after SketchUp prototype |
 
@@ -134,3 +134,4 @@ flowchart LR
 | OCR Slice 6 | 2026-06-14 | Read/write-protected review API and admin panel show original reference, editable JSON, and explicit approve/reject | Add real provider sender and synthetic local smoke |
 | OCR Slice 7 | 2026-06-14 | Gated OpenAI-compatible vision sender, unified configured local D1, and successful synthetic wardrobe smoke saved as draft | Plan production migration and manual-only enablement |
 | OCR Slice 8A | 2026-06-15 | Customer-image policy gate, synthetic-only path, production/rollback runbook, and focused tests | Review/apply OCR migrations and run one synthetic-only production smoke after explicit approval |
+| OCR Slice 8B | 2026-06-15 | Production migrations applied, safety gate verified, synthetic wardrobe saved as draft, and OCR disabled after smoke; deploy `b78a1ccd` | Build consent audit and retention/deletion operations before customer images |
