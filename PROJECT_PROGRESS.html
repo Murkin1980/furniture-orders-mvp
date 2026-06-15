@@ -492,11 +492,12 @@
       { name: "Twenty CRM модуль", progress: 70, state: "active", status: "Опционально", detail: "Безопасный manual sync path и отдельная граница модуля.", next: "Проверить контракт реального Twenty workspace." },
       { name: "AI-агенты и коммуникации", progress: 100, state: "complete", status: "Готово", detail: "Safe MVP: AI-черновики, редактирование, approval/rejection и audit history без автономной отправки.", next: "Telegram/WhatsApp delivery подключать только отдельными согласованными интеграциями." },
       { name: "OCR и распознавание эскизов", progress: 100, state: "complete", status: "Backend MVP завершён", detail: "Есть durable consent, retention, manager review и fail-closed deletion; customer production pilot выключен.", next: "Перед пилотом отдельно проверить migration 0019 и OCR_MEDIA_BUCKET." },
-      { name: "SketchUp MCP", progress: 35, state: "active", status: "Safe job foundation", detail: "Validated command plan упаковывается в short-lived signature-ready node job с tamper/expiry checks.", next: "Добавить injected fake-node client и local smoke без реального SketchUp." },
+      { name: "SketchUp MCP", progress: 45, state: "active", status: "Local fake-node smoke complete", detail: "Injected client валидирует job, делает максимум один fake-node вызов и нормализует accepted/rejected/error.", next: "Добавить pure HMAC signing/verification и request builder без fetch." },
       { name: "3D-рендер заказа", progress: 0, state: "planned", status: "План", detail: "Возврат визуализации в заказ и CRM workflow.", next: "Определить render contract после SketchUp." }
     ];
 
     const stages = [
+      { date: "15.06.2026", state: "complete", title: "SketchUp Slice 4", detail: "Добавлен injected single-attempt fake-node client и local smoke.", result: "Invalid/expired jobs блокируются до sender; global fetch, retries, MCP, SketchUp и production не используются." },
       { date: "15.06.2026", state: "complete", title: "SketchUp Slice 3", detail: "Добавлен pure signature-ready sketchup-node-job/v1 contract.", result: "Есть idempotency, canonical signature input, TTL, source/tamper checks; signing/network/SketchUp не подключены." },
       { date: "15.06.2026", state: "complete", title: "SketchUp Slice 2", detail: "Добавлен pure furniture-model/v1 → sketchup-command-plan/v1 builder и fail-closed validator.", result: "Разрешены только units, confirmed envelope и metadata; arbitrary commands/Ruby/MCP/production заблокированы." },
       { date: "15.06.2026", state: "complete", title: "SketchUp Slice 1", detail: "Добавлен pure approved OCR → furniture-model/v1 mapper.", result: "Размеры нормализуются в мм, incomplete model блокируется, geometry/MCP/production не затронуты." },

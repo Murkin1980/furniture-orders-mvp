@@ -70,6 +70,24 @@ Validation detects source mismatch, payload tampering, expiry, unsafe identity
 fields, unsupported contracts, and unverified signature values. Slice 3 does
 not sign or send the job.
 
+## Slice 4 Contract
+
+`src/sketchup/node-client.js` performs one injected fake-node request after
+revalidating the complete job contract.
+
+The client:
+
+- requires `sendNodeRequest` injection and never falls back to global fetch;
+- rejects invalid and expired jobs before sender access;
+- calls the injected sender at most once and never retries;
+- sends a cloned job so the caller input is not mutated;
+- accepts only matching `jobId` responses with `accepted` or `rejected`
+  status;
+- returns a normalized, non-throwing result.
+
+No real node URL, transport, signature, MCP process, or SketchUp process is
+connected.
+
 ## Safety Boundaries
 
 - No MCP call.
@@ -84,7 +102,8 @@ not sign or send the job.
 1. Pure approved OCR -> `furniture-model/v1` mapper. Complete.
 2. Pure validated command-plan builder without MCP/network calls. Complete.
 3. SketchUp node request builder and signature-ready job contract. Complete.
-4. Injected client and local fake-node smoke.
-5. Manual protected endpoint and job audit storage.
-6. Windows SketchUp/MCP prototype with explicit manager execution.
-7. Render artifact return and order attachment.
+4. Injected client and local fake-node smoke. Complete.
+5. Pure HMAC signing/verification and request builder without fetch.
+6. Manual protected endpoint and job audit storage.
+7. Windows SketchUp/MCP prototype with explicit manager execution.
+8. Render artifact return and order attachment.

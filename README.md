@@ -76,7 +76,10 @@ millimeter units, confirmed overall envelope, and safe metadata. Unknown
 commands, extra fields, incomplete dimensions, arbitrary Ruby, MCP execution,
 and production changes remain blocked. Slice 3 wraps only a validated plan in
 a short-lived, idempotent, signature-ready `sketchup-node-job/v1`; it detects
-payload tampering and expiry but does not sign or send the job.
+payload tampering and expiry but does not sign the job. Slice 4 adds a
+single-attempt injected fake-node client for local contract smoke testing. It
+never falls back to global fetch and still does not connect MCP, SketchUp, or
+production.
 
 Production landing/VPS operations, known failures, and verified solutions:
 [`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).

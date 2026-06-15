@@ -1705,3 +1705,32 @@ Conclusion:
 
 ### Next
 - Add an injected fake-node client and local smoke without real SketchUp.
+
+## 2026-06-15 - SketchUp Slice 4 injected fake-node smoke
+
+### What changed
+- Added an injected SketchUp node client that revalidates jobs before sender
+  access.
+- Added local fake-node accepted, rejected, invalid, expired, mismatch, and
+  sender-error smoke coverage.
+- The sender receives a cloned job, is called at most once, and results are
+  normalized without throwing.
+
+### Files changed
+- `src/sketchup/node-client.js`
+- `tests/sketchup-node-client.test.js`
+- SketchUp decision, README, progress, handoff, and reviewer summary
+
+### Safety
+- No global fetch fallback, retry, real node URL, signing secret, MCP,
+  SketchUp process, endpoint, UI, migration, deploy, or production change.
+
+### Checks
+- Focused SketchUp tests: 45 passed.
+- Full project tests: 345 passed.
+- `npm.cmd run check`: passed.
+- `node --check src/sketchup/node-client.js`: passed.
+- `git diff --check`: passed.
+
+### Next
+- Add pure HMAC signing/verification and a request builder without fetch.
