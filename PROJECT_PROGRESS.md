@@ -1,12 +1,12 @@
 # Project Progress Dashboard
 
-Last reviewed: 2026-06-15
-Current checkpoint: 4
+Last reviewed: 2026-06-16
+Current checkpoint: 5
 Next checkpoint review: after 5 more completed slices
 
-Current product focus: continue the controlled SketchUp integration path from
-signed request contracts toward an injected sender, while keeping execution
-and production disabled.
+Current product focus: complete controlled production verification without
+automatic customer-data processing: portfolio media write-smoke, authenticated
+VPS read-only checks, and one synthetic-order manual AI smoke.
 
 This is the canonical visual progress tracker for the complete furniture platform. Percentages are engineering estimates based on implemented, tested, deployed, and operationally verified behavior. A feature is not considered complete only because code exists.
 
@@ -66,14 +66,14 @@ flowchart LR
 |---:|---|---|---|
 | 1 | Landings and calculators completion | Paid landing order can move from brief to preview lead | Complete through LC Slice 7 production verification |
 | 2 | Landing production infrastructure | VPS/domain/SSL/deploy path verified for customer sites | LC Slice 6 operationally verified with Cloudflare proxied HTTPS |
-| 3 | Native CRM MVP | Manager can search, review, and move orders through the pipeline | Implementation complete; production verification pending |
-| 4 | Separate Twenty module | Optional adapter repository and extraction contract exist | Scaffold complete; runtime extraction waits for verified Twenty schema |
-| 5 | Communication channels | Customer conversations are attached to order/contact history | Planned |
-| 6 | Controlled AI agents | Agents can suggest or perform approved actions with audit history | Planned |
-| 7 | OCR and vision | Text, measurements, and sketch details produce reviewed structured data | Planned |
-| 8 | SketchUp MCP prototype | Structured order creates or updates a controlled SketchUp model | Planned |
-| 9 | 3D render pipeline | Render output returns to the order and CRM workflow | Planned |
-| 10 | Full production hardening | Security, recovery, observability, and end-to-end QA pass | Planned |
+| 3 | Native CRM MVP | Manager can search, review, and move orders through the pipeline | Complete MVP; extend only from real manager feedback |
+| 4 | Separate Twenty module | Optional adapter repository and extraction contract exist | Optional; runtime extraction waits for verified Twenty schema |
+| 5 | Communication channels | Customer conversations are attached to order/contact history | Safe AI draft/audit layer complete; real delivery adapters remain separate |
+| 6 | Controlled AI agents | Agents can suggest or perform approved actions with audit history | Manual suggestion MVP complete; no autonomous sending |
+| 7 | OCR and vision | Text, measurements, and sketch details produce reviewed structured data | Backend MVP complete; customer pilot disabled until migration/bucket approval |
+| 8 | SketchUp MCP prototype | Structured order creates or updates a controlled SketchUp model | Contract path 95%; real SketchUp executor not connected |
+| 9 | 3D render pipeline | Render output returns to the order and CRM workflow | Manifest contract only; wait for real executor and storage design |
+| 10 | Full production hardening | Security, recovery, observability, and end-to-end QA pass | In progress through controlled smoke runners and runbooks |
 
 ## Twenty CRM Detail
 

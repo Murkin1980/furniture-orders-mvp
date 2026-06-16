@@ -105,6 +105,15 @@ Production landing/VPS operations, known failures, and verified solutions:
 Local development troubleshooting:
 [`LOCAL_DEV_RUNBOOK.md`](LOCAL_DEV_RUNBOOK.md).
 
+Current controlled production verification focus:
+
+- portfolio media write-smoke with `scripts/portfolio-media-smoke.mjs` after an
+  approved admin token and test image are selected;
+- authenticated VPS read-only smoke with `scripts/vps-readonly-smoke.mjs`;
+- one synthetic-order manual AI smoke with `scripts/ai-manual-smoke.mjs`.
+
+Do not run these checks against real customer data without explicit approval.
+
 Verified public landing demo: `https://demo.salamat-mebel.kz`.
 
 LC Slice 7 production calculator verification is complete:

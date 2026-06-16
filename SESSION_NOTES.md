@@ -2095,3 +2095,28 @@ Conclusion:
 - Documentation-only change.
 - `npm.cmd run check`: passed.
 - `git diff --check`: passed.
+
+## 2026-06-16 - Production ops progress checkpoint
+
+### What changed
+- Updated `PROJECT_PROGRESS.md` and `PROJECT_PROGRESS.html` to mark checkpoint 5.
+- Refocused the active roadmap from SketchUp contract implementation to
+  controlled production verification.
+- Updated `README.md` with the current production verification focus:
+  portfolio media write-smoke, authenticated VPS read-only smoke, and one
+  synthetic-order manual AI smoke.
+
+### Files changed
+- `README.md`
+- `PROJECT_PROGRESS.md`
+- `PROJECT_PROGRESS.html`
+- `SESSION_NOTES.md`
+- `docs/sessions/furniture-production-ops-progress-checkpoint-summary.md`
+
+### Checks
+- `git diff --check`: passed.
+- `npm.cmd run check`: passed.
+- `npm.cmd test`: passed, 401 tests.
+
+### Next
+- Commit and push the checkpoint if checks pass.
