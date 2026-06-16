@@ -130,3 +130,10 @@ synthetic order:
 Use synthetic smoke orders for provider verification. Sending a real customer
 order to an external AI provider requires an explicit operational decision and
 appropriate consent/data-handling rules.
+
+Production auth-smoke on 2026-06-16:
+
+- `POST /api/orders/1/ai/analyze` without admin token returned `401`;
+- no provider request or order write was attempted;
+- authenticated synthetic-order smoke remains available through
+  `scripts/ai-manual-smoke.mjs`.

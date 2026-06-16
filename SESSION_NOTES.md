@@ -2042,3 +2042,24 @@ Conclusion:
 
 ### Next
 - Run only when a synthetic production order id and admin token are selected.
+
+## 2026-06-16 - AI production auth-smoke
+
+### What changed
+- Verified production manual AI endpoint rejects unauthenticated POST with
+  `401`.
+- Updated `AI_SETUP.md` with the auth-smoke result.
+
+### Safety
+- No admin token was sent.
+- No provider call was made.
+- No order AI fields were written.
+
+### Checks
+- Production unauthenticated endpoint check: passed.
+- `git diff --check`: passed.
+- `npm.cmd run check`: passed.
+
+### Next
+- Use `scripts/ai-manual-smoke.mjs` only with a synthetic order and approved
+  production admin token.
