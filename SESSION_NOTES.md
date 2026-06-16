@@ -1956,3 +1956,25 @@ Conclusion:
 ### Next
 - Upload one small test image from admin, verify returned URL, then publish a
   test portfolio item.
+
+## 2026-06-16 - Portfolio media write-smoke runner
+
+### What changed
+- Added `scripts/portfolio-media-smoke.mjs` for an explicit admin-token based
+  portfolio upload smoke.
+- Documented the runner in `PORTFOLIO_MEDIA_OPS.md`.
+- The runner creates a draft item and uploads one image; publishing requires
+  `PORTFOLIO_SMOKE_PUBLISH=true`.
+
+### Safety
+- The runner was not executed against production.
+- No production D1 row or R2 object was created by this slice.
+
+### Checks
+- `node --check scripts/portfolio-media-smoke.mjs`: passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed.
+
+### Next
+- Run the smoke runner only after explicit approval to create a test portfolio
+  draft/upload in production.

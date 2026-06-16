@@ -43,6 +43,21 @@ npm.cmd run check
 git diff --check
 ```
 
+Optional smoke runner:
+
+```powershell
+$env:PORTFOLIO_SMOKE_BASE_URL="https://furniture-orders-mvp.pages.dev"
+$env:PORTFOLIO_SMOKE_ADMIN_TOKEN="<admin token>"
+$env:PORTFOLIO_SMOKE_IMAGE="C:\path\to\small-test.webp"
+$env:PORTFOLIO_SMOKE_PUBLISH="false"
+node scripts/portfolio-media-smoke.mjs
+```
+
+The runner creates a draft portfolio item and uploads one image. It publishes
+only when `PORTFOLIO_SMOKE_PUBLISH=true`.
+Run it against production only after approving creation of a temporary draft
+portfolio item and R2 object.
+
 Local upload smoke:
 
 1. Start dev server.

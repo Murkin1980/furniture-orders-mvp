@@ -490,6 +490,8 @@ canceled
 - Production read-only smoke on 2026-06-16 confirmed the R2 bucket exists and
   the Pages media route sees the binding; admin upload write-smoke remains the
   final operational check.
+- `scripts/portfolio-media-smoke.mjs` can run the explicit write-smoke when an
+  admin token and test image are provided.
 
 ## Stage 4-R admin stabilization lane
 
