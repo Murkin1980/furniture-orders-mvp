@@ -2063,3 +2063,19 @@ Conclusion:
 ### Next
 - Use `scripts/ai-manual-smoke.mjs` only with a synthetic order and approved
   production admin token.
+
+## 2026-06-16 - Production ops continuation handoff
+
+### What changed
+- Added `docs/sessions/furniture-production-ops-next-actions.md`.
+- Consolidated the remaining approved-smoke commands for portfolio media, VPS
+  read-only checks, and AI manual synthetic-order checks.
+
+### Safety
+- No production write action was executed.
+- The file explicitly lists actions that require approval.
+
+### Checks
+- Documentation-only change.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed.
