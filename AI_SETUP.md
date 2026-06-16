@@ -103,6 +103,18 @@ To verify a real provider locally, configure `.dev.vars`, ensure migration
 `0011` is applied to configured local D1 `furniture_orders`, run
 `npm.cmd run dev`, and trigger analysis manually from the admin order list.
 
+Optional explicit smoke runner:
+
+```powershell
+$env:AI_SMOKE_BASE_URL="https://furniture-orders-mvp.pages.dev"
+$env:AI_SMOKE_ADMIN_TOKEN="<admin token>"
+$env:AI_SMOKE_ORDER_ID="<synthetic order id>"
+node scripts/ai-manual-smoke.mjs
+```
+
+The runner calls only the existing manual endpoint. It writes AI fields to the
+selected order, so use only a synthetic smoke order.
+
 ## Production status
 
 Manual production AI analysis was verified on 2026-06-12 using a clearly

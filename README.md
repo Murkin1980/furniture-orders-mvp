@@ -241,6 +241,8 @@ fields. Deployment: `https://a25ae4ff.furniture-orders-mvp.pages.dev`.
 - `vps-control-service/` содержит Ubuntu-side MVP сервиса, который принимает запросы Cloudflare proxy и выполняет только allowlisted VPS actions.
 - `src/phone.js` содержит общую нормализацию и проверку телефона для заявок и calculator leads.
 - `src/ai/` содержит безопасный AI layer: prompt builder, provider abstraction, request sender, parser, orchestration и mapping результата в поля заказа.
+- `scripts/ai-manual-smoke.mjs` can run an explicit manual AI smoke against a
+  synthetic order; it does not enable AI autorun.
 - AI communications foundation добавляет policy-контракт и ручной reply
   suggestion flow с историей черновиков и manager approval. Отправка сообщений
   и изменение заказа AI-агентом запрещены.

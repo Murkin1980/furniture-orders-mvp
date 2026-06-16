@@ -2020,3 +2020,25 @@ Conclusion:
 
 ### Next
 - Run the runner only when a production admin token is available.
+
+## 2026-06-16 - AI manual smoke runner
+
+### What changed
+- Added `scripts/ai-manual-smoke.mjs`.
+- Documented explicit synthetic-order smoke usage in `AI_SETUP.md`.
+- The runner calls only existing manual endpoint
+  `POST /api/orders/:id/ai/analyze`.
+
+### Safety
+- AI autorun remains disabled.
+- Runner was not executed against production.
+- It must be used only with a synthetic order because it writes AI result fields
+  to that order.
+
+### Checks
+- `node --check scripts/ai-manual-smoke.mjs`: passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed.
+
+### Next
+- Run only when a synthetic production order id and admin token are selected.
