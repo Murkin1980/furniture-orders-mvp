@@ -488,7 +488,7 @@
       { name: "Интерфейс админки и CRM", progress: 100, state: "complete", status: "Готово", detail: "Focused modules, actionable dashboard, responsive orders, efficient CRM cards and accessibility polish.", next: "Развивать только по обратной связи менеджеров." },
       { name: "Ручной AI-анализ", progress: 100, state: "complete", status: "Готово", detail: "Manual-only production flow проверен на synthetic order.", next: "Определить правила согласия для клиентских данных." },
       { name: "Cloudflare / VPS", progress: 90, state: "blocked", status: "Блокер", detail: "Pages, D1 и R2 работают; VPS control и SSH недоступны.", next: "Восстановить VPS и повторить health/deploy проверки." },
-      { name: "Portfolio и media", progress: 80, state: "active", status: "Production R2 read smoke пройден", detail: "Bucket существует, Pages deployment ea0e2e6 видит media binding; missing media даёт 404, not 503.", next: "Загрузить один тестовый файл из админки и опубликовать portfolio item." },
+      { name: "Portfolio и media", progress: 85, state: "active", status: "Write-smoke готов к запуску", detail: "Bucket существует, Pages видит media binding; добавлен явный smoke-runner без автозапуска.", next: "После одобрения создать один test upload/publish smoke." },
       { name: "Twenty CRM модуль", progress: 70, state: "active", status: "Опционально", detail: "Безопасный manual sync path и отдельная граница модуля.", next: "Проверить контракт реального Twenty workspace." },
       { name: "AI-агенты и коммуникации", progress: 100, state: "complete", status: "Готово", detail: "Safe MVP: AI-черновики, редактирование, approval/rejection и audit history без автономной отправки.", next: "Telegram/WhatsApp delivery подключать только отдельными согласованными интеграциями." },
       { name: "OCR и распознавание эскизов", progress: 100, state: "complete", status: "Backend MVP завершён", detail: "Есть durable consent, retention, manager review и fail-closed deletion; customer production pilot выключен.", next: "Перед пилотом отдельно проверить migration 0019 и OCR_MEDIA_BUCKET." },
@@ -497,6 +497,7 @@
     ];
 
     const stages = [
+      { date: "16.06.2026", state: "complete", title: "Infrastructure read-only pass", detail: "Cloudflare Pages/R2 проверены; VPS proxy endpoints достижимы и защищены.", result: "Portfolio API=200, media binding даёт 404 для missing object, VPS endpoints без токена дают 401." },
       { date: "16.06.2026", state: "complete", title: "Portfolio media production read-smoke", detail: "Cloudflare R2 bucket и Pages media binding проверены без записи.", result: "Production source ea0e2e6; /api/portfolio=200; missing /media/portfolio/...=404, значит binding подключён." },
       { date: "16.06.2026", state: "complete", title: "Portfolio media ops slice", detail: "Добавлены R2 ops runbook, env example и pure readiness helper.", result: "Следующий шаг стал проверяемым: binding, optional public URL, upload smoke, /media fallback." },
       { date: "16.06.2026", state: "complete", title: "SketchUp Slice 10 contract", detail: "Добавлен pure render-artifact manifest и future order attachment payload.", result: "Safe storage keys, media allowlist, bytes и SHA-256 проверяются; файлов, R2 и production attachment нет." },

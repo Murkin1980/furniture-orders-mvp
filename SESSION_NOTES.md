@@ -1978,3 +1978,25 @@ Conclusion:
 ### Next
 - Run the smoke runner only after explicit approval to create a test portfolio
   draft/upload in production.
+
+## 2026-06-16 - Cloudflare/VPS read-only infrastructure pass
+
+### What changed
+- Verified Cloudflare Pages project `furniture-orders-mvp` exists.
+- Verified production domain is alive.
+- Verified R2 bucket `furniture-portfolio-media` exists.
+- Verified unauthenticated VPS proxy endpoints return `401`, meaning the
+  endpoint layer is reachable and protected.
+- Updated `LANDING_VPS_OPS_RUNBOOK.md` with current Cloudflare/R2/VPS status.
+
+### Safety
+- No VPS deploy/reload/service action was called.
+- No production D1 write or R2 object write was performed.
+
+### Checks
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed.
+
+### Next
+- Run authenticated VPS `/health`, `/services`, and `/deploy/logs` checks when
+  a production ops token/SSH path is available.

@@ -46,14 +46,22 @@ recognized". This is expected because `sudo` is a Linux command.
 
 ## Current Operational Status
 
-As of 2026-06-12, the Cloudflare Pages application, production D1 migrations,
-and R2 buckets are available. The VPS path is degraded:
+As of 2026-06-16, the Cloudflare Pages application and R2 portfolio bucket are
+available. Production read-only checks confirmed:
 
-- production `/api/vps/health`, `/api/vps/services`, and deploy logs return
-  `502 vps_control_unreachable`;
-- direct SSH to `194.32.140.229` times out;
-- the PS.kz panel could not be inspected from the automated browser because
-  the environment network policy blocks that console.
+- `https://furniture-orders-mvp.pages.dev/` returns `200`;
+- `GET /api/portfolio` returns `200`;
+- `GET /media/portfolio/not-found.webp` returns controlled `404`, which means
+  the Pages media route sees `PORTFOLIO_MEDIA_BUCKET`;
+- unauthenticated VPS proxy endpoints return `401`, so the endpoint layer is
+  alive and protected.
+
+The VPS path itself still needs authenticated operational verification:
+
+- use production admin/ops credentials to check `/api/vps/health`,
+  `/api/vps/services`, and deploy logs;
+- verify direct SSH/VNC access to `194.32.140.229`;
+- verify `furniture-vps-control` and nginx on the node.
 
 Do not retry deploy/reload operations in a loop while the node is unreachable.
 Inspect the VPS state in the provider panel manually. If it is stopped, obtain
