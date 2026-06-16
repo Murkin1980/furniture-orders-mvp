@@ -2001,6 +2001,22 @@ Conclusion:
 - Run authenticated VPS `/health`, `/services`, and `/deploy/logs` checks when
   a production ops token/SSH path is available.
 
+## 2026-06-16 - Local dev runbook
+
+### What changed
+- Added `LOCAL_DEV_RUNBOOK.md`.
+- Documented local `dev-admin-token` behavior.
+- Documented local Wrangler D1 schema drift recovery for the OCR retention
+  columns that blocked `/api/orders`.
+
+### Safety
+- The runbook explicitly limits schema recovery commands to local D1 only.
+
+### Checks
+- Documentation-only change.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed.
+
 ## 2026-06-16 - VPS read-only smoke runner
 
 ### What changed

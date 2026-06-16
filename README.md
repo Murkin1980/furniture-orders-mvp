@@ -102,6 +102,9 @@ SHA-256 hashes. It does not write or upload files.
 Production landing/VPS operations, known failures, and verified solutions:
 [`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).
 
+Local development troubleshooting:
+[`LOCAL_DEV_RUNBOOK.md`](LOCAL_DEV_RUNBOOK.md).
+
 Verified public landing demo: `https://demo.salamat-mebel.kz`.
 
 LC Slice 7 production calculator verification is complete:
