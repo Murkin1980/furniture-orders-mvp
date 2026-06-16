@@ -2000,3 +2000,23 @@ Conclusion:
 ### Next
 - Run authenticated VPS `/health`, `/services`, and `/deploy/logs` checks when
   a production ops token/SSH path is available.
+
+## 2026-06-16 - VPS read-only smoke runner
+
+### What changed
+- Added `scripts/vps-readonly-smoke.mjs`.
+- Documented the runner in `LANDING_VPS_OPS_RUNBOOK.md`.
+- The runner checks only platform proxy GET endpoints:
+  `/api/vps/health`, `/api/vps/services`, and `/api/vps/deploy/logs?limit=5`.
+
+### Safety
+- The runner was not executed with production admin credentials.
+- It does not call deploy, reload, restart, or any write endpoint.
+
+### Checks
+- `node --check scripts/vps-readonly-smoke.mjs`: passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed.
+
+### Next
+- Run the runner only when a production admin token is available.

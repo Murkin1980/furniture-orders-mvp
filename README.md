@@ -213,6 +213,8 @@ fields. Deployment: `https://a25ae4ff.furniture-orders-mvp.pages.dev`.
 - `POST /api/calculators/:id/publish` теперь копирует draft pricing/rules в published, и embed использует published-версию.
 - Calculator leads сохраняют `calculatorMeta` в `raw_payload`: `calculatorId`, `categoryCode`, `units`, `materialRuleCode`, `materialMultiplier`, `estimate`, `formulaVersion`, `schemaVersion`.
 - `GET /api/vps/health`, `GET /api/vps/services`, `POST /api/vps/deploy/site`, `POST /api/vps/reload/webserver`, `GET /api/vps/deploy/logs` дают admin proxy к внешнему VPS control API.
+- `scripts/vps-readonly-smoke.mjs` can verify the production VPS proxy with
+  admin credentials using only read-only GET endpoints.
 - `GET /api/sites`, `POST /api/sites`, `GET /api/sites/:id`, `GET /api/sites/:id/artifact`, `POST /api/sites/:id/deploy`, `GET /api/sites/:id/status` управляют лендингами, доменами, HTML artifact и статусами публикации.
 - `GET /api/portfolio`, `POST /api/portfolio`, `PUT /api/portfolio/:id`, `POST /api/portfolio/:id/images`, `POST /api/portfolio/:id/publish` управляют портфолио работ.
 - `POST /api/portfolio/:id/images/upload` добавляет admin-only multipart upload для JPEG/PNG/WebP фото через R2-compatible storage binding.

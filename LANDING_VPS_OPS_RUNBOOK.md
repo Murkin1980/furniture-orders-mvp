@@ -63,6 +63,17 @@ The VPS path itself still needs authenticated operational verification:
 - verify direct SSH/VNC access to `194.32.140.229`;
 - verify `furniture-vps-control` and nginx on the node.
 
+Optional read-only smoke runner:
+
+```powershell
+$env:VPS_SMOKE_BASE_URL="https://furniture-orders-mvp.pages.dev"
+$env:VPS_SMOKE_ADMIN_TOKEN="<production admin token>"
+node scripts/vps-readonly-smoke.mjs
+```
+
+The runner performs only GET requests to health, services, and deploy logs. It
+does not call deploy or reload endpoints.
+
 Do not retry deploy/reload operations in a loop while the node is unreachable.
 Inspect the VPS state in the provider panel manually. If it is stopped, obtain
 explicit approval before starting it. If it is running, use VNC/provider
