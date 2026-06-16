@@ -1907,3 +1907,28 @@ Conclusion:
 ### Next
 - Continue only in an approved Windows/SketchUp test environment with a real
   injected executor; keep production disconnected.
+
+## 2026-06-16 - Portfolio media ops readiness
+
+### What changed
+- Added `PORTFOLIO_MEDIA_OPS.md` with Cloudflare R2 binding setup, local smoke,
+  production smoke, and safety rules.
+- Added `src/portfolio-media-ops.js` pure readiness helper for
+  `PORTFOLIO_MEDIA_BUCKET` and optional `PORTFOLIO_MEDIA_PUBLIC_BASE_URL`.
+- Added `.env.example` documentation for the optional media public base URL.
+- Updated project progress to reflect that the production ops path is now
+  documented and testable.
+
+### Safety
+- No production Cloudflare settings, R2 bucket contents, D1 migration, deploy,
+  or runtime upload behavior changed.
+- URL-based portfolio images remain the fallback if R2 upload is unavailable.
+
+### Checks
+- Focused portfolio media ops tests: 4 passed.
+- Full project tests: 401 passed.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed.
+
+### Next
+- Perform an actual Cloudflare production R2 binding smoke test when ready.

@@ -484,6 +484,9 @@ canceled
 - The portfolio creation form also exposes `Upload first photo`; when selected,
   the admin creates the draft work and immediately uploads the file to R2.
 - Migration `0010_portfolio_media.sql` adds the storage metadata columns and a storage-key index.
+- `PORTFOLIO_MEDIA_OPS.md` documents production R2 setup and smoke checks.
+- `src/portfolio-media-ops.js` provides a pure readiness helper for the R2
+  binding and optional public media URL.
 
 ## Stage 4-R admin stabilization lane
 
