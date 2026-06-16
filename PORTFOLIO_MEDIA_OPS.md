@@ -69,6 +69,19 @@ After deploy and R2 binding:
 6. Confirm missing media returns a controlled `404 media_not_found`.
 7. Confirm traversal-like paths return `400 invalid_media_key`.
 
+## Production Read-only Smoke Log
+
+2026-06-16:
+
+- Cloudflare account is connected through Wrangler.
+- R2 bucket exists: `furniture-portfolio-media`.
+- Pages production deployment source is `ea0e2e6`.
+- Public portfolio API returned `200`.
+- Missing portfolio media path returned `404`, confirming the production R2
+  binding is present instead of missing (`503`).
+- Encoded traversal path under `/media/portfolio/%2e%2e/...` returned `400`.
+- Full write-smoke from admin is still pending.
+
 ## Safety Rules
 
 - Do not store real customer-private images before consent rules are confirmed.

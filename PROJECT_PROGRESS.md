@@ -29,7 +29,7 @@ and `SESSION_NOTES.md` together.
 | Lead intake and order workflow | `[##########] 100%` | Production-ready MVP: intake, statuses, notes, follow-up, history, and project steps | Extend only from real user feedback |
 | Calculators | `[##########] 100%` | Production embed and lead path verified | Repeat the documented flow for the first paid landing |
 | Landing platform | `[##########] 100%` | Production publish and customer-domain HTTPS verified | Repeat the documented flow for the first paid landing |
-| Portfolio and media | `[#######---] 70%` | R2-ready upload flow plus production ops runbook and readiness helper are complete | Perform Cloudflare production R2 binding smoke test |
+| Portfolio and media | `[########--] 80%` | Production R2 bucket and read-only media binding smoke are verified; admin upload write-smoke remains | Upload one test image from admin and publish a portfolio item |
 | Production infrastructure | `[#########-] 90%` | Cloudflare core is operational; VPS control and SSH are currently unreachable | Restore VPS/provider access, then re-run health/services/deploy checks |
 | Manual AI analysis | `[##########] 100%` | Manual-only production flow verified on a synthetic order | Keep manual-only; define consent rules before using real customer data |
 | Native CRM | `[##########] 100%` | Production-ready MVP: pipeline, filters, analytics, follow-up, and interaction history | Extend only from real manager usage |

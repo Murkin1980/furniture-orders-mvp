@@ -1932,3 +1932,27 @@ Conclusion:
 
 ### Next
 - Perform an actual Cloudflare production R2 binding smoke test when ready.
+
+## 2026-06-16 - Portfolio media production read-smoke
+
+### What changed
+- Deployed current `main` to Cloudflare Pages production.
+- Verified production deployment source `ea0e2e6`.
+- Verified R2 bucket `furniture-portfolio-media` exists.
+- Verified public portfolio API returns `200`.
+- Verified missing `/media/portfolio/...` returns `404`, not `503`, which
+  confirms the production Pages media route has the R2 binding.
+- Verified encoded traversal `/media/portfolio/%2e%2e/...` returns `400`.
+
+### Safety
+- No R2 object was uploaded or deleted.
+- No production D1 data was changed.
+- Admin upload write-smoke is still pending.
+
+### Checks
+- Deploy: passed.
+- Read-only production smoke: passed.
+
+### Next
+- Upload one small test image from admin, verify returned URL, then publish a
+  test portfolio item.

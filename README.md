@@ -487,6 +487,9 @@ canceled
 - `PORTFOLIO_MEDIA_OPS.md` documents production R2 setup and smoke checks.
 - `src/portfolio-media-ops.js` provides a pure readiness helper for the R2
   binding and optional public media URL.
+- Production read-only smoke on 2026-06-16 confirmed the R2 bucket exists and
+  the Pages media route sees the binding; admin upload write-smoke remains the
+  final operational check.
 
 ## Stage 4-R admin stabilization lane
 
