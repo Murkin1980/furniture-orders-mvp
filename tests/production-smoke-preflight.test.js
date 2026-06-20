@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 
 import {
   buildProductionSmokePreflight,
-  formatPreflightReport
+  formatPreflightReport,
+  normalizePreflightTargets
 } from "../scripts/production-smoke-preflight.mjs";
 
 const completeEnv = {
@@ -70,7 +71,40 @@ test("formatted report does not print admin token values", async () => {
   const report = formatPreflightReport(result);
 
   assert.match(report, /Production smoke preflight: ready/);
+  assert.match(report, /Targets: portfolio, vps, ai/);
   assert.doesNotMatch(report, /admin-token-123/);
   assert.doesNotMatch(report, /admin-token-456/);
   assert.doesNotMatch(report, /admin-token-789/);
+});
+
+test("preflight can validate only the VPS smoke target", async () => {
+  const result = await buildProductionSmokePreflight({
+    VPS_SMOKE_BASE_URL: "https://example.pages.dev",
+    VPS_SMOKE_ADMIN_TOKEN: "admin-token-456"
+  }, {
+    targets: "vps",
+    fileExists: async () => false
+  });
+
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.targets, ["vps"]);
+  assert.equal(result.checks.some((check) => check.name.startsWith("portfolio.")), false);
+  assert.equal(result.checks.some((check) => check.name.startsWith("ai.")), false);
+});
+
+test("preflight supports comma-separated targets", async () => {
+  const result = await buildProductionSmokePreflight(completeEnv, {
+    targets: "portfolio,ai",
+    fileExists: async () => true
+  });
+
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.targets, ["portfolio", "ai"]);
+  assert.equal(result.checks.some((check) => check.name.startsWith("vps.")), false);
+});
+
+test("target normalization falls back to all for empty or unknown values", () => {
+  assert.deepEqual(normalizePreflightTargets(""), ["portfolio", "vps", "ai"]);
+  assert.deepEqual(normalizePreflightTargets("unknown"), ["portfolio", "vps", "ai"]);
+  assert.deepEqual(normalizePreflightTargets(["vps", "vps", "ai"]), ["vps", "ai"]);
 });

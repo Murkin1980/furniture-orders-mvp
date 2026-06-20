@@ -2127,6 +2127,8 @@ Conclusion:
 - Added `scripts/production-smoke-preflight.mjs`.
 - Added `tests/production-smoke-preflight.test.js`.
 - Added the preflight script to `npm run check`.
+- Added preflight targets: `--target=vps`, `--target=portfolio`, `--target=ai`,
+  and default `all`.
 - Updated `README.md`, `PROJECT_PROGRESS.md`, `PROJECT_PROGRESS.html`, and
   `docs/sessions/furniture-production-ops-next-actions.md`.
 - Added reviewer summary
@@ -2141,9 +2143,11 @@ Conclusion:
 
 ### Checks
 - `node --check scripts/production-smoke-preflight.mjs`: passed.
-- `node --test tests/production-smoke-preflight.test.js`: passed, 5 tests.
+- `node --test tests/production-smoke-preflight.test.js`: passed, 8 tests.
+- `node scripts/production-smoke-preflight.mjs --target=vps`: passed outside
+  sandbox and returned expected missing-env report without network/write.
 - `npm.cmd run check`: passed.
-- `npm.cmd test`: passed, 406 tests.
+- `npm.cmd test`: passed, 409 tests.
 
 ### Next
 - Run preflight only after smoke env values are selected.

@@ -3,20 +3,36 @@ import { fileURLToPath } from "node:url";
 
 export async function buildProductionSmokePreflight(env = process.env, deps = {}) {
   const fileExists = deps.fileExists || defaultFileExists;
-  const checks = [
-    checkUrl("portfolio.baseUrl", env.PORTFOLIO_SMOKE_BASE_URL),
-    checkSecret("portfolio.adminToken", env.PORTFOLIO_SMOKE_ADMIN_TOKEN),
-    await checkImage("portfolio.image", env.PORTFOLIO_SMOKE_IMAGE, fileExists),
-    checkBoolean("portfolio.publish", env.PORTFOLIO_SMOKE_PUBLISH),
-    checkUrl("vps.baseUrl", env.VPS_SMOKE_BASE_URL),
-    checkSecret("vps.adminToken", env.VPS_SMOKE_ADMIN_TOKEN),
-    checkUrl("ai.baseUrl", env.AI_SMOKE_BASE_URL),
-    checkSecret("ai.adminToken", env.AI_SMOKE_ADMIN_TOKEN),
-    checkId("ai.orderId", env.AI_SMOKE_ORDER_ID)
-  ];
+  const targets = normalizePreflightTargets(deps.targets || env.PRODUCTION_SMOKE_PREFLIGHT_TARGETS || "all");
+  const checks = [];
+
+  if (targets.includes("portfolio")) {
+    checks.push(
+      checkUrl("portfolio.baseUrl", env.PORTFOLIO_SMOKE_BASE_URL),
+      checkSecret("portfolio.adminToken", env.PORTFOLIO_SMOKE_ADMIN_TOKEN),
+      await checkImage("portfolio.image", env.PORTFOLIO_SMOKE_IMAGE, fileExists),
+      checkBoolean("portfolio.publish", env.PORTFOLIO_SMOKE_PUBLISH)
+    );
+  }
+
+  if (targets.includes("vps")) {
+    checks.push(
+      checkUrl("vps.baseUrl", env.VPS_SMOKE_BASE_URL),
+      checkSecret("vps.adminToken", env.VPS_SMOKE_ADMIN_TOKEN)
+    );
+  }
+
+  if (targets.includes("ai")) {
+    checks.push(
+      checkUrl("ai.baseUrl", env.AI_SMOKE_BASE_URL),
+      checkSecret("ai.adminToken", env.AI_SMOKE_ADMIN_TOKEN),
+      checkId("ai.orderId", env.AI_SMOKE_ORDER_ID)
+    );
+  }
 
   return {
     ok: checks.every((check) => check.ok),
+    targets,
     checks,
     next: buildNextSteps(checks)
   };
@@ -25,6 +41,7 @@ export async function buildProductionSmokePreflight(env = process.env, deps = {}
 export function formatPreflightReport(result) {
   const lines = [
     `Production smoke preflight: ${result.ok ? "ready" : "not ready"}`,
+    `Targets: ${result.targets.join(", ")}`,
     ""
   ];
   for (const check of result.checks) {
@@ -35,6 +52,15 @@ export function formatPreflightReport(result) {
     for (const item of result.next) lines.push(`- ${item}`);
   }
   return lines.join("\n");
+}
+
+export function normalizePreflightTargets(value) {
+  const raw = Array.isArray(value) ? value : String(value || "all").split(",");
+  const selected = raw.map((item) => clean(item).toLowerCase()).filter(Boolean);
+  const allowed = new Set(["portfolio", "vps", "ai"]);
+  if (selected.length === 0 || selected.includes("all")) return ["portfolio", "vps", "ai"];
+  const normalized = [...new Set(selected.filter((item) => allowed.has(item)))];
+  return normalized.length > 0 ? normalized : ["portfolio", "vps", "ai"];
 }
 
 function checkUrl(name, value) {
@@ -114,11 +140,19 @@ async function defaultFileExists(path) {
 }
 
 async function main() {
-  const result = await buildProductionSmokePreflight();
+  const result = await buildProductionSmokePreflight(process.env, {
+    targets: parseTargetArg(process.argv.slice(2))
+  });
   console.log(formatPreflightReport(result));
   if (!result.ok) process.exitCode = 1;
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   await main();
+}
+
+function parseTargetArg(args) {
+  const prefix = "--target=";
+  const match = args.find((arg) => arg.startsWith(prefix));
+  return match ? match.slice(prefix.length) : process.env.PRODUCTION_SMOKE_PREFLIGHT_TARGETS || "all";
 }

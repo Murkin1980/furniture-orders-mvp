@@ -30,6 +30,14 @@ Validates required env values and the local portfolio test image path before
 running any production smoke. It does not call network APIs and does not write
 production data.
 
+For one smoke at a time:
+
+```powershell
+node scripts/production-smoke-preflight.mjs --target=vps
+node scripts/production-smoke-preflight.mjs --target=portfolio
+node scripts/production-smoke-preflight.mjs --target=ai
+```
+
 ### Portfolio media write-smoke
 
 ```powershell
@@ -76,9 +84,11 @@ Writes AI result fields to the selected order. Use only with a synthetic order.
 
 ## Suggested Next Order
 
-1. Set the smoke env values and run local preflight.
+1. Set VPS smoke env values and run `node scripts/production-smoke-preflight.mjs --target=vps`.
 2. Run VPS read-only smoke with production admin token.
-3. Run portfolio write-smoke with a tiny synthetic image.
-4. Run AI manual smoke on a synthetic order.
-5. If all three pass, mark Portfolio/media and Infrastructure production ops
+3. Set portfolio smoke env values and run `node scripts/production-smoke-preflight.mjs --target=portfolio`.
+4. Run portfolio write-smoke with a tiny synthetic image.
+5. Set AI smoke env values and run `node scripts/production-smoke-preflight.mjs --target=ai`.
+6. Run AI manual smoke on a synthetic order.
+7. If all three pass, mark Portfolio/media and Infrastructure production ops
    as complete in `PROJECT_PROGRESS.md` and `PROJECT_PROGRESS.html`.

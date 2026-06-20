@@ -31,6 +31,14 @@ The preflight validates:
 It prints a readable report and exits non-zero when required values are missing
 or malformed.
 
+It can validate one runner at a time:
+
+```powershell
+node scripts/production-smoke-preflight.mjs --target=vps
+node scripts/production-smoke-preflight.mjs --target=portfolio
+node scripts/production-smoke-preflight.mjs --target=ai
+```
+
 ## Safety
 
 - No network calls.
@@ -43,9 +51,11 @@ or malformed.
 ## Checks
 
 - `node --check scripts/production-smoke-preflight.mjs`: passed.
-- `node --test tests/production-smoke-preflight.test.js`: passed, 5 tests.
+- `node --test tests/production-smoke-preflight.test.js`: passed, 8 tests.
+- `node scripts/production-smoke-preflight.mjs --target=vps`: passed outside
+  sandbox and returned the expected missing-env report without network/write.
 - `npm.cmd run check`: passed.
-- `npm.cmd test`: passed, 406 tests.
+- `npm.cmd test`: passed, 409 tests.
 
 ## Next
 
