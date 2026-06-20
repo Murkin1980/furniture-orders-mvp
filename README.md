@@ -107,6 +107,8 @@ Local development troubleshooting:
 
 Current controlled production verification focus:
 
+- run `node scripts/production-smoke-preflight.mjs` first to validate required
+  env values without network calls or writes;
 - portfolio media write-smoke with `scripts/portfolio-media-smoke.mjs` after an
   approved admin token and test image are selected;
 - authenticated VPS read-only smoke with `scripts/vps-readonly-smoke.mjs`;

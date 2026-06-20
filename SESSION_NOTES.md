@@ -2120,3 +2120,32 @@ Conclusion:
 
 ### Next
 - Commit and push the checkpoint if checks pass.
+
+## 2026-06-20 - Production smoke preflight
+
+### What changed
+- Added `scripts/production-smoke-preflight.mjs`.
+- Added `tests/production-smoke-preflight.test.js`.
+- Added the preflight script to `npm run check`.
+- Updated `README.md`, `PROJECT_PROGRESS.md`, `PROJECT_PROGRESS.html`, and
+  `docs/sessions/furniture-production-ops-next-actions.md`.
+- Added reviewer summary
+  `docs/sessions/furniture-production-smoke-preflight-summary.md`.
+
+### Safety
+- The preflight does not call `fetch`.
+- It does not read production data.
+- It does not write production data.
+- It validates only env values and the local portfolio test image path.
+- It masks admin tokens in the formatted report.
+
+### Checks
+- `node --check scripts/production-smoke-preflight.mjs`: passed.
+- `node --test tests/production-smoke-preflight.test.js`: passed, 5 tests.
+- `npm.cmd run check`: passed.
+- `npm.cmd test`: passed, 406 tests.
+
+### Next
+- Run preflight only after smoke env values are selected.
+- Then run the approved VPS read-only, portfolio write, and AI synthetic-order
+  smoke checks one by one.

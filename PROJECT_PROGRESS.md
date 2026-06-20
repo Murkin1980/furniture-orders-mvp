@@ -29,8 +29,8 @@ and `SESSION_NOTES.md` together.
 | Lead intake and order workflow | `[##########] 100%` | Production-ready MVP: intake, statuses, notes, follow-up, history, and project steps | Extend only from real user feedback |
 | Calculators | `[##########] 100%` | Production embed and lead path verified | Repeat the documented flow for the first paid landing |
 | Landing platform | `[##########] 100%` | Production publish and customer-domain HTTPS verified | Repeat the documented flow for the first paid landing |
-| Portfolio and media | `[########--] 85%` | Production R2 bucket, read-only media binding smoke, and explicit write-smoke runner are complete | Approve one production test upload/publish smoke |
-| Production infrastructure | `[#########-] 92%` | Cloudflare Pages/R2 are verified; VPS proxy layer is alive but authenticated VPS health still needs token/SSH verification | Run authenticated VPS health/services/deploy-log checks |
+| Portfolio and media | `[########--] 85%` | Production R2 bucket, read-only media binding smoke, explicit write-smoke runner, and local preflight are complete | Run preflight, then approve one production test upload/publish smoke |
+| Production infrastructure | `[#########-] 92%` | Cloudflare Pages/R2 are verified; VPS proxy layer is alive and preflight is ready, but authenticated VPS health still needs token/SSH verification | Run preflight, then authenticated VPS health/services/deploy-log checks |
 | Manual AI analysis | `[##########] 100%` | Manual-only production flow verified on a synthetic order | Keep manual-only; define consent rules before using real customer data |
 | Native CRM | `[##########] 100%` | Production-ready MVP: pipeline, filters, analytics, follow-up, and interaction history | Extend only from real manager usage |
 | Admin and CRM interface | `[##########] 100%` | Complete MVP UI: focused modules, actionable dashboard, responsive orders, efficient CRM cards, states and accessibility polish | Extend only from real manager feedback |
@@ -146,3 +146,4 @@ flowchart LR
 | SketchUp Slice 6 | 2026-06-15 | Injected signed HTTPS sender, one attempt, no global fallback, no retries on 429 | Design manual protected endpoint and job audit storage |
 | SketchUp Slice 7 | 2026-06-16 | Ops-scoped manual endpoint, explicit confirmation, approved OCR requirement, pending-first audit migration | Build Windows fake execution node contract; keep migration and production disabled |
 | SketchUp Slice 8 | 2026-06-16 | Pure receiving fake-node verifies HMAC/expiry/replay and returns explicit non-executable dry-run summary | Build separate Windows service wrapper before real SketchUp/MCP |
+| Production smoke preflight | 2026-06-20 | Local preflight validates portfolio/VPS/AI smoke env and test image path without network calls or writes | Set approved smoke env values, run preflight, then run only the approved smoke checks |

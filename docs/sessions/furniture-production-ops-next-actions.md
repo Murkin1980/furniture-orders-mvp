@@ -5,7 +5,7 @@
 Last pushed commit:
 
 ```text
-15b7d33 docs: record AI production auth smoke
+df8f1f2 docs: update production ops progress checkpoint
 ```
 
 Cloudflare core is operational:
@@ -19,6 +19,16 @@ Cloudflare core is operational:
 - VPS proxy endpoints are protected: unauthenticated GET returns `401`.
 
 ## Ready Runners
+
+### Local preflight, no network
+
+```powershell
+node scripts/production-smoke-preflight.mjs
+```
+
+Validates required env values and the local portfolio test image path before
+running any production smoke. It does not call network APIs and does not write
+production data.
 
 ### Portfolio media write-smoke
 
@@ -66,8 +76,9 @@ Writes AI result fields to the selected order. Use only with a synthetic order.
 
 ## Suggested Next Order
 
-1. Run VPS read-only smoke with production admin token.
-2. Run portfolio write-smoke with a tiny synthetic image.
-3. Run AI manual smoke on a synthetic order.
-4. If all three pass, mark Portfolio/media and Infrastructure production ops
+1. Set the smoke env values and run local preflight.
+2. Run VPS read-only smoke with production admin token.
+3. Run portfolio write-smoke with a tiny synthetic image.
+4. Run AI manual smoke on a synthetic order.
+5. If all three pass, mark Portfolio/media and Infrastructure production ops
    as complete in `PROJECT_PROGRESS.md` and `PROJECT_PROGRESS.html`.
