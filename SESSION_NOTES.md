@@ -2153,3 +2153,37 @@ Conclusion:
 - Run preflight only after smoke env values are selected.
 - Then run the approved VPS read-only, portfolio write, and AI synthetic-order
   smoke checks one by one.
+
+## 2026-06-20 - SketchUp Slice 11 render persistence
+
+### What changed
+- Added migration `0021_sketchup_render_artifacts.sql`.
+- Added `src/sketchup/render-core.js`.
+- Added protected endpoint
+  `POST /api/orders/:id/sketchup/render-artifacts`.
+- Added `tests/sketchup-render-core.test.js`.
+- Updated `README.md`, `SKETCHUP_INTEGRATION_DECISION.md`,
+  `PROJECT_PROGRESS.md`, and `PROJECT_PROGRESS.html`.
+- Added reviewer summary
+  `docs/sessions/furniture-sketchup-slice11-render-persistence-summary.md`.
+
+### Safety
+- Endpoint requires operations scope.
+- It accepts JSON metadata only, not binary files.
+- It saves artifacts only for accepted SketchUp jobs belonging to the order.
+- It does not upload to R2.
+- It does not generate renders.
+- It does not start SketchUp, MCP, Ruby, child processes, or a real executor.
+- Production migration `0021` was not applied.
+
+### Checks
+- `node --check src/sketchup/render-core.js`: passed.
+- `node --check functions/api/orders/[id]/sketchup/render-artifacts.js`: passed.
+- `node --test tests/sketchup-render-core.test.js`: passed, 7 tests.
+- `npm.cmd run check`: passed.
+- `npm.cmd test`: passed, 416 tests.
+
+### Next
+- Run full checks.
+- Later, connect real render file generation/R2 upload only after an approved
+  Windows/SketchUp executor environment exists.

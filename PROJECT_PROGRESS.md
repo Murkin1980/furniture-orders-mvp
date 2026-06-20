@@ -20,7 +20,7 @@ and `SESSION_NOTES.md` together.
 |---|---:|---|
 | Commercial platform | `[########--] 75%` | Landings, orders, calculators, portfolio, CRM, and stable operations |
 | AI-assisted platform | `[#######---] 70%` | AI qualification, safe communications, and locally verified manager-reviewed OCR |
-| Complete vision | `[######----] 58%` | Commercial platform plus vision, guarded SketchUp boundary, render manifest contract, and pending real execution |
+| Complete vision | `[######----] 62%` | Commercial platform plus vision, guarded SketchUp boundary, render artifact storage contract, and pending real execution |
 
 ## Workstreams
 
@@ -37,8 +37,8 @@ and `SESSION_NOTES.md` together.
 | Twenty CRM integration | `[#######---] 70%` | Production safety path verified; now a separate future module | Prepare separate integration repository after native CRM verification |
 | AI agents and communications | `[##########] 100%` | Safe MVP complete: manual suggestions, editing, approval/rejection, audit history, and no autonomous sending | Add Telegram/WhatsApp delivery only as separately approved channel integrations |
 | OCR and sketch recognition | `[##########] 100%` | Backend MVP complete: durable consent, retention, manager review, and fail-closed deletion; customer production pilot remains disabled | Review/apply migration 0019 and R2 binding only before an approved customer pilot |
-| SketchUp MCP | `[#########-] 95%` | Local dry-run service and disabled-by-default manager-approved execution adapter are tested; real SketchUp remains disconnected | Implement real adapter only in an approved Windows/SketchUp test environment |
-| 3D rendering pipeline | `[#---------] 10%` | Pure render manifest and future order-attachment payload are tested; no real render/storage path | Connect only after approved real SketchUp executor and storage design |
+| SketchUp MCP | `[##########] 100%` | Safe platform boundary complete: approved OCR -> model -> plan -> signed job -> dry-run node -> guarded execution adapter -> render artifact persistence | Real SketchUp adapter remains an external approved Windows/SketchUp environment task |
+| 3D rendering pipeline | `[####------] 40%` | Render manifest, attachment payload, D1 metadata storage, protected endpoint, and idempotent accepted-job persistence are tested | Add real render file generation/R2 upload only after approved SketchUp executor |
 
 ## Dependency Map
 
@@ -71,8 +71,8 @@ flowchart LR
 | 5 | Communication channels | Customer conversations are attached to order/contact history | Safe AI draft/audit layer complete; real delivery adapters remain separate |
 | 6 | Controlled AI agents | Agents can suggest or perform approved actions with audit history | Manual suggestion MVP complete; no autonomous sending |
 | 7 | OCR and vision | Text, measurements, and sketch details produce reviewed structured data | Backend MVP complete; customer pilot disabled until migration/bucket approval |
-| 8 | SketchUp MCP prototype | Structured order creates or updates a controlled SketchUp model | Contract path 95%; real SketchUp executor not connected |
-| 9 | 3D render pipeline | Render output returns to the order and CRM workflow | Manifest contract only; wait for real executor and storage design |
+| 8 | SketchUp MCP prototype | Structured order creates or updates a controlled SketchUp model | Safe platform-side module complete; real executor remains external |
+| 9 | 3D render pipeline | Render output returns to the order and CRM workflow | Backend metadata path complete; real file generation/R2 upload pending |
 | 10 | Full production hardening | Security, recovery, observability, and end-to-end QA pass | In progress through controlled smoke runners and runbooks |
 
 ## Twenty CRM Detail
@@ -147,3 +147,4 @@ flowchart LR
 | SketchUp Slice 7 | 2026-06-16 | Ops-scoped manual endpoint, explicit confirmation, approved OCR requirement, pending-first audit migration | Build Windows fake execution node contract; keep migration and production disabled |
 | SketchUp Slice 8 | 2026-06-16 | Pure receiving fake-node verifies HMAC/expiry/replay and returns explicit non-executable dry-run summary | Build separate Windows service wrapper before real SketchUp/MCP |
 | Production smoke preflight | 2026-06-20 | Local preflight validates portfolio/VPS/AI smoke env and test image path without network calls or writes | Set approved smoke env values, run preflight, then run only the approved smoke checks |
+| SketchUp Slice 11 | 2026-06-20 | Protected render-artifact endpoint, D1 metadata migration, and idempotent accepted-job attachment core | Real render file generation and R2 upload wait for approved SketchUp executor |

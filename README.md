@@ -97,7 +97,10 @@ execution-adapter contract requiring matching explicit manager approval. It is
 not wired into HTTP and no real SketchUp/MCP/process executor exists. Slice 10
 adds the pure `sketchup-render-artifact/v1` manifest and future order-attachment
 payload with allowlisted media types, safe storage keys, byte counts, and
-SHA-256 hashes. It does not write or upload files.
+SHA-256 hashes. Slice 11 adds an operations-scoped
+`POST /api/orders/:id/sketchup/render-artifacts` endpoint and D1 storage for
+validated render manifests/attachment payloads. It still does not write or
+upload files, start SketchUp, or call MCP.
 
 Production landing/VPS operations, known failures, and verified solutions:
 [`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).

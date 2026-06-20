@@ -166,6 +166,27 @@ media types, relative storage keys, positive byte counts, and SHA-256 hashes.
 The contract does not write files, upload to R2, add an endpoint or migration,
 or attach anything to a production order.
 
+## Slice 11 Contract
+
+`src/sketchup/render-core.js`, migration
+`0021_sketchup_render_artifacts.sql`, and
+`POST /api/orders/:id/sketchup/render-artifacts` persist validated render
+artifact manifests for accepted SketchUp jobs.
+
+The endpoint:
+
+- requires operations scope;
+- accepts only JSON metadata, not binary files;
+- requires the referenced `sketchup_jobs` row to belong to the order and have
+  status `accepted`;
+- reuses the strict `sketchup-render-artifact/v1` validator;
+- stores the manifest, primary render storage key, optional model storage key,
+  and reporter audit;
+- is idempotent by `jobId`.
+
+It still does not upload to R2, generate renders, start SketchUp, call MCP, or
+apply production migrations.
+
 ## Safety Boundaries
 
 - No MCP call.
@@ -187,4 +208,6 @@ or attach anything to a production order.
 7. Manual protected endpoint and job audit storage. Complete in code; migration unapplied.
 8. Pure fake Windows execution-node contract with replay protection. Complete.
 9. Windows service wrapper and SketchUp/MCP prototype with explicit manager execution. Safe wrapper and disabled injected-adapter contract complete; real adapter pending.
-10. Render artifact return and order attachment. Pure contract complete; storage and production attachment pending.
+10. Render artifact return and order attachment. Pure contract complete.
+11. Persist render artifact metadata for accepted jobs. Complete in code; migration unapplied.
+12. Real render/R2 upload and production attachment. Pending approved executor and storage design.
