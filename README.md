@@ -100,7 +100,11 @@ payload with allowlisted media types, safe storage keys, byte counts, and
 SHA-256 hashes. Slice 11 adds an operations-scoped
 `POST /api/orders/:id/sketchup/render-artifacts` endpoint and D1 storage for
 validated render manifests/attachment payloads. It still does not write or
-upload files, start SketchUp, or call MCP.
+upload files, start SketchUp, or call MCP. Slice 12 adds a guarded
+`POST /api/orders/:id/sketchup/render-files` upload boundary for already
+generated model/preview/render files: it requires an accepted job, operations
+scope, allowlisted media type/role, SHA-256 calculation, and a configured
+`SKETCHUP_RENDER_BUCKET` R2 binding.
 
 Production landing/VPS operations, known failures, and verified solutions:
 [`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).

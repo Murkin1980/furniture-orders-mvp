@@ -2187,3 +2187,37 @@ Conclusion:
 - Run full checks.
 - Later, connect real render file generation/R2 upload only after an approved
   Windows/SketchUp executor environment exists.
+
+## 2026-06-20 - SketchUp Slice 12 render file upload boundary
+
+### What changed
+- Added `src/sketchup/render-file.js`.
+- Added protected endpoint `POST /api/orders/:id/sketchup/render-files`.
+- Added `tests/sketchup-render-file.test.js`.
+- Added the new files to `npm run check`.
+- Updated `README.md`, `SKETCHUP_INTEGRATION_DECISION.md`,
+  `PROJECT_PROGRESS.md`, and `PROJECT_PROGRESS.html`.
+- Added reviewer summary
+  `docs/sessions/furniture-sketchup-slice12-render-file-upload-summary.md`.
+
+### Safety
+- Endpoint requires operations scope.
+- It accepts only multipart form-data.
+- It requires a configured `SKETCHUP_RENDER_BUCKET`.
+- It uploads only for accepted SketchUp jobs belonging to the order.
+- It validates role/media-type combinations.
+- It computes SHA-256 and returns a descriptor for the render manifest.
+- It does not generate renders, start SketchUp, call MCP, or automatically
+  attach files to orders.
+
+### Checks
+- `node --check src/sketchup/render-file.js`: passed.
+- `node --check functions/api/orders/[id]/sketchup/render-files.js`: passed.
+- `node --test tests/sketchup-render-file.test.js`: passed, 6 tests.
+- `npm.cmd run check`: passed.
+- `npm.cmd test`: passed, 422 tests.
+
+### Next
+- Run full checks.
+- Real render generation remains pending until an approved Windows/SketchUp
+  executor exists.

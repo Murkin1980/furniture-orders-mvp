@@ -187,6 +187,27 @@ The endpoint:
 It still does not upload to R2, generate renders, start SketchUp, call MCP, or
 apply production migrations.
 
+## Slice 12 Contract
+
+`src/sketchup/render-file.js` and
+`POST /api/orders/:id/sketchup/render-files` define a guarded upload boundary
+for already generated SketchUp model, preview, or render files.
+
+The endpoint:
+
+- requires operations scope;
+- accepts only multipart form-data;
+- requires `SKETCHUP_RENDER_BUCKET`;
+- checks that the referenced job belongs to the order and has status
+  `accepted`;
+- allows only role/media-type pairs accepted by `sketchup-render-artifact/v1`;
+- limits files to 50 MB;
+- computes SHA-256 and returns a file descriptor that can be used in the
+  render artifact manifest.
+
+It does not generate files, start SketchUp, call MCP, or automatically attach
+the uploaded file to an order.
+
 ## Safety Boundaries
 
 - No MCP call.
@@ -210,4 +231,5 @@ apply production migrations.
 9. Windows service wrapper and SketchUp/MCP prototype with explicit manager execution. Safe wrapper and disabled injected-adapter contract complete; real adapter pending.
 10. Render artifact return and order attachment. Pure contract complete.
 11. Persist render artifact metadata for accepted jobs. Complete in code; migration unapplied.
-12. Real render/R2 upload and production attachment. Pending approved executor and storage design.
+12. Guarded render file upload to R2. Complete in code; production binding not configured here.
+13. Real render generation and production attachment flow. Pending approved executor and storage design.
