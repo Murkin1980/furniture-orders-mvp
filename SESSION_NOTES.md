@@ -2221,3 +2221,37 @@ Conclusion:
 - Run full checks.
 - Real render generation remains pending until an approved Windows/SketchUp
   executor exists.
+
+## 2026-06-20 - SketchUp Slice 13A gated execution wiring
+
+### What changed
+- Added explicit `SKETCHUP_NODE_EXECUTION_ENABLED` configuration with dry-run
+  as the default.
+- Connected the Windows HTTP service to the existing execution adapter only
+  after signed-job, expiry, transport, and replay validation.
+- Required matching per-job manager approval and an injected `executePlan`
+  function before execution.
+- Added service tests for config gating, rejected missing approval, and the
+  successful injected-executor path.
+- Updated `README.md`, `sketchup-node-service/README.md`,
+  `SKETCHUP_INTEGRATION_DECISION.md`, `PROJECT_PROGRESS.md`, and
+  `PROJECT_PROGRESS.html`.
+
+### Safety
+- Default CLI/service mode remains dry-run.
+- No SketchUp, MCP, Ruby, child process, filesystem executor, or renderer was
+  added or started.
+- No production configuration, migration, binding, or deploy changed.
+- A missing flag, approval, or executor fails closed without execution.
+
+### Checks
+- `npm.cmd --prefix sketchup-node-service run check`: passed.
+- `npm.cmd --prefix sketchup-node-service test`: passed, 16 tests.
+- `npm.cmd run check`: passed.
+- `npm.cmd test`: passed, 425 tests.
+- `git diff --check`: passed with Windows CRLF warnings only.
+
+### Next
+- Build and install the external Windows SketchUp/render executor.
+- Keep it disconnected until its output/artifact contract and operational
+  environment are reviewed.

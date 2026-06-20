@@ -208,6 +208,21 @@ The endpoint:
 It does not generate files, start SketchUp, call MCP, or automatically attach
 the uploaded file to an order.
 
+## Slice 13A Contract
+
+The Windows HTTP service now connects its existing execution adapter after the
+signed-job, expiry, transport, and replay checks pass.
+
+Execution remains fail closed and requires all three gates:
+
+- `SKETCHUP_NODE_EXECUTION_ENABLED=true`;
+- matching per-job manager approval from an injected `getManagerApproval`;
+- an injected `executePlan` executor.
+
+Without the environment flag the service remains dry-run. Without approval or
+an executor the job is rejected without execution. The repository still does
+not contain or start SketchUp, MCP, Ruby, child processes, or a renderer.
+
 ## Safety Boundaries
 
 - No MCP call.
@@ -232,4 +247,7 @@ the uploaded file to an order.
 10. Render artifact return and order attachment. Pure contract complete.
 11. Persist render artifact metadata for accepted jobs. Complete in code; migration unapplied.
 12. Guarded render file upload to R2. Complete in code; production binding not configured here.
-13. Real render generation and production attachment flow. Pending approved executor and storage design.
+13. Gated HTTP-to-executor wiring. Slice 13A complete; real Windows
+    SketchUp/render executor remains pending.
+14. Real render generation and production attachment flow. Pending approved
+    executor and operational setup.

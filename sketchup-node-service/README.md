@@ -25,6 +25,8 @@ Optional variables:
 - `SKETCHUP_NODE_HOST`
 - `SKETCHUP_NODE_PORT`
 - `SKETCHUP_NODE_MAX_BODY_BYTES`
+- `SKETCHUP_NODE_EXECUTION_ENABLED=true` enables only the gated adapter path;
+  it does not provide an executor by itself.
 
 Endpoints:
 
@@ -35,7 +37,8 @@ The in-memory replay store is intentionally suitable only for local prototype
 verification. A durable store and explicit execution adapter are required
 before any real SketchUp integration.
 
-`src/execution-adapter.js` defines the next disabled-by-default boundary. It
-requires matching explicit manager approval and an injected executor. The HTTP
-service does not call this adapter, and the repository contains no real
-SketchUp/MCP/process executor.
+`src/execution-adapter.js` is wired into the HTTP service but remains disabled
+by default. Execution requires all three gates: the explicit environment flag,
+matching per-job manager approval from `getManagerApproval`, and an injected
+`executePlan` function. The repository still contains no real
+SketchUp/MCP/process executor, and the normal CLI start remains dry-run.

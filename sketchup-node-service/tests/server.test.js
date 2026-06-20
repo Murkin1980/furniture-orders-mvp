@@ -14,6 +14,16 @@ test("requires a safe signing secret", () => {
   assert.throws(() => createConfig({}, {}), /at least 32 characters/);
 });
 
+test("execution mode requires an explicit true value", () => {
+  assert.equal(createConfig({ signingSecret: SECRET }, {}).executionEnabled, false);
+  assert.equal(createConfig({ signingSecret: SECRET }, {
+    SKETCHUP_NODE_EXECUTION_ENABLED: "true"
+  }).executionEnabled, true);
+  assert.equal(createConfig({ signingSecret: SECRET }, {
+    SKETCHUP_NODE_EXECUTION_ENABLED: "1"
+  }).executionEnabled, false);
+});
+
 test("health reports dry-run mode with execution disabled", async (t) => {
   const app = await runningApp(t);
   const response = await call(app, "GET", "/health");
@@ -29,6 +39,50 @@ test("accepts a valid signed job without executing SketchUp", async (t) => {
   assert.equal(response.status, 202);
   assert.equal(response.body.data.status, "accepted");
   assert.equal(response.body.data.executed, false);
+});
+
+test("execution mode fails closed without manager approval", async (t) => {
+  let calls = 0;
+  const app = await runningApp(t, { executionEnabled: true }, {
+    executePlan: async () => {
+      calls += 1;
+      return { executed: true };
+    }
+  });
+  const response = await sendJob(app, await signedJob());
+  assert.equal(response.status, 400);
+  assert.equal(response.body.data.error, "manager_approval_required");
+  assert.equal(response.body.data.executed, false);
+  assert.equal(calls, 0);
+});
+
+test("executes only with gated mode, matching approval, and injected executor", async (t) => {
+  let receivedPlan;
+  const app = await runningApp(t, { executionEnabled: true }, {
+    getManagerApproval: async (job) => ({
+      approved: true,
+      jobId: job.jobId,
+      requestedBy: "manager@example.com",
+      approvedAt: NOW
+    }),
+    executePlan: async (plan) => {
+      receivedPlan = plan;
+      return {
+        executed: true,
+        artifact: { type: "skp", reference: "render/job-service-001/model.skp" }
+      };
+    }
+  });
+  const response = await sendJob(app, await signedJob());
+  assert.equal(response.status, 202);
+  assert.equal(response.body.data.status, "accepted");
+  assert.equal(response.body.data.executed, true);
+  assert.equal(response.body.data.dryRun, false);
+  assert.deepEqual(response.body.data.artifact, {
+    type: "skp",
+    reference: "render/job-service-001/model.skp"
+  });
+  assert.equal(receivedPlan.planVersion, "sketchup-command-plan/v1");
 });
 
 test("rejects a replayed idempotency key", async (t) => {
@@ -62,8 +116,11 @@ test("rejects invalid JSON and oversized requests", async (t) => {
   assert.equal(large.body.error, "payload_too_large");
 });
 
-async function runningApp(t, overrides = {}) {
-  const app = createApp({ signingSecret: SECRET, host: "127.0.0.1", port: 0, ...overrides }, { env: {}, now: NOW });
+async function runningApp(t, overrides = {}, options = {}) {
+  const app = createApp(
+    { signingSecret: SECRET, host: "127.0.0.1", port: 0, ...overrides },
+    { env: {}, now: NOW, ...options }
+  );
   await new Promise((resolve) => app.server.listen(0, "127.0.0.1", resolve));
   t.after(() => new Promise((resolve) => app.server.close(resolve)));
   return app;

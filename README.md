@@ -93,8 +93,10 @@ and an explicitly non-executable dry-run summary. Slice 9A adds the separate
 wrapper. It binds to `127.0.0.1` by default, validates transport headers and
 signed jobs, rejects replay in memory, and still always reports
 `executionEnabled=false`. Slice 9B adds a disabled-by-default injected
-execution-adapter contract requiring matching explicit manager approval. It is
-not wired into HTTP and no real SketchUp/MCP/process executor exists. Slice 10
+execution-adapter contract requiring matching explicit manager approval. Slice
+13A wires that adapter into HTTP behind the explicit execution flag, matching
+per-job manager approval, and an injected executor. The default service remains
+dry-run and no real SketchUp/MCP/process executor exists. Slice 10
 adds the pure `sketchup-render-artifact/v1` manifest and future order-attachment
 payload with allowlisted media types, safe storage keys, byte counts, and
 SHA-256 hashes. Slice 11 adds an operations-scoped

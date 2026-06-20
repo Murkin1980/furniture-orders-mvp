@@ -2,6 +2,7 @@ import { createServer } from "node:http";
 import { fileURLToPath } from "node:url";
 import { handleFakeSketchUpNodeJob } from "../../src/sketchup/fake-node.js";
 import { createConfig } from "./config.js";
+import { runSketchUpExecutionAdapter } from "./execution-adapter.js";
 
 export function createApp(configOverrides = {}, options = {}) {
   const config = createConfig(configOverrides, options.env);
@@ -17,7 +18,8 @@ export function createApp(configOverrides = {}, options = {}) {
             service: "furniture-sketchup-node",
             status: "ok",
             mode: config.mode,
-            executionEnabled: false
+            executionEnabled: config.executionEnabled,
+            executorConfigured: typeof options.executePlan === "function"
           }
         });
       }
@@ -29,12 +31,13 @@ export function createApp(configOverrides = {}, options = {}) {
       const headerError = validateTransportHeaders(req.headers, job);
       if (headerError) return sendJson(res, 400, errorBody("transport_mismatch", headerError));
 
-      const result = await handleFakeSketchUpNodeJob(job, {
+      const validationResult = await handleFakeSketchUpNodeJob(job, {
         signingSecret: config.signingSecret,
         now,
         hasIdempotencyKey: async (key) => acceptedJobs.has(key),
         markIdempotencyKey: async (key, value) => acceptedJobs.set(key, value)
       });
+      const result = await maybeExecuteJob(validationResult, job, config, options);
       return sendJson(res, statusFor(result), { success: result.status === "accepted", data: result });
     } catch (error) {
       const status = error.statusCode || 500;
@@ -46,6 +49,42 @@ export function createApp(configOverrides = {}, options = {}) {
   });
 
   return { server, config, acceptedJobs };
+}
+
+async function maybeExecuteJob(validationResult, job, config, options) {
+  if (validationResult.status !== "accepted" || !config.executionEnabled) {
+    return validationResult;
+  }
+
+  const managerApproval = typeof options.getManagerApproval === "function"
+    ? await options.getManagerApproval(structuredClone(job))
+    : null;
+  const execution = await runSketchUpExecutionAdapter(job, {
+    executionEnabled: true,
+    managerApproval,
+    executePlan: options.executePlan
+  });
+
+  if (execution.status !== "executed") {
+    return {
+      ...validationResult,
+      status: "rejected",
+      executed: false,
+      dryRun: false,
+      error: execution.error,
+      message: execution.message,
+      execution
+    };
+  }
+
+  return {
+    ...validationResult,
+    executed: true,
+    dryRun: false,
+    artifact: execution.artifact,
+    message: execution.message,
+    execution
+  };
 }
 
 function validateTransportHeaders(headers, job) {

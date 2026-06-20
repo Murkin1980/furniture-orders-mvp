@@ -1,6 +1,6 @@
 # Project Progress Dashboard
 
-Last reviewed: 2026-06-16
+Last reviewed: 2026-06-20
 Current checkpoint: 5
 Next checkpoint review: after 5 more completed slices
 
@@ -20,7 +20,7 @@ and `SESSION_NOTES.md` together.
 |---|---:|---|
 | Commercial platform | `[########--] 75%` | Landings, orders, calculators, portfolio, CRM, and stable operations |
 | AI-assisted platform | `[#######---] 70%` | AI qualification, safe communications, and locally verified manager-reviewed OCR |
-| Complete vision | `[######----] 64%` | Commercial platform plus vision, guarded SketchUp boundary, render file/upload contracts, and pending real execution |
+| Complete vision | `[#######---] 65%` | Commercial platform plus vision, guarded SketchUp boundary, gated executor wiring, render file/upload contracts, and pending real execution |
 
 ## Workstreams
 
@@ -38,7 +38,7 @@ and `SESSION_NOTES.md` together.
 | AI agents and communications | `[##########] 100%` | Safe MVP complete: manual suggestions, editing, approval/rejection, audit history, and no autonomous sending | Add Telegram/WhatsApp delivery only as separately approved channel integrations |
 | OCR and sketch recognition | `[##########] 100%` | Backend MVP complete: durable consent, retention, manager review, and fail-closed deletion; customer production pilot remains disabled | Review/apply migration 0019 and R2 binding only before an approved customer pilot |
 | SketchUp MCP | `[##########] 100%` | Safe platform boundary complete: approved OCR -> model -> plan -> signed job -> dry-run node -> guarded execution adapter -> render artifact persistence | Real SketchUp adapter remains an external approved Windows/SketchUp environment task |
-| 3D rendering pipeline | `[######----] 60%` | Render manifest, attachment payload, D1 metadata storage, protected endpoint, R2 upload boundary, SHA-256, and accepted-job guards are tested | Add real render generation only after approved SketchUp executor |
+| 3D rendering pipeline | `[#######---] 65%` | Render storage paths and fail-closed HTTP-to-executor wiring are tested; default node mode remains dry-run | Install and inject an approved Windows SketchUp/render executor |
 
 ## Dependency Map
 
@@ -149,3 +149,4 @@ flowchart LR
 | Production smoke preflight | 2026-06-20 | Local preflight validates portfolio/VPS/AI smoke env and test image path without network calls or writes | Set approved smoke env values, run preflight, then run only the approved smoke checks |
 | SketchUp Slice 11 | 2026-06-20 | Protected render-artifact endpoint, D1 metadata migration, and idempotent accepted-job attachment core | Real render file generation and R2 upload wait for approved SketchUp executor |
 | SketchUp Slice 12 | 2026-06-20 | Guarded render/model file upload boundary with accepted-job check, R2 binding, role/media allowlist, and SHA-256 descriptor | Real render generation remains pending until approved SketchUp executor |
+| SketchUp Slice 13A | 2026-06-20 | Windows HTTP service calls the execution adapter only behind env, per-job approval, and injected-executor gates | Build/install the external Windows SketchUp/render executor; default service stays dry-run |
