@@ -581,6 +581,10 @@ canceled
 - `POST /api/proposals/preview` is a write-token-protected, non-persistent
   preview endpoint. It normalizes a manager draft and returns printable HTML;
   it does not update the order, D1, or production files.
+- The admin order actions include `Создать КП`. The dedicated manager workspace
+  prefills customer/project context, keeps the order budget visibly
+  reference-only, supports multiple priced items and terms, and provides A4
+  preview, HTML download, and browser Print to PDF.
 - Run `npm.cmd run proposal:demo` to create
   `output/pdf/commercial-proposal.html` from the synthetic example.
 - Full schema and future integration steps are in

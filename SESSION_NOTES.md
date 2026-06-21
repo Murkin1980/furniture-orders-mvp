@@ -2452,3 +2452,44 @@ Conclusion:
 ### Next
 - Add the manager pricing and terms form with preview, HTML download, and Print
   to PDF actions as Proposal Slice 4.
+
+## 2026-06-21 - Proposal Slice 4 manager workflow
+
+### What changed
+- Added `Создать КП` to each order action set.
+- Added a dedicated proposal workspace with customer/project prefilling,
+  editable company details, multiple line items, explicit prices, terms, and
+  director fields.
+- Kept order budget reference-only and visibly warned that it is not promoted
+  into commercial pricing.
+- Connected the form to the protected preview endpoint through `adminFetchJson`.
+- Added A4 iframe preview, downloadable HTML, and browser Print to PDF.
+- Added pure browser-side proposal helpers and tests.
+- Fixed line-item grid overflow found during desktop Playwright verification.
+
+### Files changed
+- `public/admin.html`
+- `public/admin.js`
+- `public/admin-proposals.js`
+- `tests/admin-proposals.test.js`
+- `tests/admin-shell.test.js`
+- `COMMERCIAL_PROPOSAL_TEMPLATE.md`
+- `README.md`
+- `PROJECT_PROGRESS.md`
+- `PROJECT_PROGRESS.html`
+- `package.json`
+
+### Checks
+- Focused admin/proposal tests: passed, 16 tests.
+- `npm.cmd test`: passed, 454 tests.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed with Windows line-ending warnings only.
+- Desktop end-to-end preview: passed with synthetic data and `450 000 ₸` total.
+- Mobile 390 px: no horizontal overflow (`scrollWidth === viewport width`).
+- Browser console: no errors.
+
+### Deployment
+- Pending commit and Cloudflare Pages deploy in this session.
+
+### Next
+- Add versioned D1 proposal draft/publish storage and explicit approval history.

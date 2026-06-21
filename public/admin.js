@@ -1,6 +1,7 @@
     const statuses = ["new", "in_review", "quoted", "in_production", "completed", "canceled"];
     import { getOcrRecognitionViewModel, getOrderAiViewModel, getOrderCrmViewModel, parseOcrReviewJson } from "./admin-orders.js";
     import { calculateAdminSummary, filterAdminOrders } from "./admin-core.js";
+    import { buildAdminProposalDraft, buildProposalPayload } from "./admin-proposals.js";
 
     const stepStatuses = ["pending", "done", "skipped"];
     const tokenInput = document.querySelector("#token");
@@ -37,11 +38,19 @@
     const vpsServicesButton = document.querySelector("#vps-services");
     const vpsReloadButton = document.querySelector("#vps-reload");
     const vpsLogsButton = document.querySelector("#vps-logs");
+    const proposalForm = document.querySelector("#proposal-form");
+    const proposalItems = document.querySelector("#proposal-items");
+    const proposalReference = document.querySelector("#proposal-reference");
+    const proposalPreview = document.querySelector("#proposal-preview");
+    const proposalAddItemButton = document.querySelector("#proposal-add-item");
+    const proposalDownloadButton = document.querySelector("#proposal-download");
+    const proposalPrintButton = document.querySelector("#proposal-print");
     let activeOrderId = null;
     let activeCalculator = null;
     let activePricing = null;
     let activeSite = null;
     let adminOrders = [];
+    let proposalHtml = "";
 
     tokenInput.value = localStorage.getItem("furnitureAdminToken") || "";
 
@@ -69,6 +78,10 @@
     vpsReloadButton.addEventListener("click", reloadVpsWebserver);
     vpsLogsButton.addEventListener("click", loadVpsLogs);
     vpsDeployForm.addEventListener("submit", deployVpsSite);
+    proposalForm.addEventListener("submit", previewProposal);
+    proposalAddItemButton.addEventListener("click", () => addProposalItem());
+    proposalDownloadButton.addEventListener("click", downloadProposalHtml);
+    proposalPrintButton.addEventListener("click", printProposal);
 
     loadOrders();
     loadCalculators();
@@ -146,6 +159,7 @@
               <button class="secondary" type="button" data-ocr-order-id="${escapeHtml(item.id)}">OCR review</button>
               <button class="secondary" type="button" data-ai-order-id="${escapeHtml(item.id)}">${escapeHtml(getOrderAiViewModel(item).buttonLabel)}</button>
               <button class="secondary" type="button" data-crm-order-id="${escapeHtml(item.id)}">${escapeHtml(getOrderCrmViewModel(item).buttonLabel)}</button>
+              <button class="secondary" type="button" data-proposal-order-id="${escapeHtml(item.id)}">Создать КП</button>
               ${renderOrderCrm(item)}
             </form>
           </td>
@@ -167,6 +181,119 @@
       for (const button of tbody.querySelectorAll("[data-crm-order-id]")) {
         button.addEventListener("click", () => syncOrderToCrm(Number(button.dataset.crmOrderId), button));
       }
+      for (const button of tbody.querySelectorAll("[data-proposal-order-id]")) {
+        button.addEventListener("click", () => openProposal(Number(button.dataset.proposalOrderId)));
+      }
+    }
+
+    function openProposal(orderId) {
+      const order = adminOrders.find((item) => Number(item.id) === Number(orderId));
+      if (!order) {
+        setMessage(`Заказ #${orderId} не найден.`, "bad");
+        return;
+      }
+
+      const draft = buildAdminProposalDraft(order);
+      proposalForm.reset();
+      setProposalField("orderId", draft.orderId || "");
+      setProposalField("proposalNumber", draft.proposalNumber);
+      setProposalField("date", draft.date);
+      setProposalField("customerName", draft.customerName);
+      setProposalField("customerContact", draft.customerContact);
+      setProposalField("customerProject", draft.customerProject);
+      setProposalField("totalLabel", "Итого в тенге:");
+      proposalItems.innerHTML = "";
+      addProposalItem(draft.item);
+      proposalHtml = "";
+      proposalPreview.removeAttribute("srcdoc");
+      proposalDownloadButton.disabled = true;
+      proposalPrintButton.disabled = true;
+      proposalReference.textContent = draft.referenceBudget === null
+        ? "Бюджет в заявке не указан. Введите согласованные менеджером цены вручную."
+        : `Справочный бюджет заявки: ${formatMoney(draft.referenceBudget)} ₸. Он не подставлен в стоимость КП.`;
+      showAdminView("proposals");
+      window.location.hash = "proposal-title";
+      setMessage(`Черновик КП для заказа #${orderId} подготовлен. Проверьте цены и условия.`, "ok");
+    }
+
+    function setProposalField(name, value) {
+      const field = proposalForm.elements.namedItem(name);
+      if (field) field.value = value ?? "";
+    }
+
+    function addProposalItem(item = {}) {
+      const row = document.createElement("div");
+      row.className = "proposal-item";
+      row.innerHTML = `
+        <label>Наименование<input data-proposal-field="name" value="${escapeHtml(item.name || "")}" /></label>
+        <label>Спецификация<textarea data-proposal-field="specification">${escapeHtml(item.specification || "")}</textarea></label>
+        <label>Ед.<input data-proposal-field="unit" value="${escapeHtml(item.unit || "шт")}" /></label>
+        <label>Кол-во<input data-proposal-field="quantity" type="number" min="0.01" step="0.01" value="${escapeHtml(item.quantity ?? 1)}" /></label>
+        <label>Цена, ₸<input data-proposal-field="unitPrice" type="number" min="0" step="1" value="${escapeHtml(item.unitPrice ?? 0)}" /></label>
+        <button class="secondary" type="button" title="Удалить позицию" aria-label="Удалить позицию">×</button>
+      `;
+      row.querySelector("button").addEventListener("click", () => {
+        if (proposalItems.children.length > 1) row.remove();
+      });
+      proposalItems.append(row);
+    }
+
+    function readProposalItems() {
+      return [...proposalItems.querySelectorAll(".proposal-item")].map((row) => Object.fromEntries(
+        [...row.querySelectorAll("[data-proposal-field]")].map((field) => [field.dataset.proposalField, field.value])
+      ));
+    }
+
+    async function previewProposal(event) {
+      event.preventDefault();
+      const submitButton = proposalForm.querySelector('button[type="submit"]');
+      const values = Object.fromEntries(new FormData(proposalForm).entries());
+      const payload = buildProposalPayload(values, readProposalItems());
+      submitButton.disabled = true;
+      submitButton.textContent = "Формируем...";
+      setMessage("Формирование превью коммерческого предложения...");
+      try {
+        const json = await adminFetchJson("/api/proposals/preview", {
+          method: "POST",
+          payload,
+          fallbackMessage: "Не удалось сформировать коммерческое предложение."
+        });
+        proposalHtml = json.html || "";
+        proposalPreview.srcdoc = proposalHtml;
+        proposalDownloadButton.disabled = !proposalHtml;
+        proposalPrintButton.disabled = !proposalHtml;
+        setMessage("Превью КП обновлено. Проверьте документ перед отправкой клиенту.", "ok");
+      } catch (error) {
+        setMessage(error.message, "bad");
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = "Обновить превью";
+      }
+    }
+
+    function downloadProposalHtml() {
+      if (!proposalHtml) return;
+      const number = proposalForm.elements.namedItem("proposalNumber")?.value || "proposal";
+      const url = URL.createObjectURL(new Blob([proposalHtml], { type: "text/html;charset=utf-8" }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${number.replace(/[^a-zA-Zа-яА-Я0-9_-]+/g, "-")}.html`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function printProposal() {
+      if (!proposalHtml) return;
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) {
+        setMessage("Браузер заблокировал окно печати. Разрешите всплывающие окна для админки.", "bad");
+        return;
+      }
+      printWindow.opener = null;
+      printWindow.document.open();
+      printWindow.document.write(proposalHtml);
+      printWindow.document.close();
+      printWindow.addEventListener("load", () => printWindow.print(), { once: true });
     }
 
     function renderOrderAi(item) {
@@ -257,6 +384,7 @@
     function viewFromHash() {
       return ({
         "#project-title": "project",
+        "#proposal-title": "proposals",
         "#ocr-review-title": "ocr",
         "#calculator-title": "calculators",
         "#portfolio-title": "portfolio",

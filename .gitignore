@@ -4,6 +4,7 @@ node_modules/
 .tools/
 .cache/
 .tmp/
+.playwright-cli/
 wrangler-dev.*.log
 *.log
 .dev.vars

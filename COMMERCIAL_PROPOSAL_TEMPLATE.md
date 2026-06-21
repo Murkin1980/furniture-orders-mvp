@@ -13,6 +13,9 @@ copying its logo, client data, prices, tax status, or commercial terms.
 - `src/proposals/order-proposal-mapper.js` - safe order-to-draft mapping that
   never promotes a budget or calculator estimate to an approved price.
 - `functions/api/proposals/preview.js` - protected, non-persistent HTML preview.
+- `public/admin-proposals.js` - pure browser-side draft and payload helpers.
+- `public/admin.html` / `public/admin.js` - manual manager form, preview,
+  downloadable HTML, and browser Print to PDF.
 - `examples/commercial-proposal.json` - synthetic input example.
 - `scripts/generate-commercial-proposal.mjs` - JSON-to-HTML CLI.
 - `tests/commercial-proposal-template.test.js` - calculation and safety tests.
@@ -53,6 +56,6 @@ not read or write D1 and does not call external services.
 
 ## Future slices
 
-1. Add a manager form for pricing and terms.
-2. Save proposal drafts and immutable published versions.
-3. Attach an approved proposal to the order interaction history.
+1. Save proposal drafts and immutable published versions.
+2. Attach an approved proposal to the order interaction history.
+3. Add explicit approval/sent states only after the storage contract is agreed.

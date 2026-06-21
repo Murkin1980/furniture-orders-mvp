@@ -17,6 +17,7 @@ test("admin and CRM expose the shared operational sidebar", () => {
 test("admin sidebar links preserve the existing section anchors", () => {
   assert.match(adminHtml, /href="#orders"/);
   assert.match(adminHtml, /href="#calculator-title"/);
+  assert.match(adminHtml, /href="#proposal-title"/);
   assert.match(adminHtml, /href="#portfolio-title"/);
   assert.match(adminHtml, /href="#sites-title"/);
   assert.match(adminHtml, /href="#vps-title"/);
@@ -31,8 +32,20 @@ test("admin exposes modular workspaces and actionable dashboard", () => {
   assert.match(adminHtml, /id="admin-summary"/);
   assert.match(adminHtml, /id="order-search"/);
   assert.match(adminHtml, /data-admin-section="orders"/);
+  assert.match(adminHtml, /data-admin-section="proposals"/);
   assert.match(adminHtml, /data-admin-section="portfolio"/);
   assert.match(adminHtml, /data-admin-section="infrastructure"/);
+});
+
+test("admin exposes the manual commercial proposal workflow", async () => {
+  const adminJs = await readFile(new URL("../public/admin.js", import.meta.url), "utf8");
+  assert.match(adminHtml, /id="proposal-form"/);
+  assert.match(adminHtml, /id="proposal-preview"/);
+  assert.match(adminHtml, /Бюджет заявки не подставляется в цену автоматически/);
+  assert.match(adminJs, /data-proposal-order-id/);
+  assert.match(adminJs, /\/api\/proposals\/preview/);
+  assert.match(adminJs, /downloadProposalHtml/);
+  assert.match(adminJs, /printProposal/);
 });
 
 test("CRM card work uses progressive disclosure", async () => {
