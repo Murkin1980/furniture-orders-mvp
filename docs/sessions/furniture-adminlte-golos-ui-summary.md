@@ -25,4 +25,8 @@ intake, admin, and CRM.
 - Local browser console errors: none.
 - `npm.cmd run check`: passed.
 - `npm.cmd test`: passed, 431 tests.
-- Production verification is recorded in `SESSION_NOTES.md` after deploy.
+- `git diff --check`: passed with line-ending warnings only.
+- GitHub commit: `d04d46d`, pushed to `origin/main`.
+- Cloudflare Pages: `https://ac18d7b2.furniture-orders-mvp.pages.dev`.
+- Production admin/CRM desktop and admin mobile screenshots passed visual
+  inspection; computed font is Golos Text and console errors are zero.
