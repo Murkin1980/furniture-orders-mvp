@@ -38,6 +38,7 @@ Record each source with its current status, source date when known, conversion/r
 | `OPS_AND_LEGACY_DECISION.md` | `approved` | Repository boundaries | High | Donor projects are references |
 | `SESSION_NOTES.md` | `reviewed` | Recent implementation history | Medium | Verify against code before relying on it |
 | `Modular_Furniture_Platform_Architecture.pdf` | `raw` | Architecture reference | Medium | Legacy root location; MarkItDown returned empty output; requires OCR/manual review before conversion can progress |
+| Local TUBA commercial proposal sample (2026-06-20) | `reviewed` | Visual structure reference for printable proposals | Medium | Source stays local; only layout patterns were used, with no logo, client data, prices, tax status, or terms copied into defaults |
 
 ## External tools verified on 2026-06-08
 

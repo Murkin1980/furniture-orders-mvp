@@ -2360,3 +2360,39 @@ Conclusion:
 
 ### Next
 - Extend the interface only from real manager workflow feedback.
+
+## 2026-06-21 - Proposal Slice 1 printable template
+
+### What changed
+- Reviewed the local TUBA commercial proposal as a visual/layout reference.
+- Added a pure A4 commercial-proposal normalizer and HTML renderer.
+- Added automatic quantity x unit-price totals, safe formatting, HTML
+  escaping, and HTTPS/data-image logo validation.
+- Added a synthetic JSON example and JSON-to-HTML CLI generator.
+- Documented the schema, source boundary, and future manager integration.
+
+### Files changed
+- `src/proposals/commercial-proposal-template.js`
+- `tests/commercial-proposal-template.test.js`
+- `scripts/generate-commercial-proposal.mjs`
+- `examples/commercial-proposal.json`
+- `COMMERCIAL_PROPOSAL_TEMPLATE.md`
+- `DATA_SOURCES.md`
+- `README.md`
+- `PROJECT_PROGRESS.md`
+- `PROJECT_PROGRESS.html`
+- `package.json`
+
+### Checks
+- Focused proposal tests: passed, 6 tests.
+- Focused proposal tests: passed, 6 tests after final layout polish.
+- Synthetic HTML generation: passed.
+- `npm.cmd run check`: passed.
+- `npm.cmd test`: passed, 437 tests.
+- `git diff --check`: passed with Windows line-ending warnings only.
+- Generated HTML and one-page A4 PDF were visually verified; Cyrillic, table,
+  totals, terms, and signature are readable and not clipped.
+- No commit, push, deploy, endpoint, migration, or production change was made.
+
+### Next
+- Add a manager form and pure order-to-proposal mapper as Proposal Slice 2.

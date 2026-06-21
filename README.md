@@ -564,6 +564,22 @@ canceled
 - Runtime возвращает `schemaVersion` рядом с существующими `runtimeVersion` и `formulaVersion` как additive field без удаления текущих `categories`, `rules` и `fields`.
 - Widget использует published field labels/defaults/required flags, но по-прежнему работает через безопасную hardcoded rendering model без arbitrary formulas, user-defined JavaScript, SQL, templates, expressions или admin-authored runtime code.
 
+## Commercial proposal template
+
+- `src/proposals/commercial-proposal-template.js` builds a print-ready A4
+  commercial proposal from structured data.
+- The layout follows the reviewed strict TUBA-style composition: company and
+  customer header, seven-column specification, final total, terms, and
+  signature block.
+- TUBA branding, client data, prices, tax status, and legal terms are not
+  copied. Company-specific values and an optional logo are supplied as data.
+- The generator calculates line totals, formats KZT amounts, escapes HTML, and
+  rejects unsafe logo URLs.
+- Run `npm.cmd run proposal:demo` to create
+  `output/pdf/commercial-proposal.html` from the synthetic example.
+- Full schema and future integration steps are in
+  `COMMERCIAL_PROPOSAL_TEMPLATE.md`.
+
 ## AI layer: текущий статус
 
 - AI-квалификация является дополнительным слоем над существующим заказом и запускается только вручную из админки.

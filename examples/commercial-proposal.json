@@ -1,0 +1,47 @@
+{
+  "proposalNumber": "КП-001",
+  "date": "21.06.2026",
+  "company": {
+    "name": "Salamat Mebel",
+    "address": "г. Алматы",
+    "phone": "+7 700 000 00 00",
+    "email": "info@example.com",
+    "logoUrl": ""
+  },
+  "customer": {
+    "name": "Тестовый заказчик",
+    "contact": "Контактное лицо: не указано",
+    "project": "Проект: мебель для офиса"
+  },
+  "items": [
+    {
+      "name": "Ресепшен",
+      "specification": "Корпус ЛДСП, фасады МДФ, фурнитура согласно согласованной комплектации",
+      "unit": "шт",
+      "quantity": 1,
+      "unitPrice": 250000
+    },
+    {
+      "name": "Шкаф гардеробный",
+      "specification": "Размеры и цвет уточняются после замера",
+      "unit": "шт",
+      "quantity": 2,
+      "unitPrice": 180000
+    },
+    {
+      "name": "Подиум",
+      "specification": "Изготовление по утверждённому проекту",
+      "unit": "шт",
+      "quantity": 1,
+      "unitPrice": 450000
+    }
+  ],
+  "totalLabel": "Итого в тенге:",
+  "terms": {
+    "productionDays": 14,
+    "installationDays": 6,
+    "warrantyMonths": 12,
+    "note": "Стоимость действительна после подтверждения размеров и материалов"
+  },
+  "directorName": "Ф.И.О. директора"
+}
