@@ -2489,7 +2489,36 @@ Conclusion:
 - Browser console: no errors.
 
 ### Deployment
-- Pending commit and Cloudflare Pages deploy in this session.
+- Commit `e64072f` pushed to `origin/main`.
+- Cloudflare Pages deploy completed:
+  `https://927b8718.furniture-orders-mvp.pages.dev`.
+- Production admin proposal workspace loaded successfully through Playwright.
+- Production preview endpoint returned the expected safe `401 unauthorized`
+  without an admin token; no authenticated production write was performed.
 
 ### Next
 - Add versioned D1 proposal draft/publish storage and explicit approval history.
+
+## 2026-06-21 - Proposal remaining-slices external editor handoff
+
+### What changed
+- Added a compact master handoff for the remaining commercial-proposal work.
+- Split the work into reviewed Slices 5-7: versioned D1 storage, lifecycle API,
+  and persisted admin/production workflow.
+- Added a 30-point comparison checklist and automatic rejection conditions.
+
+### Files changed
+- `docs/external-editor/proposals/README.md`
+- `docs/external-editor/proposals/proposal-slice5-storage.md`
+- `docs/external-editor/proposals/proposal-slice6-approval-api.md`
+- `docs/external-editor/proposals/proposal-slice7-admin-production.md`
+- `docs/external-editor/proposals/comparison-checklist.md`
+
+### Checks
+- Instructions were aligned to current commit `e64072f`, migration sequence
+  ending at `0021`, scoped auth, proposal renderer, and order history core.
+- No application logic, migration, dependency, or production setting changed.
+
+### Next
+- Give one slice at a time to the external editor, starting with Slice 5, then
+  review its diff with the comparison checklist before allowing Slice 6.

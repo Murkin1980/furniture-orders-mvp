@@ -589,6 +589,8 @@ canceled
   `output/pdf/commercial-proposal.html` from the synthetic example.
 - Full schema and future integration steps are in
   `COMMERCIAL_PROPOSAL_TEMPLATE.md`.
+- A sequential handoff for another editor (Slices 5-7 plus review scoring) is
+  available in `docs/external-editor/proposals/README.md`.
 
 ## AI layer: текущий статус
 

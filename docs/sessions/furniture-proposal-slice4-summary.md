@@ -43,3 +43,12 @@ as approved/sent.
 
 Define and implement versioned D1 draft/published proposal storage, followed by
 explicit approval and order-history attachment.
+
+## Delivery
+
+- Commit: `e64072f`.
+- Pushed to `origin/main`.
+- Cloudflare Pages: `https://927b8718.furniture-orders-mvp.pages.dev`.
+- Production admin workspace loaded successfully.
+- Unauthenticated preview request returned expected `401`; no production write
+  or migration was performed.
