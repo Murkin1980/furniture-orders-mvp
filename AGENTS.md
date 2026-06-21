@@ -124,6 +124,15 @@ Do not merge it into this platform until there is a clear product reason.
 - Use existing naming and folder conventions.
 - Add or update tests for meaningful logic changes.
 
+## MCP verification rule
+
+After an MCP create, generate, upload, update, or delete call, do not treat the
+operation as complete from the mutation response alone. Verify the resulting
+resource with the corresponding `get`, `read`, or `list` MCP call. For visual
+tools such as Stitch, confirm that the new screen is actually attached to the
+project canvas. Do not retry a failed or missing result in parallel; retry only
+the missing item once, sequentially, and verify it again.
+
 ## Documentation rules
 
 When you make meaningful changes, update `SESSION_NOTES.md`.

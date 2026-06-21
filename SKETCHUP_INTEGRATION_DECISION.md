@@ -223,6 +223,20 @@ Without the environment flag the service remains dry-run. Without approval or
 an executor the job is rejected without execution. The repository still does
 not contain or start SketchUp, MCP, Ruby, child processes, or a renderer.
 
+## Slice 13B Contract
+
+The Windows service can inject a local versioned file-queue executor when
+`SKETCHUP_NODE_EXECUTION_ENABLED=true` and an absolute
+`SKETCHUP_NODE_QUEUE_DIR` is configured. A matching manager approval file is
+still required before the HTTP execution adapter writes a command plan to the
+queue. The bridge accepts only a successful response for the same job and a
+safe relative `artifacts/.../*.skp` reference.
+
+This slice does not automate SketchUp or EasyKitchen. A separately reviewed
+SketchUp 2026 Ruby adapter remains responsible for consuming the validated
+queue, using locally licensed components, saving the model, and writing the
+result. EasyKitchen assets remain local and are never platform/R2 assets.
+
 ## Safety Boundaries
 
 - No MCP call.
@@ -248,6 +262,7 @@ not contain or start SketchUp, MCP, Ruby, child processes, or a renderer.
 11. Persist render artifact metadata for accepted jobs. Complete in code; migration unapplied.
 12. Guarded render file upload to R2. Complete in code; production binding not configured here.
 13. Gated HTTP-to-executor wiring. Slice 13A complete; real Windows
-    SketchUp/render executor remains pending.
+    SketchUp/render executor remains pending. Slice 13B adds the local
+    file-queue bridge; the Ruby queue consumer remains pending.
 14. Real render generation and production attachment flow. Pending approved
     executor and operational setup.

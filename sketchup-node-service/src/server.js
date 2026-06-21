@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { handleFakeSketchUpNodeJob } from "../../src/sketchup/fake-node.js";
 import { createConfig } from "./config.js";
 import { runSketchUpExecutionAdapter } from "./execution-adapter.js";
+import { createRuntimeOptions } from "./runtime.js";
 
 export function createApp(configOverrides = {}, options = {}) {
   const config = createConfig(configOverrides, options.env);
@@ -142,9 +143,11 @@ function httpError(statusCode, message) {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const { server, config } = createApp();
+  const { server, config } = createApp({}, createRuntimeOptions());
   server.listen(config.port, config.host, () => {
-    console.log(`SketchUp node dry-run service listening on ${config.host}:${config.port}`);
-    console.log("SketchUp execution is disabled.");
+    console.log(`SketchUp node ${config.mode} service listening on ${config.host}:${config.port}`);
+    console.log(config.executionEnabled
+      ? "SketchUp file-queue execution requires matching manager approval."
+      : "SketchUp execution is disabled.");
   });
 }

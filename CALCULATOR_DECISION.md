@@ -77,3 +77,10 @@ Visual configurator ideas may be ported from `furniture-configurator` later, but
   estimate, `formulaVersion: 1`, and `schemaVersion: 1`.
 - Unknown material rule validation was confirmed before the successful smoke
   submission.
+
+## Dynamic component catalog direction
+
+Future visual calculation uses the versioned parametric component catalog from
+`DYNAMIC_COMPONENTS_DECISION.md`. The calculator remains the pricing source of
+truth and uses only structured allowlisted rules. SketchUp Dynamic Component
+formulas are visual behavior only and cannot replace platform pricing.

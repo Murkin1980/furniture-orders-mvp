@@ -81,6 +81,18 @@ Do not merge it into the furniture platform until the main platform has stable u
 4. Improve landing/site module using live case studies.
 5. Improve portfolio/gallery module.
 6. Add visual configurator ideas from `furniture-configurator` later.
+7. Add Project PDF Intelligence after the OCR review and SketchUp execution
+   boundaries are stable: classify design PDFs, extract rooms/drawings/furniture
+   specifications, automatically offer a preliminary room-by-room furniture
+   estimate in the order admin, require manager approval, then create 3D jobs.
+8. Add Supplier Catalog and Pricing as a controlled, versioned import pipeline:
+   supplier API/files first, draft diffs and manager approval, then calculator
+   and estimate publication without rewriting historical orders.
+
+Decision details:
+
+- `PROJECT_PDF_INTELLIGENCE_DECISION.md`
+- `SUPPLIER_PRICING_DECISION.md`
 
 ## Source of truth
 

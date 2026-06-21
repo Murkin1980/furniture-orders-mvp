@@ -39,6 +39,8 @@ and `SESSION_NOTES.md` together.
 | OCR and sketch recognition | `[##########] 100%` | Backend MVP complete: durable consent, retention, manager review, and fail-closed deletion; customer production pilot remains disabled | Review/apply migration 0019 and R2 binding only before an approved customer pilot |
 | SketchUp MCP | `[##########] 100%` | Safe platform boundary complete: approved OCR -> model -> plan -> signed job -> dry-run node -> guarded execution adapter -> render artifact persistence | Real SketchUp adapter remains an external approved Windows/SketchUp environment task |
 | 3D rendering pipeline | `[#######---] 65%` | Render storage paths and fail-closed HTTP-to-executor wiring are tested; default node mode remains dry-run | Install and inject an approved Windows SketchUp/render executor |
+| Project PDF Intelligence | `[----------] 0%` | Planned order-admin upload that turns a designer PDF into a reviewable preliminary room-by-room furniture estimate and later 3D handoff | Build the PDF manifest/page-classification contracts after the real SketchUp executor is stable |
+| Supplier Catalog and Pricing | `[----------] 0%` | Planned controlled supplier imports with mapping, draft diffs, approval, and immutable price-list versions | Design supplier/source/catalog schemas and start with reviewed file imports |
 
 ## Dependency Map
 
@@ -54,6 +56,10 @@ flowchart LR
     G --> H["Structured design specification"]
     H --> I["SketchUp MCP"]
     I --> J["3D render pipeline"]
+    G --> L["Project PDF Intelligence"]
+    L --> H
+    M["Supplier Catalog and Pricing"] --> A
+    M --> L
     K["Production infrastructure"] --> A
     K --> C
     K --> F
@@ -74,6 +80,8 @@ flowchart LR
 | 8 | SketchUp MCP prototype | Structured order creates or updates a controlled SketchUp model | Safe platform-side module complete; real executor remains external |
 | 9 | 3D render pipeline | Render output returns to the order and CRM workflow | Backend metadata and guarded upload path complete; real file generation pending |
 | 10 | Full production hardening | Security, recovery, observability, and end-to-end QA pass | In progress through controlled smoke runners and runbooks |
+| 11 | Project PDF Intelligence | Reviewed PDF becomes rooms, furniture specifications, estimate inputs, and controlled 3D jobs | Planned; architecture decision recorded |
+| 12 | Supplier Catalog and Pricing | Reviewed supplier changes produce a new immutable price-list version used by calculators and estimates | Planned; architecture decision recorded |
 
 ## Twenty CRM Detail
 
@@ -150,3 +158,4 @@ flowchart LR
 | SketchUp Slice 11 | 2026-06-20 | Protected render-artifact endpoint, D1 metadata migration, and idempotent accepted-job attachment core | Real render file generation and R2 upload wait for approved SketchUp executor |
 | SketchUp Slice 12 | 2026-06-20 | Guarded render/model file upload boundary with accepted-job check, R2 binding, role/media allowlist, and SHA-256 descriptor | Real render generation remains pending until approved SketchUp executor |
 | SketchUp Slice 13A | 2026-06-20 | Windows HTTP service calls the execution adapter only behind env, per-job approval, and injected-executor gates | Build/install the external Windows SketchUp/render executor; default service stays dry-run |
+| SketchUp Slice 13B | 2026-06-21 | Disabled-by-default local file queue connects the gated service to a future SketchUp 2026 Ruby consumer with atomic requests, approvals, and safe SKP responses | Build and review the Ruby queue consumer; EasyKitchen stays local and licensed |

@@ -108,6 +108,15 @@ generated model/preview/render files: it requires an accepted job, operations
 scope, allowlisted media type/role, SHA-256 calculation, and a configured
 `SKETCHUP_RENDER_BUCKET` R2 binding.
 
+SketchUp Slice 13B adds the disabled-by-default local file-queue runtime used by
+the Windows HTTP service after all Slice 13A gates pass. It atomically writes a
+validated plan to `inbox/{jobId}.json`, reads manager approval from
+`approvals/{jobId}.json`, and accepts only a matching successful result with a
+safe SKP artifact reference from `outbox/{jobId}.json`. It does not start
+SketchUp, execute Ruby, or copy EasyKitchen assets. EasyKitchen Demo 5.3.2 is a
+local licensed SketchUp 2026 adapter candidate; real automation still requires
+a reviewed Ruby queue consumer.
+
 Production landing/VPS operations, known failures, and verified solutions:
 [`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).
 
@@ -1004,6 +1013,17 @@ npx.cmd --yes @colbymchenry/codegraph query analyzeLead
 4. Stage 4.07: AI layer через внешние pay-as-you-go API, без тяжёлых моделей на стартовом VPS.
 5. Stage 4.08/4.09: MCP module registry и SketchUp MCP, где VPS сначала остаётся orchestration/control node.
 6. Stage 4.10: integration checklist и consolidation pass.
+7. Project PDF Intelligence: после стабилизации OCR/SketchUp выполнить
+   manual-first разбор проектных PDF на планы, развёртки, помещения и мебельные
+   спецификации. Основной UX: мебельщик загружает PDF дизайнера в заказ и
+   получает предварительную смету по помещениям; после проверки она становится
+   утверждённым расчётом и только затем передаётся в 3D.
+8. Supplier Catalog & Pricing: добавить versioned supplier catalog, безопасные
+   импорты API/XLSX/CSV/XML, draft diff и ручную публикацию новых цен без
+   изменения старых заказов и утверждённых смет.
+
+Новые архитектурные решения описаны в
+`PROJECT_PDF_INTELLIGENCE_DECISION.md` и `SUPPLIER_PRICING_DECISION.md`.
 
 Опциональные технические ветки между продуктовыми этапами:
 

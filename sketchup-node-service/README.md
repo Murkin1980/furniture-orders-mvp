@@ -26,7 +26,11 @@ Optional variables:
 - `SKETCHUP_NODE_PORT`
 - `SKETCHUP_NODE_MAX_BODY_BYTES`
 - `SKETCHUP_NODE_EXECUTION_ENABLED=true` enables only the gated adapter path;
-  it does not provide an executor by itself.
+  the CLI then uses the local file-queue bridge.
+- `SKETCHUP_NODE_QUEUE_DIR` is an absolute local directory required in gated
+  mode.
+- `SKETCHUP_NODE_QUEUE_TIMEOUT_MS` defaults to `120000`.
+- `SKETCHUP_NODE_QUEUE_POLL_MS` defaults to `500`.
 
 Endpoints:
 
@@ -40,5 +44,19 @@ before any real SketchUp integration.
 `src/execution-adapter.js` is wired into the HTTP service but remains disabled
 by default. Execution requires all three gates: the explicit environment flag,
 matching per-job manager approval from `getManagerApproval`, and an injected
-`executePlan` function. The repository still contains no real
-SketchUp/MCP/process executor, and the normal CLI start remains dry-run.
+`executePlan` function.
+
+When gated mode is explicitly enabled, `src/runtime.js` provides a local
+file-queue adapter:
+
+```text
+approvals/{jobId}.json  manager approval written out of band
+inbox/{jobId}.json      validated command plan for the SketchUp plugin
+outbox/{jobId}.json     plugin result with a safe artifacts/.../*.skp reference
+```
+
+Files are created atomically and paths/job IDs are constrained. The bridge does
+not start a process, load an `.skp`, execute Ruby, or render by itself. A local
+SketchUp 2026 Ruby extension must consume the inbox and create the outbox
+result. EasyKitchen Demo may be used only inside that licensed local SketchUp
+environment; its library files must not be copied into this repository or R2.

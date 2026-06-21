@@ -2255,3 +2255,67 @@ Conclusion:
 - Build and install the external Windows SketchUp/render executor.
 - Keep it disconnected until its output/artifact contract and operational
   environment are reviewed.
+## 2026-06-20 - Project PDF and supplier pricing roadmap decisions
+
+### What changed
+- Added manual-first Project PDF Intelligence roadmap for classifying design
+  PDFs, extracting reviewed room/furniture specifications, calculating complete
+  projects, and handing approved data to SketchUp/3D.
+- Added controlled Supplier Catalog and Pricing roadmap with staged imports,
+  SKU mapping, anomaly review, manager approval, and immutable price versions.
+- Added a workspace rule requiring read/list verification after MCP mutations.
+
+### Files changed
+- `PROJECT_PDF_INTELLIGENCE_DECISION.md`
+- `SUPPLIER_PRICING_DECISION.md`
+- `AGENTS.md`
+- `PRODUCT.md`
+- `README.md`
+- `PROJECT_PROGRESS.md`
+- `PROJECT_PROGRESS.html`
+- `SESSION_NOTES.md`
+
+### Checks
+- Documentation-only change; code, migrations, deploy, and production settings
+  were not changed.
+- `git diff --check`: passed with line-ending warnings only.
+- `PROJECT_PROGRESS.html` inline script syntax: passed.
+
+### Next
+- Complete the real SketchUp/EasyKitchen executor boundary first.
+- Then start Project PDF Slice 1 or Supplier Pricing Slice 1 as separate,
+  reviewable implementation work.
+## 2026-06-21 - SketchUp Slice 13B local file queue
+
+### What changed
+- Added a disabled-by-default atomic file-queue executor and manager approval
+  resolver for the Windows SketchUp node service.
+- Connected CLI gated mode to the queue runtime and corrected its mode log.
+- Documented the inbox/outbox/approval contract and the local-only EasyKitchen
+  boundary.
+
+### Files changed
+- `sketchup-node-service/src/file-queue-executor.js`
+- `sketchup-node-service/src/runtime.js`
+- `sketchup-node-service/src/server.js`
+- `sketchup-node-service/tests/file-queue-executor.test.js`
+- `sketchup-node-service/package.json`
+- `sketchup-node-service/README.md`
+- `SKETCHUP_INTEGRATION_DECISION.md`
+- `DYNAMIC_COMPONENTS_DECISION.md`
+- `CALCULATOR_DECISION.md`
+- `README.md`
+- `PROJECT_PROGRESS.md`
+- `PROJECT_PROGRESS.html`
+
+### Checks
+- `npm.cmd --prefix sketchup-node-service run check`: passed.
+- `npm.cmd --prefix sketchup-node-service test`: passed, 22 tests.
+- `npm.cmd run check`: passed.
+- `npm.cmd test`: passed, 431 tests.
+- `git diff --check`: passed with line-ending warnings only.
+- `PROJECT_PROGRESS.html` inline script syntax: passed.
+
+### Next
+- Build a reviewed SketchUp 2026 Ruby queue consumer that uses only allowlisted
+  component IDs/attributes and keeps EasyKitchen assets local.
