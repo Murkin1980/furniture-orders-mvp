@@ -2396,3 +2396,30 @@ Conclusion:
 
 ### Next
 - Add a manager form and pure order-to-proposal mapper as Proposal Slice 2.
+
+## 2026-06-21 - Proposal Slice 2 order draft mapper
+
+### What changed
+- Added a pure mapper from order data to an editable proposal draft.
+- Added camelCase/snake_case support and safe raw payload parsing.
+- Added calculator and budget reference metadata without promoting either to
+  an approved line price.
+- Added deterministic proposal numbering and furniture labels.
+
+### Files changed
+- `src/proposals/order-proposal-mapper.js`
+- `tests/order-proposal-mapper.test.js`
+- `COMMERCIAL_PROPOSAL_TEMPLATE.md`
+- `README.md`
+- `PROJECT_PROGRESS.md`
+- `PROJECT_PROGRESS.html`
+- `package.json`
+
+### Checks
+- Focused mapper tests: passed, 6 tests.
+- `npm.cmd run check`: passed.
+- `npm.cmd test`: passed, 443 tests.
+- `git diff --check`: passed with Windows line-ending warnings only.
+
+### Next
+- Add a protected, non-persistent HTML preview endpoint as Proposal Slice 3.

@@ -575,6 +575,9 @@ canceled
   copied. Company-specific values and an optional logo are supplied as data.
 - The generator calculates line totals, formats KZT amounts, escapes HTML, and
   rejects unsafe logo URLs.
+- `src/proposals/order-proposal-mapper.js` prepares an editable draft from an
+  order while keeping order budget/calculator estimate as reference metadata;
+  the commercial line price remains zero until a manager enters it.
 - Run `npm.cmd run proposal:demo` to create
   `output/pdf/commercial-proposal.html` from the synthetic example.
 - Full schema and future integration steps are in
