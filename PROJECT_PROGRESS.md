@@ -34,7 +34,7 @@ and `SESSION_NOTES.md` together.
 | Manual AI analysis | `[##########] 100%` | Manual-only production flow verified on a synthetic order | Keep manual-only; define consent rules before using real customer data |
 | Native CRM | `[##########] 100%` | Production-ready MVP: pipeline, filters, analytics, follow-up, and interaction history | Extend only from real manager usage |
 | Admin and CRM interface | `[##########] 100%` | Complete MVP UI: focused modules, actionable dashboard, responsive orders, efficient CRM cards, states and accessibility polish | Extend only from real manager feedback |
-| Commercial proposals | `[#####-----] 45%` | Slices 1-2 complete: verified A4 template plus safe order-to-draft mapper that requires manager pricing | Add protected preview endpoint, then manager form |
+| Commercial proposals | `[######----] 60%` | Slices 1-3 complete: verified A4 template, safe draft mapper, and protected non-persistent preview endpoint | Add the manager pricing and terms form |
 | Twenty CRM integration | `[#######---] 70%` | Production safety path verified; now a separate future module | Prepare separate integration repository after native CRM verification |
 | AI agents and communications | `[##########] 100%` | Safe MVP complete: manual suggestions, editing, approval/rejection, audit history, and no autonomous sending | Add Telegram/WhatsApp delivery only as separately approved channel integrations |
 | OCR and sketch recognition | `[##########] 100%` | Backend MVP complete: durable consent, retention, manager review, and fail-closed deletion; customer production pilot remains disabled | Review/apply migration 0019 and R2 binding only before an approved customer pilot |
@@ -163,3 +163,4 @@ flowchart LR
 | Admin/CRM visual refresh | 2026-06-21 | AdminLTE-inspired graphite shell and Golos Text applied to admin, native CRM, and public intake; commit `d04d46d` deployed and verified | Extend only from real manager workflow feedback |
 | Proposal Slice 1 | 2026-06-21 | TUBA-inspired A4 template, safe normalization, automatic totals, synthetic example, CLI, 437 passing project tests, and visual PDF verification | Add manager form and order-to-proposal mapper; do not infer tax or legal terms |
 | Proposal Slice 2 | 2026-06-21 | Pure order-to-proposal draft mapper supports camel/snake case, safe raw payload parsing, calculator reference metadata, and no input mutation | Add protected HTML preview endpoint; budget remains reference-only |
+| Proposal Slice 3 | 2026-06-21 | Write-token-protected `POST /api/proposals/preview` returns normalized data and escaped printable HTML without D1 or network access; 449 tests pass | Add manager form, preview, HTML download, and Print to PDF actions |

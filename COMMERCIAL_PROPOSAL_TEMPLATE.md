@@ -12,6 +12,7 @@ copying its logo, client data, prices, tax status, or commercial terms.
   escaping, and A4 rendering.
 - `src/proposals/order-proposal-mapper.js` - safe order-to-draft mapping that
   never promotes a budget or calculator estimate to an approved price.
+- `functions/api/proposals/preview.js` - protected, non-persistent HTML preview.
 - `examples/commercial-proposal.json` - synthetic input example.
 - `scripts/generate-commercial-proposal.mjs` - JSON-to-HTML CLI.
 - `tests/commercial-proposal-template.test.js` - calculation and safety tests.
@@ -45,9 +46,13 @@ node scripts/generate-commercial-proposal.mjs input.json output.html
 Open the generated HTML in a browser and use Print to PDF with A4 paper,
 default scale, background graphics enabled, and browser headers/footers off.
 
+The future admin form uses `POST /api/proposals/preview`. The endpoint requires
+a write-scoped admin token (or the temporary legacy admin token), accepts a
+proposal draft JSON object, and returns `{ success, proposal, html }`. It does
+not read or write D1 and does not call external services.
+
 ## Future slices
 
-1. Add a protected HTML preview endpoint.
-2. Add a manager form for pricing and terms.
-3. Save proposal drafts and immutable published versions.
-4. Attach an approved proposal to the order interaction history.
+1. Add a manager form for pricing and terms.
+2. Save proposal drafts and immutable published versions.
+3. Attach an approved proposal to the order interaction history.

@@ -2423,3 +2423,32 @@ Conclusion:
 
 ### Next
 - Add a protected, non-persistent HTML preview endpoint as Proposal Slice 3.
+
+## 2026-06-21 - Proposal Slice 3 protected preview endpoint
+
+### What changed
+- Added `POST /api/proposals/preview` for manager-authenticated proposal preview.
+- Required write-scoped authorization while retaining the documented legacy
+  admin-token compatibility path.
+- Added safe JSON/object validation and returned normalized proposal data plus
+  escaped printable HTML.
+- Kept the endpoint non-persistent: no D1, order update, network call, or deploy.
+
+### Files changed
+- `functions/api/proposals/preview.js`
+- `tests/proposal-preview-endpoint.test.js`
+- `COMMERCIAL_PROPOSAL_TEMPLATE.md`
+- `README.md`
+- `PROJECT_PROGRESS.md`
+- `PROJECT_PROGRESS.html`
+- `package.json`
+
+### Checks
+- Focused proposal tests: passed, 18 tests.
+- `npm.cmd run check`: passed.
+- `npm.cmd test`: passed, 449 tests.
+- `git diff --check`: passed with Windows line-ending warnings only.
+
+### Next
+- Add the manager pricing and terms form with preview, HTML download, and Print
+  to PDF actions as Proposal Slice 4.
