@@ -2319,3 +2319,37 @@ Conclusion:
 ### Next
 - Build a reviewed SketchUp 2026 Ruby queue consumer that uses only allowlisted
   component IDs/attributes and keeps EasyKitchen assets local.
+## 2026-06-21 - AdminLTE-inspired shell and Golos Text
+
+### What changed
+- Replaced Arial/Segoe UI interface typography with Golos Text across public
+  intake, admin, and native CRM.
+- Reworked admin/CRM shell tokens toward the selected AdminLTE reference:
+  graphite sidebar, cool-gray canvas, white panels, restrained blue primary,
+  and lower-contrast shadows.
+- Kept the existing HTML/JS architecture and did not add AdminLTE, Bootstrap,
+  or another dependency.
+- Preserved monospace fonts for OCR/JSON and technical output.
+
+### Files changed
+- `public/index.html`
+- `public/admin.html`
+- `public/crm.html`
+- `DESIGN.md`
+- `README.md`
+- `PROJECT_PROGRESS.html`
+- `SESSION_NOTES.md`
+
+### Checks
+- Golos Text CSS and WOFF2 requests returned `200` locally.
+- Playwright desktop admin screenshot: passed at 1440 x 1000.
+- Playwright desktop CRM screenshot: passed at 1440 x 1000.
+- Playwright mobile admin screenshot: passed at 390 x 844.
+- Browser console errors on local admin/CRM: none.
+- `npm.cmd run check`: passed.
+- `npm.cmd test`: passed, 431 tests.
+- Production verification is recorded after the Cloudflare Pages deploy.
+
+### Next
+- Commit, push, and deploy to Cloudflare Pages.
+- Verify production admin and CRM on desktop/mobile before further UI changes.

@@ -6,9 +6,11 @@ Furniture Orders MVP is a practical operating interface for furniture businesses
 
 ## Visual mood
 
-- Warm neutral backgrounds inspired by wood, paper, and workshop materials.
-- Restrained teal for primary actions.
-- Rust accent only for emphasis.
+- Public furniture surfaces may use warm neutrals inspired by wood and paper.
+- Admin and CRM use an AdminLTE-inspired operational shell: graphite sidebar,
+  white topbar/panels, cool-gray canvas, and restrained blue actions.
+- Semantic success, warning, and danger colors are muted and used only for
+  status or recovery.
 - Dense operational screens remain readable and calm.
 
 ## Color palette
@@ -28,9 +30,28 @@ Success:         #2e6b37
 Danger:          #a13024 / #9f2d23
 ```
 
+Admin and CRM shell tokens:
+
+```text
+Canvas:          #f4f6f9
+Panel:           #ffffff
+Sidebar:         #343a40
+Sidebar border:  #4b545c
+Ink:             #212529
+Muted text:      #6c757d
+Line:            #dee2e6
+Primary blue:    #315c78
+Success:         #4f765e
+Warning:         #a06b2c
+Danger:          #9b3a34
+```
+
 ## Typography
 
-- Current interface font: Arial with system fallback.
+- Current interface font: Golos Text (`400`, `500`, `600`, `700`) with Arial
+  or Segoe UI system fallback. The web font uses `font-display: swap`.
+- Structured OCR/JSON and technical output may retain a monospace font where
+  character alignment supports review work.
 - Prefer clear hierarchy and readable labels over decorative typography.
 - Operational tables and forms must remain legible at common laptop widths.
 

@@ -4,6 +4,13 @@ Visual roadmap and current readiness:
 [`PROJECT_PROGRESS.html`](PROJECT_PROGRESS.html) ·
 [`PROJECT_PROGRESS.md`](PROJECT_PROGRESS.md).
 
+Admin and native CRM use an AdminLTE-inspired operational shell implemented in
+the existing lightweight HTML/CSS: graphite sidebar, white topbar and panels,
+cool-gray canvas, restrained blue actions, and Golos Text for Cyrillic UI.
+AdminLTE/Bootstrap were not added as runtime dependencies. Public intake also
+uses Golos Text with `font-display: swap` and system fallbacks; technical
+OCR/JSON editors remain monospace.
+
 After every completed stage, update the visual HTML dashboard, the canonical
 Markdown progress tracker, and `SESSION_NOTES.md`.
 
