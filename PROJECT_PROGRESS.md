@@ -1,12 +1,12 @@
 # Project Progress Dashboard
 
-Last reviewed: 2026-06-20
-Current checkpoint: 5
+Last reviewed: 2026-06-22
+Current checkpoint: 8
 Next checkpoint review: after 5 more completed slices
 
-Current product focus: complete controlled production verification without
-automatic customer-data processing: portfolio media write-smoke, authenticated
-VPS read-only checks, and one synthetic-order manual AI smoke.
+Current product focus: complete the commercial-proposal production gate by
+reviewing migration 0022, deploying the verified lifecycle, and running one
+synthetic proposal smoke without touching real customer data.
 
 This is the canonical visual progress tracker for the complete furniture platform. Percentages are engineering estimates based on implemented, tested, deployed, and operationally verified behavior. A feature is not considered complete only because code exists.
 
@@ -34,7 +34,7 @@ and `SESSION_NOTES.md` together.
 | Manual AI analysis | `[##########] 100%` | Manual-only production flow verified on a synthetic order | Keep manual-only; define consent rules before using real customer data |
 | Native CRM | `[##########] 100%` | Production-ready MVP: pipeline, filters, analytics, follow-up, and interaction history | Extend only from real manager usage |
 | Admin and CRM interface | `[##########] 100%` | Complete MVP UI: focused modules, actionable dashboard, responsive orders, efficient CRM cards, states and accessibility polish | Extend only from real manager feedback |
-| Commercial proposals | `[########--] 80%` | Manual generator deployed: order-prefilled form, explicit pricing/terms, A4 preview, HTML download, and Print to PDF | Add D1 draft/version storage and approval history using the Slices 5-7 handoff |
+| Commercial proposals | `[#########-] 95%` | Versioned D1 storage, immutable snapshots, publish/approval audit, persisted admin workflow, and local D1/browser smoke are complete | Review/apply migration 0022, deploy, then run one synthetic production lifecycle smoke |
 | Twenty CRM integration | `[#######---] 70%` | Production safety path verified; now a separate future module | Prepare separate integration repository after native CRM verification |
 | AI agents and communications | `[##########] 100%` | Safe MVP complete: manual suggestions, editing, approval/rejection, audit history, and no autonomous sending | Add Telegram/WhatsApp delivery only as separately approved channel integrations |
 | OCR and sketch recognition | `[##########] 100%` | Backend MVP complete: durable consent, retention, manager review, and fail-closed deletion; customer production pilot remains disabled | Review/apply migration 0019 and R2 binding only before an approved customer pilot |
@@ -165,3 +165,6 @@ flowchart LR
 | Proposal Slice 2 | 2026-06-21 | Pure order-to-proposal draft mapper supports camel/snake case, safe raw payload parsing, calculator reference metadata, and no input mutation | Add protected HTML preview endpoint; budget remains reference-only |
 | Proposal Slice 3 | 2026-06-21 | Write-token-protected `POST /api/proposals/preview` returns normalized data and escaped printable HTML without D1 or network access; 449 tests pass | Add manager form, preview, HTML download, and Print to PDF actions |
 | Proposal Slice 4 | 2026-06-21 | Admin order action opens a responsive manager workspace with reference-only budget, multiple line items, explicit prices/terms, A4 preview, HTML download, and Print to PDF; 454 tests pass; commit `e64072f` deployed | Add versioned D1 draft/publish storage before calling proposals approved or sent |
+| Proposal Slice 5 | 2026-06-22 | Migration 0022 and pure store add proposal records, immutable normalized payload/HTML snapshots, monotonic versions, and stale-write protection | Keep production migration gated until the complete lifecycle is reviewed |
+| Proposal Slice 6 | 2026-06-22 | Scoped lifecycle endpoints publish the current draft and explicitly approve the exact published version with one idempotent order-history record | Connect the admin workspace to persisted lifecycle state |
+| Proposal Slice 7 | 2026-06-22 | Admin restores versions, previews immutable HTML, and gates save/publish/approve actions; local D1 lifecycle and desktop/mobile Playwright smoke pass; 466 tests pass | Apply migration 0022 and deploy only after explicit production approval |

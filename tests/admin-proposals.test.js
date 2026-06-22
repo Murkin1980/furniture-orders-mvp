@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildAdminProposalDraft, buildProposalPayload } from "../public/admin-proposals.js";
+import { buildAdminProposalDraft, buildProposalPayload, getProposalLifecycleView } from "../public/admin-proposals.js";
 
 test("builds an editable proposal draft from an admin order", () => {
   const draft = buildAdminProposalDraft({
@@ -55,4 +55,18 @@ test("proposal helpers do not mutate inputs and remove undefined values", () => 
   assert.deepEqual(items, before);
   assert.equal(JSON.stringify(payload).includes("undefined"), false);
   assert.equal(payload.items[0].specification, "");
+});
+
+test("lifecycle view distinguishes draft published and approved states", () => {
+  const draft = getProposalLifecycleView({ id: 3, status: "draft", currentVersion: 2, versions: [{ versionNumber: 2, state: "draft" }] });
+  assert.equal(draft.canPublish, true);
+  assert.equal(draft.canApprove, false);
+
+  const ready = getProposalLifecycleView({ id: 3, status: "ready", currentVersion: 2, versions: [{ versionNumber: 2, state: "published" }] });
+  assert.equal(ready.canPublish, false);
+  assert.equal(ready.canApprove, true);
+
+  const approved = getProposalLifecycleView({ id: 3, status: "approved", currentVersion: 2, approvedVersion: 2, versions: [{ versionNumber: 2, state: "published" }] });
+  assert.equal(approved.canApprove, false);
+  assert.equal(approved.approvedVersion, 2);
 });

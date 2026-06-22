@@ -1,7 +1,7 @@
     const statuses = ["new", "in_review", "quoted", "in_production", "completed", "canceled"];
     import { getOcrRecognitionViewModel, getOrderAiViewModel, getOrderCrmViewModel, parseOcrReviewJson } from "./admin-orders.js";
     import { calculateAdminSummary, filterAdminOrders } from "./admin-core.js";
-    import { buildAdminProposalDraft, buildProposalPayload } from "./admin-proposals.js";
+    import { buildAdminProposalDraft, buildProposalPayload, getProposalLifecycleView } from "./admin-proposals.js";
 
     const stepStatuses = ["pending", "done", "skipped"];
     const tokenInput = document.querySelector("#token");
@@ -45,12 +45,18 @@
     const proposalAddItemButton = document.querySelector("#proposal-add-item");
     const proposalDownloadButton = document.querySelector("#proposal-download");
     const proposalPrintButton = document.querySelector("#proposal-print");
+    const proposalSaveButton = document.querySelector("#proposal-save");
+    const proposalPublishButton = document.querySelector("#proposal-publish");
+    const proposalApproveButton = document.querySelector("#proposal-approve");
+    const proposalStatus = document.querySelector("#proposal-status");
+    const proposalVersions = document.querySelector("#proposal-versions");
     let activeOrderId = null;
     let activeCalculator = null;
     let activePricing = null;
     let activeSite = null;
     let adminOrders = [];
     let proposalHtml = "";
+    let activeProposal = null;
 
     tokenInput.value = localStorage.getItem("furnitureAdminToken") || "";
 
@@ -82,6 +88,9 @@
     proposalAddItemButton.addEventListener("click", () => addProposalItem());
     proposalDownloadButton.addEventListener("click", downloadProposalHtml);
     proposalPrintButton.addEventListener("click", printProposal);
+    proposalSaveButton.addEventListener("click", saveProposalDraft);
+    proposalPublishButton.addEventListener("click", publishProposal);
+    proposalApproveButton.addEventListener("click", approveProposal);
 
     loadOrders();
     loadCalculators();
@@ -186,7 +195,7 @@
       }
     }
 
-    function openProposal(orderId) {
+    async function openProposal(orderId) {
       const order = adminOrders.find((item) => Number(item.id) === Number(orderId));
       if (!order) {
         setMessage(`Заказ #${orderId} не найден.`, "bad");
@@ -205,6 +214,7 @@
       proposalItems.innerHTML = "";
       addProposalItem(draft.item);
       proposalHtml = "";
+      activeProposal = null;
       proposalPreview.removeAttribute("srcdoc");
       proposalDownloadButton.disabled = true;
       proposalPrintButton.disabled = true;
@@ -213,12 +223,138 @@
         : `Справочный бюджет заявки: ${formatMoney(draft.referenceBudget)} ₸. Он не подставлен в стоимость КП.`;
       showAdminView("proposals");
       window.location.hash = "proposal-title";
-      setMessage(`Черновик КП для заказа #${orderId} подготовлен. Проверьте цены и условия.`, "ok");
+      renderProposalLifecycle();
+      setMessage(`Загрузка КП для заказа #${orderId}...`);
+      try {
+        const list = await adminFetchJson(`/api/proposals?orderId=${orderId}`, { fallbackMessage: "Не удалось загрузить КП заказа." });
+        if (list.items?.length) {
+          const detail = await adminFetchJson(`/api/proposals/${list.items[0].id}`, { fallbackMessage: "Не удалось загрузить версии КП." });
+          activeProposal = detail.item;
+          const latest = activeProposal.versions?.[0];
+          if (latest?.payload) applyProposalPayload(latest.payload);
+          setStoredProposalPreview(latest);
+          renderProposalLifecycle();
+          setMessage(`КП заказа #${orderId}: загружена версия ${activeProposal.currentVersion}.`, "ok");
+        } else {
+          setMessage(`Новый черновик КП для заказа #${orderId}. Проверьте цены и условия.`, "ok");
+        }
+      } catch (error) {
+        setMessage(`${error.message} Введённые данные сохранены в форме.`, "bad");
+      }
     }
 
     function setProposalField(name, value) {
       const field = proposalForm.elements.namedItem(name);
       if (field) field.value = value ?? "";
+    }
+
+    function applyProposalPayload(payload = {}) {
+      setProposalField("proposalNumber", payload.proposalNumber);
+      setProposalField("date", payload.date);
+      setProposalField("companyName", payload.company?.name);
+      setProposalField("companyAddress", payload.company?.address);
+      setProposalField("companyPhone", payload.company?.phone);
+      setProposalField("companyEmail", payload.company?.email);
+      setProposalField("customerName", payload.customer?.name);
+      setProposalField("customerContact", payload.customer?.contact);
+      setProposalField("customerProject", payload.customer?.project);
+      setProposalField("productionDays", payload.terms?.productionDays);
+      setProposalField("installationDays", payload.terms?.installationDays);
+      setProposalField("warrantyMonths", payload.terms?.warrantyMonths);
+      setProposalField("termsNote", payload.terms?.note);
+      setProposalField("directorName", payload.directorName);
+      setProposalField("totalLabel", payload.totalLabel || "Итого в тенге:");
+      proposalItems.innerHTML = "";
+      for (const item of payload.items || []) addProposalItem(item);
+      if (!proposalItems.children.length) addProposalItem();
+    }
+
+    function currentProposalPayload() {
+      return buildProposalPayload(Object.fromEntries(new FormData(proposalForm).entries()), readProposalItems());
+    }
+
+    function setStoredProposalPreview(version) {
+      proposalHtml = version?.htmlSnapshot || "";
+      if (proposalHtml) proposalPreview.srcdoc = proposalHtml;
+      proposalDownloadButton.disabled = !proposalHtml;
+      proposalPrintButton.disabled = !proposalHtml;
+    }
+
+    function renderProposalLifecycle() {
+      const view = getProposalLifecycleView(activeProposal);
+      const labels = { new: "Новый документ", draft: "Черновик", ready: "Версия зафиксирована", approved: "Утверждено", sent: "Отправлено", archived: "Архив" };
+      proposalStatus.textContent = view.exists ? `${labels[view.status] || view.status} · версия ${view.currentVersion}` : labels.new;
+      proposalPublishButton.disabled = !view.canPublish;
+      proposalApproveButton.disabled = !view.canApprove;
+      proposalVersions.innerHTML = view.versions.length
+        ? view.versions.map((version) => `<button class="secondary proposal-version" type="button" data-proposal-version="${version.versionNumber}">v${version.versionNumber} · ${escapeHtml(version.state)} · ${formatMoney(version.totalAmount)} ₸</button>`).join("")
+        : '<span class="muted">Сохранённых версий нет.</span>';
+      for (const button of proposalVersions.querySelectorAll("[data-proposal-version]")) {
+        button.addEventListener("click", () => {
+          const version = view.versions.find((item) => item.versionNumber === Number(button.dataset.proposalVersion));
+          setStoredProposalPreview(version);
+          setMessage(`Открыто превью сохранённой версии ${version.versionNumber}.`, "ok");
+        });
+      }
+    }
+
+    async function saveProposalDraft() {
+      const orderId = Number(proposalForm.elements.namedItem("orderId")?.value);
+      if (!orderId) return setMessage("Сначала откройте КП из строки заказа.", "bad");
+      const original = proposalSaveButton.textContent;
+      proposalSaveButton.disabled = true;
+      proposalSaveButton.textContent = "Сохраняем...";
+      try {
+        const json = await adminFetchJson("/api/proposals", {
+          method: "POST",
+          payload: {
+            orderId,
+            proposalId: activeProposal?.id,
+            expectedCurrentVersion: activeProposal?.currentVersion,
+            proposal: currentProposalPayload()
+          },
+          fallbackMessage: "Черновик КП не сохранён."
+        });
+        activeProposal = json.item;
+        setStoredProposalPreview(activeProposal.versions?.[0]);
+        renderProposalLifecycle();
+        setMessage(`Черновик сохранён как версия ${activeProposal.currentVersion}.`, "ok");
+      } catch (error) {
+        setMessage(`${error.message} Данные формы не потеряны.`, "bad");
+      } finally {
+        proposalSaveButton.disabled = false;
+        proposalSaveButton.textContent = original;
+      }
+    }
+
+    async function publishProposal() {
+      if (!activeProposal) return;
+      proposalPublishButton.disabled = true;
+      try {
+        const json = await adminFetchJson(`/api/proposals/${activeProposal.id}/publish`, {
+          method: "POST", payload: { versionNumber: activeProposal.currentVersion }, fallbackMessage: "Версия КП не зафиксирована."
+        });
+        activeProposal = json.item;
+        renderProposalLifecycle();
+        setMessage(`Версия ${activeProposal.currentVersion} зафиксирована. Это ещё не утверждение.`, "ok");
+      } catch (error) { setMessage(error.message, "bad"); }
+      finally { renderProposalLifecycle(); }
+    }
+
+    async function approveProposal() {
+      if (!activeProposal) return;
+      const version = activeProposal.currentVersion;
+      if (!window.confirm(`Утвердить коммерческое предложение, версия ${version}?`)) return;
+      proposalApproveButton.disabled = true;
+      try {
+        const json = await adminFetchJson(`/api/proposals/${activeProposal.id}/approve`, {
+          method: "POST", payload: { versionNumber: version, confirmed: true }, fallbackMessage: "КП не утверждено."
+        });
+        activeProposal = json.item;
+        renderProposalLifecycle();
+        setMessage(`КП версии ${version} утверждено и записано в историю заказа.`, "ok");
+      } catch (error) { setMessage(error.message, "bad"); }
+      finally { renderProposalLifecycle(); }
     }
 
     function addProposalItem(item = {}) {
@@ -247,8 +383,7 @@
     async function previewProposal(event) {
       event.preventDefault();
       const submitButton = proposalForm.querySelector('button[type="submit"]');
-      const values = Object.fromEntries(new FormData(proposalForm).entries());
-      const payload = buildProposalPayload(values, readProposalItems());
+      const payload = currentProposalPayload();
       submitButton.disabled = true;
       submitButton.textContent = "Формируем...";
       setMessage("Формирование превью коммерческого предложения...");

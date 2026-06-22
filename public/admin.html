@@ -464,6 +464,11 @@
     .proposal-item:last-child { border-bottom: 0; }
     .proposal-item button { min-width: 38px; padding-inline: 9px; }
     .proposal-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .proposal-lifecycle { display: grid; gap: 8px; padding: 10px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .proposal-lifecycle-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+    .proposal-versions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .proposal-version { min-height: 32px; padding: 5px 8px; font-size: 11px; }
+    .proposal-status { font-weight: 800; }
     .proposal-preview {
       width: 100%;
       min-height: 760px;
@@ -812,6 +817,10 @@
         <form id="proposal-form" class="proposal-form">
           <input name="orderId" type="hidden" />
           <div id="proposal-reference" class="proposal-reference">Откройте коммерческое предложение из строки заказа. Бюджет заявки не подставляется в цену автоматически.</div>
+          <div id="proposal-lifecycle" class="proposal-lifecycle" aria-live="polite">
+            <div class="proposal-lifecycle-head"><strong>Версии КП</strong><span id="proposal-status" class="proposal-status">Новый документ</span></div>
+            <div id="proposal-versions" class="proposal-versions"><span class="muted">Сохранённых версий нет.</span></div>
+          </div>
           <fieldset>
             <legend>Документ и компания</legend>
             <div class="proposal-fields">
@@ -849,6 +858,9 @@
           </fieldset>
           <div class="proposal-actions">
             <button type="submit">Обновить превью</button>
+            <button id="proposal-save" type="button">Сохранить черновик</button>
+            <button id="proposal-publish" class="secondary" type="button" disabled>Зафиксировать версию</button>
+            <button id="proposal-approve" class="secondary" type="button" disabled>Утвердить КП</button>
             <button id="proposal-download" class="secondary" type="button" disabled>Скачать HTML</button>
             <button id="proposal-print" class="secondary" type="button" disabled>Печать / PDF</button>
           </div>

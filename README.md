@@ -581,10 +581,20 @@ canceled
 - `POST /api/proposals/preview` is a write-token-protected, non-persistent
   preview endpoint. It normalizes a manager draft and returns printable HTML;
   it does not update the order, D1, or production files.
+- Migration `0022_commercial_proposals.sql` adds proposal records and immutable
+  version snapshots. Each version stores the normalized payload, server-rendered
+  HTML, total, state, and timestamps.
+- Protected lifecycle endpoints provide list/create, detail, publish, and
+  approval operations: `GET/POST /api/proposals`, `GET /api/proposals/:id`,
+  `POST /api/proposals/:id/publish`, and `POST /api/proposals/:id/approve`.
+- Publishing freezes the current draft version. Approval requires explicit
+  confirmation of that exact published version and adds one idempotent order
+  history entry without changing the order status.
 - The admin order actions include `Создать КП`. The dedicated manager workspace
   prefills customer/project context, keeps the order budget visibly
-  reference-only, supports multiple priced items and terms, and provides A4
-  preview, HTML download, and browser Print to PDF.
+  reference-only, supports multiple priced items and terms, restores saved
+  versions, and provides save, publish, approval, A4 preview, HTML download,
+  and browser Print to PDF actions.
 - Run `npm.cmd run proposal:demo` to create
   `output/pdf/commercial-proposal.html` from the synthetic example.
 - Full schema and future integration steps are in
@@ -878,6 +888,7 @@ If `PORTFOLIO_MEDIA_PUBLIC_BASE_URL` is not set, uploaded image URLs use `/media
 0010_portfolio_media.sql     Добавляет storage metadata к portfolio_images для Stage 4.05B uploads.
 0011_order_ai_results.sql    Добавляет nullable AI analysis fields к orders для ручного AI flow.
 0012_site_content.sql        Добавляет structured content_json к sites для коммерческого landing editor.
+0022_commercial_proposals.sql Adds versioned commercial proposal storage and approval audit fields.
 ```
 
 Применить миграции к production D1:

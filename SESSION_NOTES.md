@@ -2522,3 +2522,60 @@ Conclusion:
 ### Next
 - Give one slice at a time to the external editor, starting with Slice 5, then
   review its diff with the comparison checklist before allowing Slice 6.
+
+## 2026-06-22 - Proposal Slices 5-7 persisted lifecycle
+
+### What changed
+- Added migration `0022_commercial_proposals.sql` with proposal records and
+  immutable version snapshots.
+- Added server-side proposal storage with monotonic versions, stale-write
+  checks, canonical normalized payloads, saved HTML, and totals.
+- Added scoped list/create, detail, publish, and approval endpoints.
+- Publishing freezes the current draft. Approval requires explicit confirmation
+  of the exact published version, writes one idempotent order-history note, and
+  does not change the order status.
+- Connected the admin proposal workspace to saved proposals and version history.
+- Added save, publish, and approval actions with lifecycle-aware controls while
+  preserving preview, HTML download, Print to PDF, and reference-only budget.
+
+### Files changed
+- `migrations/0022_commercial_proposals.sql`
+- `src/proposals/proposal-store.js`
+- `functions/api/proposals.js`
+- `functions/api/proposals/[id].js`
+- `functions/api/proposals/[id]/publish.js`
+- `functions/api/proposals/[id]/approve.js`
+- `public/admin-proposals.js`
+- `public/admin.html`
+- `public/admin.js`
+- `tests/proposal-store.test.js`
+- `tests/proposal-lifecycle-endpoints.test.js`
+- `tests/admin-proposals.test.js`
+- `tests/admin-shell.test.js`
+- `package.json`
+- `README.md`
+- `COMMERCIAL_PROPOSAL_TEMPLATE.md`
+- `PROJECT_PROGRESS.md`
+- `PROJECT_PROGRESS.html`
+- `docs/sessions/furniture-proposal-slice5-summary.md`
+- `docs/sessions/furniture-proposal-slice6-summary.md`
+- `docs/sessions/furniture-proposal-slice7-summary.md`
+
+### Checks
+- Focused proposal/admin suite: passed, 28 tests.
+- Full project suite: passed, 466 tests.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed with Windows line-ending warnings only.
+- Migration 0022 applied to local D1 only.
+- Local D1 create, save, publish, approve, and order-history smoke passed.
+- Playwright desktop 1440x1000 and mobile 390x844 smoke passed without
+  horizontal overflow; browser console had no errors.
+
+### Production boundary
+- Production migration 0022 was not applied.
+- These lifecycle changes were not deployed during this pass.
+- No real customer proposal or order was used.
+
+### Next
+- Review and apply migration 0022 to production, deploy the lifecycle, then run
+  one synthetic production create/save/publish/approve/history smoke.

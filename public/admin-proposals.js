@@ -108,3 +108,33 @@ export function buildProposalPayload(values = {}, items = []) {
     directorName: clean(source.directorName)
   };
 }
+
+export function getProposalLifecycleView(proposal = null) {
+  if (!proposal || typeof proposal !== "object") {
+    return { exists: false, status: "new", currentVersion: 0, versions: [], canPublish: false, canApprove: false };
+  }
+  const versions = Array.isArray(proposal.versions)
+    ? proposal.versions.map((item) => ({
+      versionNumber: Number(item.versionNumber) || 0,
+      state: clean(item.state, "draft"),
+      totalAmount: safeNumber(item.totalAmount),
+      createdAt: clean(item.createdAt),
+      publishedAt: clean(item.publishedAt),
+      htmlSnapshot: clean(item.htmlSnapshot),
+      payload: item.payload && typeof item.payload === "object" ? item.payload : {}
+    })).sort((a, b) => b.versionNumber - a.versionNumber)
+    : [];
+  const currentVersion = Number(proposal.currentVersion) || 0;
+  const current = versions.find((item) => item.versionNumber === currentVersion);
+  const status = clean(proposal.status, "draft");
+  return {
+    exists: true,
+    id: Number(proposal.id) || null,
+    status,
+    currentVersion,
+    approvedVersion: Number(proposal.approvedVersion) || null,
+    versions,
+    canPublish: current?.state === "draft" && status !== "approved" && status !== "archived",
+    canApprove: current?.state === "published" && status === "ready"
+  };
+}

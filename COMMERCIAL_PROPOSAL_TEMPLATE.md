@@ -13,6 +13,12 @@ copying its logo, client data, prices, tax status, or commercial terms.
 - `src/proposals/order-proposal-mapper.js` - safe order-to-draft mapping that
   never promotes a budget or calculator estimate to an approved price.
 - `functions/api/proposals/preview.js` - protected, non-persistent HTML preview.
+- `src/proposals/proposal-store.js` - versioned D1 storage, publish, approval,
+  and order-history integration.
+- `functions/api/proposals.js` and `functions/api/proposals/[id]/*` - protected
+  proposal lifecycle endpoints.
+- `migrations/0022_commercial_proposals.sql` - proposal and immutable version
+  tables.
 - `public/admin-proposals.js` - pure browser-side draft and payload helpers.
 - `public/admin.html` / `public/admin.js` - manual manager form, preview,
   downloadable HTML, and browser Print to PDF.
@@ -49,13 +55,20 @@ node scripts/generate-commercial-proposal.mjs input.json output.html
 Open the generated HTML in a browser and use Print to PDF with A4 paper,
 default scale, background graphics enabled, and browser headers/footers off.
 
-The future admin form uses `POST /api/proposals/preview`. The endpoint requires
+The admin form uses `POST /api/proposals/preview`. The endpoint requires
 a write-scoped admin token (or the temporary legacy admin token), accepts a
 proposal draft JSON object, and returns `{ success, proposal, html }`. It does
 not read or write D1 and does not call external services.
 
-## Future slices
+## Versioned lifecycle
 
-1. Save proposal drafts and immutable published versions.
-2. Attach an approved proposal to the order interaction history.
-3. Add explicit approval/sent states only after the storage contract is agreed.
+- Saving creates a new immutable draft version and rejects stale version writes.
+- Publishing freezes the current draft and moves the proposal to `ready`.
+- Approval requires manager confirmation of the current published version,
+  moves the proposal to `approved`, and writes one idempotent order history note.
+- Approval never changes the normal order status.
+- The admin workspace restores stored versions and previews their saved HTML.
+
+Migration `0022` has been verified against local D1 only. Apply it to production
+before deploying these lifecycle endpoints; production migration and smoke are
+a separate approved operation.

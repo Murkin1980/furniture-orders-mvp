@@ -46,6 +46,14 @@ test("admin exposes the manual commercial proposal workflow", async () => {
   assert.match(adminJs, /\/api\/proposals\/preview/);
   assert.match(adminJs, /downloadProposalHtml/);
   assert.match(adminJs, /printProposal/);
+  assert.match(adminHtml, /id="proposal-save"/);
+  assert.match(adminHtml, /id="proposal-publish"/);
+  assert.match(adminHtml, /id="proposal-approve"/);
+  assert.match(adminHtml, /id="proposal-versions"/);
+  assert.match(adminJs, /\/api\/proposals\?orderId=/);
+  assert.match(adminJs, /\/publish/);
+  assert.match(adminJs, /\/approve/);
+  assert.match(adminJs, /window\.confirm/);
 });
 
 test("CRM card work uses progressive disclosure", async () => {
