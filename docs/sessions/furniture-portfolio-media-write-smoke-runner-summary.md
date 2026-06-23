@@ -7,7 +7,7 @@ Added a manual smoke-runner for the final portfolio media write check.
 ## Files
 
 - `scripts/portfolio-media-smoke.mjs`
-- `PORTFOLIO_MEDIA_OPS.md`
+- `docs/runbooks/PORTFOLIO_MEDIA_OPS.md`
 - `README.md`
 - `SESSION_NOTES.md`
 - `package.json`

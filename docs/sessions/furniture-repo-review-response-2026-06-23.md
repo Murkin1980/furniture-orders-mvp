@@ -4,7 +4,7 @@ Date: 2026-06-23
 
 ## What Was Checked
 
-- Current `README.md`, `SESSION_NOTES.md`, `.env.example`, `AI_SETUP.md`,
+- Current `README.md`, `SESSION_NOTES.md`, `.env.example`, `docs/runbooks/AI_SETUP.md`,
   `PROJECT_PROGRESS.md`, and `PROJECT_PROGRESS.html` were scanned for common
   secret patterns.
 - Git history for the same files was checked for common API key/token patterns.

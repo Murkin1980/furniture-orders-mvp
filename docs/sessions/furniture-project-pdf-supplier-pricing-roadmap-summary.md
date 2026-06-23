@@ -22,8 +22,8 @@ application code, database migrations, deployment, or production settings.
 
 ## Files
 
-- `PROJECT_PDF_INTELLIGENCE_DECISION.md`
-- `SUPPLIER_PRICING_DECISION.md`
+- `docs/decisions/PROJECT_PDF_INTELLIGENCE_DECISION.md`
+- `docs/decisions/SUPPLIER_PRICING_DECISION.md`
 - `AGENTS.md`
 - `PRODUCT.md`
 - `README.md`

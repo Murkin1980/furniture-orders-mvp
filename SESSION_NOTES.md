@@ -64,9 +64,9 @@ Before code changes, read:
 - `PRODUCT.md`
 - `SESSION_NOTES.md`
 - `LIVE_SITES.md`
-- `CALCULATOR_DECISION.md`
-- `AI_LAYER_DECISION.md`
-- `OPS_AND_LEGACY_DECISION.md`
+- `docs/decisions/CALCULATOR_DECISION.md`
+- `docs/decisions/AI_LAYER_DECISION.md`
+- `docs/decisions/OPS_AND_LEGACY_DECISION.md`
 
 Rules:
 
@@ -282,12 +282,12 @@ Do not call external AI APIs in this first step.
 
 ### What changed
 - Added a secret-free `.env.example` with provider selection, optional model override, and all supported provider API key variable names.
-- Added `AI_SETUP.md` covering manual-only AI behavior, supported providers, local Wrangler setup, migration `0011`, verification, and safe failure behavior.
+- Added `docs/runbooks/AI_SETUP.md` covering manual-only AI behavior, supported providers, local Wrangler setup, migration `0011`, verification, and safe failure behavior.
 - No UI, endpoint logic, deployment configuration, migration, dependency, production migration application, or donor-repository change was made.
 
 ### Files changed
 - `.env.example`
-- `AI_SETUP.md`
+- `docs/runbooks/AI_SETUP.md`
 - `SESSION_NOTES.md`
 - `docs/sessions/furniture-ai-slice9-implementation-summary.md`
 
@@ -325,11 +325,11 @@ Conclusion:
 - Updated `README.md` with the implemented manual-only AI flow, endpoint, source modules, tests, supported providers, environment variables, and migration `0011`.
 - Documented verified safe failure behavior and the successful local OpenAI smoke test.
 - Clarified that production AI, production migration `0011`, and AI autorun remain disabled.
-- Corrected `AI_SETUP.md` so manual AI smoke tests use configured local D1 `furniture_orders` without the `--d1 DB` override.
+- Corrected `docs/runbooks/AI_SETUP.md` so manual AI smoke tests use configured local D1 `furniture_orders` without the `--d1 DB` override.
 
 ### Files changed
 - `README.md`
-- `AI_SETUP.md`
+- `docs/runbooks/AI_SETUP.md`
 - `SESSION_NOTES.md`
 - `docs/sessions/furniture-readme-ai-update-summary.md`
 
@@ -378,7 +378,7 @@ Conclusion:
 - `AGENTS.md`
 - `DESIGN.md`
 - `DATA_SOURCES.md`
-- `AI_INFRA_DECISION.md`
+- `docs/decisions/AI_INFRA_DECISION.md`
 - `README.md`
 - `SESSION_NOTES.md`
 - `docs/raw/README.md`
@@ -432,7 +432,7 @@ Conclusion:
 - No code, UI, endpoint, migration, deploy, production setting, dependency, or donor repository was changed.
 
 ### Files changed
-- `CRM_INTEGRATION_DECISION.md`
+- `docs/decisions/CRM_INTEGRATION_DECISION.md`
 - `SESSION_NOTES.md`
 
 ### Checks
@@ -582,7 +582,7 @@ Conclusion:
 - `public/admin.html`, `public/admin.js`
 - `migrations/0012_site_content.sql`
 - `tests/site-brief.test.js`, `tests/sites-core.test.js`, `tests/calculator-embed.test.js`
-- `README.md`, `CALCULATOR_DECISION.md`, `PROJECT_PROGRESS.md`
+- `README.md`, `docs/decisions/CALCULATOR_DECISION.md`, `PROJECT_PROGRESS.md`
 - `docs/sessions/furniture-lc-slice1-audit.md`
 - `docs/sessions/furniture-lc-slices1-5-implementation-summary.md`
 
@@ -678,7 +678,7 @@ Conclusion:
 - Added a hostname-matching self-signed origin certificate as the approved fallback after the Cloudflare CSR dashboard repeatedly rejected a valid CSR.
 - Verified origin SNI and public HTTPS through both Cloudflare edge IPs.
 - Deleted the accidental duplicate Cloudflare Pages project `furniture-orders-mvp-2`; the intentional `furniture-orders-mvp` production project remains.
-- Added `LANDING_VPS_OPS_RUNBOOK.md` with discovered infrastructure problems, verified resolutions, safety decisions, and the repeatable customer landing procedure.
+- Added `docs/runbooks/LANDING_VPS_OPS_RUNBOOK.md` with discovered infrastructure problems, verified resolutions, safety decisions, and the repeatable customer landing procedure.
 
 ### Verified
 - `https://demo.salamat-mebel.kz` returns HTTP 200.
@@ -701,7 +701,7 @@ Conclusion:
 
 ### Files changed
 - `README.md`
-- `CALCULATOR_DECISION.md`
+- `docs/decisions/CALCULATOR_DECISION.md`
 - `PROJECT_PROGRESS.md`
 - `SESSION_NOTES.md`
 - `docs/sessions/furniture-lc-slice7-implementation-summary.md`
@@ -740,7 +740,7 @@ Conclusion:
 - `tests/twenty-request-builder.test.js`
 - `package.json`
 - `README.md`
-- `CRM_INTEGRATION_DECISION.md`
+- `docs/decisions/CRM_INTEGRATION_DECISION.md`
 - `PROJECT_PROGRESS.md`
 - `SESSION_NOTES.md`
 - `docs/sessions/furniture-crm-slice3-implementation-summary.md`
@@ -773,7 +773,7 @@ Conclusion:
 - `tests/send-twenty-request.test.js`
 - `package.json`
 - `README.md`
-- `CRM_INTEGRATION_DECISION.md`
+- `docs/decisions/CRM_INTEGRATION_DECISION.md`
 - `PROJECT_PROGRESS.md`
 - `SESSION_NOTES.md`
 - `docs/sessions/furniture-crm-slice4-implementation-summary.md`
@@ -1052,7 +1052,7 @@ Conclusion:
 ## 2026-06-13 - AI communications foundation
 
 ### What changed
-- Added `AI_COMMUNICATIONS_DECISION.md` with permissions, human approval, and
+- Added `docs/decisions/AI_COMMUNICATIONS_DECISION.md` with permissions, human approval, and
   data-minimization rules.
 - Added pure AI reply prompt, parser, orchestration, and explicit action policy.
 - Added admin-protected `POST /api/orders/:id/ai/suggest-reply`.
@@ -1523,7 +1523,7 @@ Conclusion:
   `OCR_CUSTOMER_IMAGES_ENABLED=false`.
 - Customer recognition additionally requires request-level consent and a
   stored HTTPS image reference.
-- Added `OCR_PRODUCTION_READINESS.md` with migration review, synthetic smoke,
+- Added `docs/runbooks/OCR_PRODUCTION_READINESS.md` with migration review, synthetic smoke,
   stop conditions, and rollback instructions.
 
 ### Files changed
@@ -1532,7 +1532,7 @@ Conclusion:
 - `tests/ocr-recognition-policy.test.js`
 - `tests/ocr-order-recognition-core.test.js`
 - `.env.example`
-- `OCR_PRODUCTION_READINESS.md`
+- `docs/runbooks/OCR_PRODUCTION_READINESS.md`
 - OCR decision, README, progress, handoff, and reviewer summary files
 
 ### Safety
@@ -1634,7 +1634,7 @@ Conclusion:
 ### Files changed
 - `src/sketchup/furniture-model.js`
 - `tests/sketchup-furniture-model.test.js`
-- `SKETCHUP_INTEGRATION_DECISION.md`
+- `docs/decisions/SKETCHUP_INTEGRATION_DECISION.md`
 - README, OCR decision, progress, session/handoff/reviewer files
 
 ### Safety
@@ -1913,7 +1913,7 @@ Conclusion:
 ## 2026-06-16 - Portfolio media ops readiness
 
 ### What changed
-- Added `PORTFOLIO_MEDIA_OPS.md` with Cloudflare R2 binding setup, local smoke,
+- Added `docs/runbooks/PORTFOLIO_MEDIA_OPS.md` with Cloudflare R2 binding setup, local smoke,
   production smoke, and safety rules.
 - Added `src/portfolio-media-ops.js` pure readiness helper for
   `PORTFOLIO_MEDIA_BUCKET` and optional `PORTFOLIO_MEDIA_PUBLIC_BASE_URL`.
@@ -1964,7 +1964,7 @@ Conclusion:
 ### What changed
 - Added `scripts/portfolio-media-smoke.mjs` for an explicit admin-token based
   portfolio upload smoke.
-- Documented the runner in `PORTFOLIO_MEDIA_OPS.md`.
+- Documented the runner in `docs/runbooks/PORTFOLIO_MEDIA_OPS.md`.
 - The runner creates a draft item and uploads one image; publishing requires
   `PORTFOLIO_SMOKE_PUBLISH=true`.
 
@@ -1989,7 +1989,7 @@ Conclusion:
 - Verified R2 bucket `furniture-portfolio-media` exists.
 - Verified unauthenticated VPS proxy endpoints return `401`, meaning the
   endpoint layer is reachable and protected.
-- Updated `LANDING_VPS_OPS_RUNBOOK.md` with current Cloudflare/R2/VPS status.
+- Updated `docs/runbooks/LANDING_VPS_OPS_RUNBOOK.md` with current Cloudflare/R2/VPS status.
 
 ### Safety
 - No VPS deploy/reload/service action was called.
@@ -2006,7 +2006,7 @@ Conclusion:
 ## 2026-06-16 - Local dev runbook
 
 ### What changed
-- Added `LOCAL_DEV_RUNBOOK.md`.
+- Added `docs/runbooks/LOCAL_DEV_RUNBOOK.md`.
 - Documented local `dev-admin-token` behavior.
 - Documented local Wrangler D1 schema drift recovery for the OCR retention
   columns that blocked `/api/orders`.
@@ -2023,7 +2023,7 @@ Conclusion:
 
 ### What changed
 - Added `scripts/vps-readonly-smoke.mjs`.
-- Documented the runner in `LANDING_VPS_OPS_RUNBOOK.md`.
+- Documented the runner in `docs/runbooks/LANDING_VPS_OPS_RUNBOOK.md`.
 - The runner checks only platform proxy GET endpoints:
   `/api/vps/health`, `/api/vps/services`, and `/api/vps/deploy/logs?limit=5`.
 
@@ -2043,7 +2043,7 @@ Conclusion:
 
 ### What changed
 - Added `scripts/ai-manual-smoke.mjs`.
-- Documented explicit synthetic-order smoke usage in `AI_SETUP.md`.
+- Documented explicit synthetic-order smoke usage in `docs/runbooks/AI_SETUP.md`.
 - The runner calls only existing manual endpoint
   `POST /api/orders/:id/ai/analyze`.
 
@@ -2066,7 +2066,7 @@ Conclusion:
 ### What changed
 - Verified production manual AI endpoint rejects unauthenticated POST with
   `401`.
-- Updated `AI_SETUP.md` with the auth-smoke result.
+- Updated `docs/runbooks/AI_SETUP.md` with the auth-smoke result.
 
 ### Safety
 - No admin token was sent.
@@ -2164,7 +2164,7 @@ Conclusion:
 - Added protected endpoint
   `POST /api/orders/:id/sketchup/render-artifacts`.
 - Added `tests/sketchup-render-core.test.js`.
-- Updated `README.md`, `SKETCHUP_INTEGRATION_DECISION.md`,
+- Updated `README.md`, `docs/decisions/SKETCHUP_INTEGRATION_DECISION.md`,
   `PROJECT_PROGRESS.md`, and `PROJECT_PROGRESS.html`.
 - Added reviewer summary
   `docs/sessions/furniture-sketchup-slice11-render-persistence-summary.md`.
@@ -2197,7 +2197,7 @@ Conclusion:
 - Added protected endpoint `POST /api/orders/:id/sketchup/render-files`.
 - Added `tests/sketchup-render-file.test.js`.
 - Added the new files to `npm run check`.
-- Updated `README.md`, `SKETCHUP_INTEGRATION_DECISION.md`,
+- Updated `README.md`, `docs/decisions/SKETCHUP_INTEGRATION_DECISION.md`,
   `PROJECT_PROGRESS.md`, and `PROJECT_PROGRESS.html`.
 - Added reviewer summary
   `docs/sessions/furniture-sketchup-slice12-render-file-upload-summary.md`.
@@ -2236,7 +2236,7 @@ Conclusion:
 - Added service tests for config gating, rejected missing approval, and the
   successful injected-executor path.
 - Updated `README.md`, `sketchup-node-service/README.md`,
-  `SKETCHUP_INTEGRATION_DECISION.md`, `PROJECT_PROGRESS.md`, and
+  `docs/decisions/SKETCHUP_INTEGRATION_DECISION.md`, `PROJECT_PROGRESS.md`, and
   `PROJECT_PROGRESS.html`.
 
 ### Safety
@@ -2268,8 +2268,8 @@ Conclusion:
 - Added a workspace rule requiring read/list verification after MCP mutations.
 
 ### Files changed
-- `PROJECT_PDF_INTELLIGENCE_DECISION.md`
-- `SUPPLIER_PRICING_DECISION.md`
+- `docs/decisions/PROJECT_PDF_INTELLIGENCE_DECISION.md`
+- `docs/decisions/SUPPLIER_PRICING_DECISION.md`
 - `AGENTS.md`
 - `PRODUCT.md`
 - `README.md`
@@ -2303,9 +2303,9 @@ Conclusion:
 - `sketchup-node-service/tests/file-queue-executor.test.js`
 - `sketchup-node-service/package.json`
 - `sketchup-node-service/README.md`
-- `SKETCHUP_INTEGRATION_DECISION.md`
-- `DYNAMIC_COMPONENTS_DECISION.md`
-- `CALCULATOR_DECISION.md`
+- `docs/decisions/SKETCHUP_INTEGRATION_DECISION.md`
+- `docs/decisions/DYNAMIC_COMPONENTS_DECISION.md`
+- `docs/decisions/CALCULATOR_DECISION.md`
 - `README.md`
 - `PROJECT_PROGRESS.md`
 - `PROJECT_PROGRESS.html`
@@ -2378,7 +2378,7 @@ Conclusion:
 - `tests/commercial-proposal-template.test.js`
 - `scripts/generate-commercial-proposal.mjs`
 - `examples/commercial-proposal.json`
-- `COMMERCIAL_PROPOSAL_TEMPLATE.md`
+- `docs/templates/COMMERCIAL_PROPOSAL_TEMPLATE.md`
 - `DATA_SOURCES.md`
 - `README.md`
 - `PROJECT_PROGRESS.md`
@@ -2411,7 +2411,7 @@ Conclusion:
 ### Files changed
 - `src/proposals/order-proposal-mapper.js`
 - `tests/order-proposal-mapper.test.js`
-- `COMMERCIAL_PROPOSAL_TEMPLATE.md`
+- `docs/templates/COMMERCIAL_PROPOSAL_TEMPLATE.md`
 - `README.md`
 - `PROJECT_PROGRESS.md`
 - `PROJECT_PROGRESS.html`
@@ -2439,7 +2439,7 @@ Conclusion:
 ### Files changed
 - `functions/api/proposals/preview.js`
 - `tests/proposal-preview-endpoint.test.js`
-- `COMMERCIAL_PROPOSAL_TEMPLATE.md`
+- `docs/templates/COMMERCIAL_PROPOSAL_TEMPLATE.md`
 - `README.md`
 - `PROJECT_PROGRESS.md`
 - `PROJECT_PROGRESS.html`
@@ -2475,7 +2475,7 @@ Conclusion:
 - `public/admin-proposals.js`
 - `tests/admin-proposals.test.js`
 - `tests/admin-shell.test.js`
-- `COMMERCIAL_PROPOSAL_TEMPLATE.md`
+- `docs/templates/COMMERCIAL_PROPOSAL_TEMPLATE.md`
 - `README.md`
 - `PROJECT_PROGRESS.md`
 - `PROJECT_PROGRESS.html`
@@ -2556,7 +2556,7 @@ Conclusion:
 - `tests/admin-shell.test.js`
 - `package.json`
 - `README.md`
-- `COMMERCIAL_PROPOSAL_TEMPLATE.md`
+- `docs/templates/COMMERCIAL_PROPOSAL_TEMPLATE.md`
 - `PROJECT_PROGRESS.md`
 - `PROJECT_PROGRESS.html`
 - `docs/sessions/furniture-proposal-slice5-summary.md`
@@ -2631,7 +2631,7 @@ Conclusion:
 - Extended `scripts/production-smoke-preflight.mjs` with a `proposal` target
   and optional synthetic order id validation.
 - Updated `.env.example` with optional proposal and portfolio smoke variables.
-- Updated `PORTFOLIO_MEDIA_OPS.md` with the production write-smoke gate and the
+- Updated `docs/runbooks/PORTFOLIO_MEDIA_OPS.md` with the production write-smoke gate and the
   2026-06-23 read-only production recheck.
 - Updated project progress files to show portfolio/media at 90% and commercial
   proposals at 98% until explicit production write-smokes are approved.
@@ -2643,7 +2643,7 @@ Conclusion:
 - `scripts/production-smoke-preflight.mjs`
 - `tests/production-smoke-preflight.test.js`
 - `README.md`
-- `PORTFOLIO_MEDIA_OPS.md`
+- `docs/runbooks/PORTFOLIO_MEDIA_OPS.md`
 - `PROJECT_PROGRESS.md`
 - `PROJECT_PROGRESS.html`
 - `SESSION_NOTES.md`
@@ -2691,7 +2691,7 @@ Conclusion:
 ### Files changed
 - `scripts/proposal-lifecycle-smoke.mjs`
 - `README.md`
-- `PORTFOLIO_MEDIA_OPS.md`
+- `docs/runbooks/PORTFOLIO_MEDIA_OPS.md`
 - `PROJECT_PROGRESS.md`
 - `PROJECT_PROGRESS.html`
 - `SESSION_NOTES.md`
@@ -2713,7 +2713,7 @@ Conclusion:
 ## 2026-06-23 - Project PDF Intelligence Slice 1-2
 
 ### What changed
-- Added `PROJECT_PDF_INTELLIGENCE_DECISION.md`.
+- Added `docs/decisions/PROJECT_PDF_INTELLIGENCE_DECISION.md`.
 - Added pure manifest/schema module `src/pdf/project-pdf-manifest.js`.
 - Added tests for PDF metadata, page records, supported file validation, page
   type fallback, confidence clamping, furniture-zone normalization, missing
@@ -2721,7 +2721,7 @@ Conclusion:
 - Updated `README.md`, `PROJECT_PROGRESS.md`, and `PROJECT_PROGRESS.html`.
 
 ### Files changed
-- `PROJECT_PDF_INTELLIGENCE_DECISION.md`
+- `docs/decisions/PROJECT_PDF_INTELLIGENCE_DECISION.md`
 - `src/pdf/project-pdf-manifest.js`
 - `tests/project-pdf-manifest.test.js`
 - `package.json`
@@ -2763,7 +2763,7 @@ Conclusion:
   the PDF manifest.
 - Added tests for prompt safety, clean JSON, fenced JSON, fallback values,
   invalid JSON, out-of-manifest pages, and non-mutating merge behavior.
-- Updated `README.md`, `PROJECT_PDF_INTELLIGENCE_DECISION.md`,
+- Updated `README.md`, `docs/decisions/PROJECT_PDF_INTELLIGENCE_DECISION.md`,
   `PROJECT_PROGRESS.md`, and `PROJECT_PROGRESS.html`.
 
 ### Files changed
@@ -2771,7 +2771,7 @@ Conclusion:
 - `tests/project-pdf-page-classification.test.js`
 - `package.json`
 - `README.md`
-- `PROJECT_PDF_INTELLIGENCE_DECISION.md`
+- `docs/decisions/PROJECT_PDF_INTELLIGENCE_DECISION.md`
 - `PROJECT_PROGRESS.md`
 - `PROJECT_PROGRESS.html`
 - `SESSION_NOTES.md`
@@ -2810,7 +2810,7 @@ Conclusion:
 - Added tests for prompt safety, clean JSON, fenced JSON, fallback values,
   out-of-manifest pages, invalid JSON, snake_case fields, non-mutating merge,
   and same-id zone replacement.
-- Updated `README.md`, `PROJECT_PDF_INTELLIGENCE_DECISION.md`,
+- Updated `README.md`, `docs/decisions/PROJECT_PDF_INTELLIGENCE_DECISION.md`,
   `PROJECT_PROGRESS.md`, and `PROJECT_PROGRESS.html`.
 
 ### Files changed
@@ -2818,7 +2818,7 @@ Conclusion:
 - `tests/project-pdf-room-extraction.test.js`
 - `package.json`
 - `README.md`
-- `PROJECT_PDF_INTELLIGENCE_DECISION.md`
+- `docs/decisions/PROJECT_PDF_INTELLIGENCE_DECISION.md`
 - `PROJECT_PROGRESS.md`
 - `PROJECT_PROGRESS.html`
 - `SESSION_NOTES.md`
@@ -2859,7 +2859,7 @@ Conclusion:
 - Added tests for happy path, request/stage context, provider/model/env,
   missing sender, invalid classification, sender error, OpenAI-like response,
   no fetch, and no input mutation.
-- Updated `README.md`, `PROJECT_PDF_INTELLIGENCE_DECISION.md`,
+- Updated `README.md`, `docs/decisions/PROJECT_PDF_INTELLIGENCE_DECISION.md`,
   `PROJECT_PROGRESS.md`, and `PROJECT_PROGRESS.html`.
 
 ### Files changed
@@ -2868,7 +2868,7 @@ Conclusion:
 - `src/pdf/room-extraction.js`
 - `package.json`
 - `README.md`
-- `PROJECT_PDF_INTELLIGENCE_DECISION.md`
+- `docs/decisions/PROJECT_PDF_INTELLIGENCE_DECISION.md`
 - `PROJECT_PROGRESS.md`
 - `PROJECT_PROGRESS.html`
 - `SESSION_NOTES.md`
@@ -2915,3 +2915,40 @@ Conclusion:
 - Keep `package-lock.json` committed for reproducible Node/CI/Wrangler tooling.
 - Move root decision/runbook docs only in a separate documentation restructure
   slice to avoid noisy path/link churn.
+
+## 2026-06-23 - Documentation restructure
+
+### What changed
+- Moved long-form decision documents from the repository root into
+  `docs/decisions/`.
+- Moved setup, readiness, media ops, and troubleshooting runbooks into
+  `docs/runbooks/`.
+- Moved the commercial proposal template specification into `docs/templates/`.
+- Added README index files for the new documentation folders.
+- Updated README, AGENTS, progress files, session summaries, and internal docs
+  references to the new paths.
+- Left `PRODUCT.md`, `DESIGN.md`, `DATA_SOURCES.md`, `LIVE_SITES.md`,
+  `PROJECT_MAP.md`, `PROJECT_PROGRESS.md`, `PROJECT_PROGRESS.html`,
+  `README.md`, `SESSION_NOTES.md`, and `AGENTS.md` in the root as active
+  entrypoint/control documents.
+
+### Files changed
+- `docs/decisions/*`
+- `docs/runbooks/*`
+- `docs/templates/*`
+- `README.md`
+- `AGENTS.md`
+- `PROJECT_PROGRESS.md`
+- `PROJECT_PROGRESS.html`
+- `SESSION_NOTES.md`
+- session/internal markdown references
+
+### Checks
+- Path/reference search: passed; old document names now resolve through
+  `docs/decisions/`, `docs/runbooks/`, or `docs/templates/`.
+- `npm.cmd run check`: passed.
+- `npm.cmd test`: passed, 501 tests.
+- `git diff --check`: passed with line-ending warnings only.
+
+### Next
+- Continue PDF Intelligence storage design.

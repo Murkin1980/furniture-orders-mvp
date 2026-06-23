@@ -43,9 +43,9 @@ unreachable VPS.
 ## Files Changed
 
 - `README.md`
-- `AI_SETUP.md`
+- `docs/runbooks/AI_SETUP.md`
 - `PROJECT_PROGRESS.md`
-- `LANDING_VPS_OPS_RUNBOOK.md`
+- `docs/runbooks/LANDING_VPS_OPS_RUNBOOK.md`
 - `SESSION_NOTES.md`
 - `docs/sessions/furniture-infrastructure-ai-production-audit-summary.md`
 

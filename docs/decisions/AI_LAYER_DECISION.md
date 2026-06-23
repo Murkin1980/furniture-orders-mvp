@@ -189,7 +189,7 @@ POST /api/orders/:id/ai/suggest-reply
 This endpoint is admin-protected, disabled by default through
 `AI_COMMUNICATIONS_ENABLED=false`, and returns a review-only draft. It cannot
 send messages or change an order. Full permissions and data-minimization rules
-are recorded in `AI_COMMUNICATIONS_DECISION.md`.
+are recorded in `docs/decisions/AI_COMMUNICATIONS_DECISION.md`.
 
 ## Integration order
 

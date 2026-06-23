@@ -91,8 +91,8 @@ Do not merge it into the furniture platform until the main platform has stable u
 
 Decision details:
 
-- `PROJECT_PDF_INTELLIGENCE_DECISION.md`
-- `SUPPLIER_PRICING_DECISION.md`
+- `docs/decisions/PROJECT_PDF_INTELLIGENCE_DECISION.md`
+- `docs/decisions/SUPPLIER_PRICING_DECISION.md`
 
 ## Source of truth
 
@@ -103,6 +103,6 @@ Read these files before changing code:
 - `PRODUCT.md`
 - `SESSION_NOTES.md`
 - `LIVE_SITES.md`
-- `CALCULATOR_DECISION.md`
-- `AI_LAYER_DECISION.md`
-- `OPS_AND_LEGACY_DECISION.md`
+- `docs/decisions/CALCULATOR_DECISION.md`
+- `docs/decisions/AI_LAYER_DECISION.md`
+- `docs/decisions/OPS_AND_LEGACY_DECISION.md`

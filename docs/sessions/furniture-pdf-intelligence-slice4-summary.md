@@ -12,7 +12,7 @@ furniture-zone extraction schema. This slice is pure JavaScript only.
 - Added `src/pdf/room-extraction.js`.
 - Added `tests/project-pdf-room-extraction.test.js`.
 - Updated `package.json` check script to syntax-check the new module.
-- Updated `README.md`, `PROJECT_PDF_INTELLIGENCE_DECISION.md`,
+- Updated `README.md`, `docs/decisions/PROJECT_PDF_INTELLIGENCE_DECISION.md`,
   `PROJECT_PROGRESS.md`, `PROJECT_PROGRESS.html`, and `SESSION_NOTES.md`.
 
 ## Behavior

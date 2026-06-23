@@ -15,7 +15,7 @@ SketchUp jobs.
 - Added `functions/api/orders/[id]/sketchup/render-artifacts.js`.
 - Added `tests/sketchup-render-core.test.js`.
 - Updated `README.md`.
-- Updated `SKETCHUP_INTEGRATION_DECISION.md`.
+- Updated `docs/decisions/SKETCHUP_INTEGRATION_DECISION.md`.
 - Updated `PROJECT_PROGRESS.md` and `PROJECT_PROGRESS.html`.
 - Updated `SESSION_NOTES.md`.
 

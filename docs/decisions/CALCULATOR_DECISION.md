@@ -81,6 +81,6 @@ Visual configurator ideas may be ported from `furniture-configurator` later, but
 ## Dynamic component catalog direction
 
 Future visual calculation uses the versioned parametric component catalog from
-`DYNAMIC_COMPONENTS_DECISION.md`. The calculator remains the pricing source of
+`docs/decisions/DYNAMIC_COMPONENTS_DECISION.md`. The calculator remains the pricing source of
 truth and uses only structured allowlisted rules. SketchUp Dynamic Component
 formulas are visual behavior only and cannot replace platform pricing.

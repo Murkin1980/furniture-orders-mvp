@@ -6,7 +6,7 @@ Implement the first low-risk infrastructure stage from the workspace AI recommen
 
 ## Implemented
 
-- Added `DESIGN.md`, `DATA_SOURCES.md`, and `AI_INFRA_DECISION.md`.
+- Added `DESIGN.md`, `DATA_SOURCES.md`, and `docs/decisions/AI_INFRA_DECISION.md`.
 - Added curated starter knowledge under `knowledge/`.
 - Added reusable workflows under `skills/`.
 - Added controlled source/conversion folders under `docs/`.

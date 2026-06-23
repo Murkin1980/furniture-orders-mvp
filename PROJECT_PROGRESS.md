@@ -114,7 +114,7 @@ flowchart LR
 | Focus change | 2026-06-09 | Progress handoff created | Finish landings and calculators before resuming CRM |
 | 2 | 2026-06-10 | LC Slices 1-5 | Structured landing editor and calculator flow are locally complete; move to production publishing |
 | Ops pass | 2026-06-10 | LC Slice 6 Pages/D1 release | Production migrations and Pages deploy complete; VPS HTTPS/control service remains blocked by missing SSH credentials |
-| Ops completion | 2026-06-11 | LC Slice 6 VPS/domain/HTTPS path | Public demo HTTPS verified; recurring failures and solutions recorded in `LANDING_VPS_OPS_RUNBOOK.md` |
+| Ops completion | 2026-06-11 | LC Slice 6 VPS/domain/HTTPS path | Public demo HTTPS verified; recurring failures and solutions recorded in `docs/runbooks/LANDING_VPS_OPS_RUNBOOK.md` |
 | Product completion | 2026-06-11 | LC Slice 7 calculator production path | Published calculator embedded into demo landing and production lead persisted with versioned calculator metadata |
 | CRM restart | 2026-06-11 | CRM Slice 3 request builder | Pure versioned request objects complete; verify installed Twenty API paths before adding sender |
 | CRM sender | 2026-06-12 | CRM Slice 4 guarded sender | Injected-only sender complete; no real API, endpoint, UI, migration, deploy, or production change |
@@ -175,3 +175,4 @@ flowchart LR
 | PDF Intelligence Slice 3 | 2026-06-23 | Added furniture-first page classification prompt/parser, safe JSON fence handling, confidence clamp, manifest page filtering, and non-mutating merge helper; deploy `31956eaf` completed | Build room and furniture-zone extraction schema |
 | PDF Intelligence Slice 4 | 2026-06-23 | Added furniture-first room/furniture-zone extraction prompt/parser, source-page filtering, zone type fallback, dimension/material normalization, and non-mutating manifest merge; deploy `19c7444c` completed | Build injected AI orchestration with fake sender |
 | PDF Intelligence Slice 5 | 2026-06-23 | Added injected PDF analysis orchestration that builds manifest, classification request, extraction request, merges results, handles safe errors, and never calls fetch; deploy `721c542c` completed | Design admin upload draft storage |
+| Repo documentation cleanup | 2026-06-23 | Moved long-form decision, runbook, and template docs from root into `docs/decisions/`, `docs/runbooks/`, and `docs/templates/`; added CI in the previous hygiene pass | Continue PDF Intelligence storage design after verifying links/tests |

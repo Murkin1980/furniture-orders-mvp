@@ -32,10 +32,10 @@ DESIGN.md
 SESSION_NOTES.md
 DATA_SOURCES.md
 LIVE_SITES.md
-CALCULATOR_DECISION.md
-AI_LAYER_DECISION.md
-AI_INFRA_DECISION.md
-OPS_AND_LEGACY_DECISION.md
+docs/decisions/CALCULATOR_DECISION.md
+docs/decisions/AI_LAYER_DECISION.md
+docs/decisions/AI_INFRA_DECISION.md
+docs/decisions/OPS_AND_LEGACY_DECISION.md
 ```
 
 ## Work style
@@ -145,7 +145,7 @@ checkpoint-history entry after every 5 completed slices.
 
 Use `knowledge/` for reviewed project/business facts and `skills/` for repeatable workflows. Do not add unverified prices, legal terms, client personal data, or generated claims to either folder.
 
-Local AI infrastructure is documented in `AI_INFRA_DECISION.md`. Keep `.codegraph/`, `.tools/`, temporary conversion output, secrets, and client source documents out of Git.
+Local AI infrastructure is documented in `docs/decisions/AI_INFRA_DECISION.md`. Keep `.codegraph/`, `.tools/`, temporary conversion output, secrets, and client source documents out of Git.
 
 Do not use `docs/raw/` directly in application logic. Convert, review, and record approved source material before using it as project knowledge.
 
@@ -186,9 +186,9 @@ Use this format:
 If a decision affects architecture, update the relevant decision file too:
 
 ```text
-CALCULATOR_DECISION.md
-AI_LAYER_DECISION.md
-OPS_AND_LEGACY_DECISION.md
+docs/decisions/CALCULATOR_DECISION.md
+docs/decisions/AI_LAYER_DECISION.md
+docs/decisions/OPS_AND_LEGACY_DECISION.md
 LIVE_SITES.md
 PRODUCT.md
 ```

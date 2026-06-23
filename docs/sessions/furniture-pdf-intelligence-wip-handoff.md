@@ -31,7 +31,7 @@ foundation. Next planned slice: admin upload draft storage design.
 - `src/pdf/room-extraction.js`
 - `package.json`
 - `README.md`
-- `PROJECT_PDF_INTELLIGENCE_DECISION.md`
+- `docs/decisions/PROJECT_PDF_INTELLIGENCE_DECISION.md`
 - `PROJECT_PROGRESS.md`
 - `PROJECT_PROGRESS.html`
 - `SESSION_NOTES.md`

@@ -7,7 +7,7 @@ schema.
 
 ## What Changed
 
-- Added `PROJECT_PDF_INTELLIGENCE_DECISION.md`.
+- Added `docs/decisions/PROJECT_PDF_INTELLIGENCE_DECISION.md`.
 - Added `src/pdf/project-pdf-manifest.js`.
 - Added `tests/project-pdf-manifest.test.js`.
 - Added the PDF manifest module to `npm run check`.

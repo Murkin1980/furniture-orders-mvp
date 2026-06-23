@@ -7,13 +7,13 @@ Document safe setup and local verification of the existing manual AI analysis fl
 ## Implemented
 
 - Added a secret-free `.env.example` covering provider selection, optional model override, and all supported provider API key names.
-- Added `AI_SETUP.md` describing manual-only analysis, provider selection, local Wrangler setup, migration `0011`, verification, and expected failure behavior.
+- Added `docs/runbooks/AI_SETUP.md` describing manual-only analysis, provider selection, local Wrangler setup, migration `0011`, verification, and expected failure behavior.
 - No UI, endpoint logic, deployment configuration, migration, dependency, or donor repository was changed.
 
 ## Files Changed
 
 - `.env.example`
-- `AI_SETUP.md`
+- `docs/runbooks/AI_SETUP.md`
 - `SESSION_NOTES.md`
 - `furniture-ai-slice9-implementation-summary.md`
 

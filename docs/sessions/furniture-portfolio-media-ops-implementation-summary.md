@@ -6,7 +6,7 @@ Added a small production-readiness layer for portfolio media uploads.
 
 ## Changes
 
-- Added `PORTFOLIO_MEDIA_OPS.md` with Cloudflare R2 setup and smoke checks.
+- Added `docs/runbooks/PORTFOLIO_MEDIA_OPS.md` with Cloudflare R2 setup and smoke checks.
 - Added `src/portfolio-media-ops.js`.
 - Added `tests/portfolio-media-ops.test.js`.
 - Updated `.env.example` with optional `PORTFOLIO_MEDIA_PUBLIC_BASE_URL`.

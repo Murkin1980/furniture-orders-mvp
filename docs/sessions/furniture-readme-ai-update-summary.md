@@ -16,7 +16,7 @@ Synchronize the repository README and AI setup guide with the implemented manual
 ## Files Changed
 
 - `README.md`
-- `AI_SETUP.md`
+- `docs/runbooks/AI_SETUP.md`
 - `SESSION_NOTES.md`
 - `docs/sessions/furniture-readme-ai-update-summary.md`
 

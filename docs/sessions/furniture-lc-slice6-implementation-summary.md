@@ -58,7 +58,7 @@ Complete the production publishing path for the landing and calculator workflow.
 - Added exact HTTP and HTTPS nginx virtual hosts for the demo hostname.
 - Verified origin SNI and public HTTPS through both Cloudflare edge IPs.
 - Removed the accidental duplicate Cloudflare Pages project `furniture-orders-mvp-2`.
-- Recorded recurring failures and verified solutions in `LANDING_VPS_OPS_RUNBOOK.md`.
+- Recorded recurring failures and verified solutions in `docs/runbooks/LANDING_VPS_OPS_RUNBOOK.md`.
 
 ## Remaining operational follow-ups
 

@@ -16,7 +16,10 @@ Markdown progress tracker, and `SESSION_NOTES.md`.
 
 Repository navigation:
 
-- active product and architecture decisions remain in the repository root;
+- active product entrypoints remain in the repository root;
+- architecture decisions live in [`docs/decisions/`](docs/decisions/README.md);
+- setup and operations runbooks live in [`docs/runbooks/`](docs/runbooks/README.md);
+- template/specification documents live in [`docs/templates/`](docs/templates/README.md);
 - historical stage instructions and handoffs live in
   [`docs/internal/`](docs/internal/README.md);
 - architecture attachments live in
@@ -31,7 +34,7 @@ so current production authorization behavior remains unchanged until the next
 reviewed slice.
 
 The future OCR and sketch-recognition path is defined in
-[`OCR_SKETCH_DECISION.md`](OCR_SKETCH_DECISION.md). OCR extraction, furniture
+[`docs/decisions/OCR_SKETCH_DECISION.md`](docs/decisions/OCR_SKETCH_DECISION.md). OCR extraction, furniture
 sketch interpretation, and SketchUp automation remain separate, manual-first
 layers. OCR Slices 1-7 add a pure strict result parser, provider-neutral
 prompt/request builder, injected-sender orchestration, safe draft/approved
@@ -58,7 +61,7 @@ be used for controlled manual smoke tests. Customer images remain blocked by
 default through `OCR_CUSTOMER_IMAGES_ENABLED=false`; enabling them also
 requires durable consent metadata and a stored HTTPS image reference. Customer
 image production use remains disabled. See
-[`OCR_PRODUCTION_READINESS.md`](OCR_PRODUCTION_READINESS.md).
+[`docs/runbooks/OCR_PRODUCTION_READINESS.md`](docs/runbooks/OCR_PRODUCTION_READINESS.md).
 
 OCR Slice 8B completed the synthetic-only production path on June 15, 2026.
 Remote migrations `0017` and `0018` are applied. Synthetic order `8` produced
@@ -75,7 +78,7 @@ confirmation and a deletion reason. Migration
 remain intentionally unapplied; customer-image recognition remains disabled.
 
 The controlled SketchUp path is defined in
-[`SKETCHUP_INTEGRATION_DECISION.md`](SKETCHUP_INTEGRATION_DECISION.md).
+[`docs/decisions/SKETCHUP_INTEGRATION_DECISION.md`](docs/decisions/SKETCHUP_INTEGRATION_DECISION.md).
 SketchUp Slice 1 maps only manager-approved OCR records into
 `furniture-model/v1`. Slice 2 converts only ready models into a validated
 `sketchup-command-plan/v1` with three declarative allowlisted commands:
@@ -125,10 +128,10 @@ local licensed SketchUp 2026 adapter candidate; real automation still requires
 a reviewed Ruby queue consumer.
 
 Production landing/VPS operations, known failures, and verified solutions:
-[`LANDING_VPS_OPS_RUNBOOK.md`](LANDING_VPS_OPS_RUNBOOK.md).
+[`docs/runbooks/LANDING_VPS_OPS_RUNBOOK.md`](docs/runbooks/LANDING_VPS_OPS_RUNBOOK.md).
 
 Local development troubleshooting:
-[`LOCAL_DEV_RUNBOOK.md`](LOCAL_DEV_RUNBOOK.md).
+[`docs/runbooks/LOCAL_DEV_RUNBOOK.md`](docs/runbooks/LOCAL_DEV_RUNBOOK.md).
 
 Current controlled production verification focus:
 
@@ -185,7 +188,7 @@ metrics and combined search/status filtering, order tables reflow into mobile
 cards, and CRM cards keep status/quick actions visible while progressively
 disclosing notes, follow-up, history, and AI drafts.
 
-- CRM Slice 1: architecture and safety decision in `CRM_INTEGRATION_DECISION.md`.
+- CRM Slice 1: architecture and safety decision in `docs/decisions/CRM_INTEGRATION_DECISION.md`.
 - CRM Slice 2: pure person, opportunity, note, and sync payload mapping in `src/crm/twenty-mapper.js`.
 - CRM Slice 3: pure request objects for people, opportunities, and notes in
   `src/crm/twenty-request-builder.js`.
@@ -289,7 +292,7 @@ fields. Deployment: `https://a25ae4ff.furniture-orders-mvp.pages.dev`.
   и изменение заказа AI-агентом запрещены.
 - AI-анализ поддерживает `openai`, `groq`, `gemini`, `openrouter` и `nvidia` через OpenAI-compatible request contract.
 - Ошибки provider, rate limit, invalid JSON и отсутствующие ключи сохраняются как `ai_status=failed`, не ломая заказ.
-- Подробная настройка AI описана в `AI_SETUP.md`; реальные API keys не хранятся в репозитории.
+- Подробная настройка AI описана в `docs/runbooks/AI_SETUP.md`; реальные API keys не хранятся в репозитории.
 - `tests/orders-core.test.js` проверяет intake flow, список заказов, фильтр, смену статуса, проектные шаги, калькуляторы, негативные embed/lead сценарии, `400` и `404`.
 - `tests/sites-core.test.js` проверяет создание лендинга, уникальность slug, primary domain, generated artifact, publish flow и статус публикации.
 - `tests/portfolio-core.test.js` проверяет создание работ, категории, изображения, публичный список, фильтр и запрет публикации без фото.
@@ -367,7 +370,7 @@ furniture-orders-mvp/
   tests/ai-analyze-lead.test.js
   tests/order-ai-result.test.js
   tests/order-ai-core.test.js
-  AI_SETUP.md
+  docs/runbooks/AI_SETUP.md
   .env.example
   wrangler.toml
   package.json
@@ -529,7 +532,7 @@ canceled
 - The portfolio creation form also exposes `Upload first photo`; when selected,
   the admin creates the draft work and immediately uploads the file to R2.
 - Migration `0010_portfolio_media.sql` adds the storage metadata columns and a storage-key index.
-- `PORTFOLIO_MEDIA_OPS.md` documents production R2 setup and smoke checks.
+- `docs/runbooks/PORTFOLIO_MEDIA_OPS.md` documents production R2 setup and smoke checks.
 - `src/portfolio-media-ops.js` provides a pure readiness helper for the R2
   binding and optional public media URL.
 - Production read-only smoke on 2026-06-16 confirmed the R2 bucket exists and
@@ -615,13 +618,13 @@ canceled
 - Run `npm.cmd run proposal:demo` to create
   `output/pdf/commercial-proposal.html` from the synthetic example.
 - Full schema and future integration steps are in
-  `COMMERCIAL_PROPOSAL_TEMPLATE.md`.
+  `docs/templates/COMMERCIAL_PROPOSAL_TEMPLATE.md`.
 - A sequential handoff for another editor (Slices 5-7 plus review scoring) is
   available in `docs/external-editor/proposals/README.md`.
 
 ## Project PDF Intelligence
 
-- `PROJECT_PDF_INTELLIGENCE_DECISION.md` defines the future designer-PDF
+- `docs/decisions/PROJECT_PDF_INTELLIGENCE_DECISION.md` defines the future designer-PDF
   workflow and safety boundary.
 - `src/pdf/project-pdf-manifest.js` provides the first pure manifest/schema
   layer for PDF metadata, pages, page types, furniture zones, confidence,
@@ -659,9 +662,9 @@ canceled
   AI-анализ успешно проверен на синтетическом production-заказе `6`.
 - AI autorun остаётся отключённым; реальные клиентские данные не использовались
   в production smoke test.
-- Полная настройка и команды проверки находятся в `AI_SETUP.md`.
+- Полная настройка и команды проверки находятся в `docs/runbooks/AI_SETUP.md`.
 - Правила AI-коммуникаций и human approval находятся в
-  `AI_COMMUNICATIONS_DECISION.md`. Для включения только черновиков используется
+  `docs/decisions/AI_COMMUNICATIONS_DECISION.md`. Для включения только черновиков используется
   `AI_COMMUNICATIONS_ENABLED=true`.
 - Safe AI communications MVP включён и production-проверен на синтетическом
   заказе `6`: draft создан, отредактированным manager flow одобрен и сохранён
@@ -812,7 +815,7 @@ npm run deploy
 
 AI variables не нужны для обычного intake flow. Для ручного AI-анализа задайте `AI_PROVIDER`, опциональный `AI_MODEL` и key выбранного provider. До успешного локального smoke test эти variables и migration `0011` не включаются в production.
 
-Список AI variables и безопасный local setup находятся в `AI_SETUP.md` и `.env.example`.
+Список AI variables и безопасный local setup находятся в `docs/runbooks/AI_SETUP.md` и `.env.example`.
 
 Если Telegram-переменные не заданы, заявка всё равно сохраняется, а в ответе будет `telegramSent: false`.
 
@@ -1070,7 +1073,7 @@ npm test
 
 ## Локальная AI-инфраструктура
 
-Первый безопасный этап описан в `AI_INFRA_DECISION.md`.
+Первый безопасный этап описан в `docs/decisions/AI_INFRA_DECISION.md`.
 
 Добавлены `DESIGN.md`, `DATA_SOURCES.md`, проверяемая база `knowledge/`, повторяемые процессы в `skills/`, локальный CodeGraph в игнорируемой `.codegraph/` и локальный MarkItDown в игнорируемой `.tools/markitdown-venv/`.
 
@@ -1109,7 +1112,7 @@ npx.cmd --yes @colbymchenry/codegraph query analyzeLead
    изменения старых заказов и утверждённых смет.
 
 Новые архитектурные решения описаны в
-`PROJECT_PDF_INTELLIGENCE_DECISION.md` и `SUPPLIER_PRICING_DECISION.md`.
+`docs/decisions/PROJECT_PDF_INTELLIGENCE_DECISION.md` и `docs/decisions/SUPPLIER_PRICING_DECISION.md`.
 
 Опциональные технические ветки между продуктовыми этапами:
 

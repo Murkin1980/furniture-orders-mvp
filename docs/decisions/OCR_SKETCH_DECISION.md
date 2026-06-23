@@ -122,7 +122,7 @@ placement.
    confirmation before customer-image recognition. Complete in code; production
    migration and storage binding remain intentionally unapplied.
 10. SketchUp mapping from approved data into a versioned furniture model.
-    Complete as SketchUp Slice 1; see `SKETCHUP_INTEGRATION_DECISION.md`.
+    Complete as SketchUp Slice 1; see `docs/decisions/SKETCHUP_INTEGRATION_DECISION.md`.
 
 ## Explicitly Not Now
 

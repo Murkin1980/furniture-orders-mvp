@@ -32,10 +32,10 @@ Record each source with its current status, source date when known, conversion/r
 | `PRODUCT.md` | `approved` | Product scope and boundaries | High | Main product definition |
 | `README.md` | `approved` | Implemented behavior and local operations | High | Keep synchronized with code |
 | `LIVE_SITES.md` | `approved` | Live repositories and deployment bindings | High | Check before production changes |
-| `CALCULATOR_DECISION.md` | `approved` | Calculator architecture | High | Do not bypass formula contracts |
-| `AI_LAYER_DECISION.md` | `approved` | AI architecture and rollout order | High | AI remains a layer of this product |
-| `AI_INFRA_DECISION.md` | `approved` | AI infrastructure boundaries | High | Stage adoption and safety rules |
-| `OPS_AND_LEGACY_DECISION.md` | `approved` | Repository boundaries | High | Donor projects are references |
+| `docs/decisions/CALCULATOR_DECISION.md` | `approved` | Calculator architecture | High | Do not bypass formula contracts |
+| `docs/decisions/AI_LAYER_DECISION.md` | `approved` | AI architecture and rollout order | High | AI remains a layer of this product |
+| `docs/decisions/AI_INFRA_DECISION.md` | `approved` | AI infrastructure boundaries | High | Stage adoption and safety rules |
+| `docs/decisions/OPS_AND_LEGACY_DECISION.md` | `approved` | Repository boundaries | High | Donor projects are references |
 | `SESSION_NOTES.md` | `reviewed` | Recent implementation history | Medium | Verify against code before relying on it |
 | `Modular_Furniture_Platform_Architecture.pdf` | `raw` | Architecture reference | Medium | Legacy root location; MarkItDown returned empty output; requires OCR/manual review before conversion can progress |
 | Local TUBA commercial proposal sample (2026-06-20) | `reviewed` | Visual structure reference for printable proposals | Medium | Source stays local; only layout patterns were used, with no logo, client data, prices, tax status, or terms copied into defaults |

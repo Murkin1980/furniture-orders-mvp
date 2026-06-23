@@ -20,7 +20,7 @@ Read only these files before changing code:
 1. `AGENTS.md`
 2. `PRODUCT.md`
 3. `SESSION_NOTES.md` (latest Proposal entries)
-4. `COMMERCIAL_PROPOSAL_TEMPLATE.md`
+4. `docs/templates/COMMERCIAL_PROPOSAL_TEMPLATE.md`
 5. `src/proposals/commercial-proposal-template.js`
 6. `src/proposals/order-proposal-mapper.js`
 7. `functions/api/proposals/preview.js`

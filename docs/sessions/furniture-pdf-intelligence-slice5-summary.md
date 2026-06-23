@@ -15,7 +15,7 @@ parser, real sender, or production AI call.
 - Updated `src/pdf/room-extraction.js` with an explicit task line used by the
   orchestration contract.
 - Updated `package.json` check script to syntax-check the new module.
-- Updated `README.md`, `PROJECT_PDF_INTELLIGENCE_DECISION.md`,
+- Updated `README.md`, `docs/decisions/PROJECT_PDF_INTELLIGENCE_DECISION.md`,
   `PROJECT_PROGRESS.md`, `PROJECT_PROGRESS.html`, and `SESSION_NOTES.md`.
 
 ## Behavior

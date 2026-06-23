@@ -15,7 +15,7 @@ for `sketchup-render-artifact/v1`.
 - Added `tests/sketchup-render-file.test.js`.
 - Updated `package.json` check command.
 - Updated `README.md`.
-- Updated `SKETCHUP_INTEGRATION_DECISION.md`.
+- Updated `docs/decisions/SKETCHUP_INTEGRATION_DECISION.md`.
 - Updated `PROJECT_PROGRESS.md` and `PROJECT_PROGRESS.html`.
 - Updated `SESSION_NOTES.md`.
 
