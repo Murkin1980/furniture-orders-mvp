@@ -2735,6 +2735,11 @@ Conclusion:
 - Focused proposal/portfolio/PDF tests: passed, 30 tests.
 - `node --check src/pdf/project-pdf-manifest.js`: passed.
 - `node --check scripts/proposal-lifecycle-smoke.mjs`: passed.
+- Full project suite: passed, 474 tests.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed after removing one extra blank line.
+- `npm.cmd run deploy`: passed; Pages preview
+  `https://cabcd73d.furniture-orders-mvp.pages.dev`.
 
 ### Production boundary
 - PDF slice did not add upload, endpoint, migration, UI, AI calls, storage, or
