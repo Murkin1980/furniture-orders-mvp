@@ -2747,3 +2747,46 @@ Conclusion:
 
 ### Next
 - Build PDF page-classification prompt/schema as the next safe slice.
+
+## 2026-06-23 - Project PDF Intelligence Slice 3
+
+### What changed
+- Added pure page-classification contract module
+  `src/pdf/page-classification.js`.
+- Added a furniture-first prompt builder that assumes submitted pages belong to
+  an interior/furniture project while explicitly forbidding invented dimensions,
+  rooms, materials, prices, and furniture zones.
+- Added a strict JSON parser for page classifications with markdown code-fence
+  stripping, supported page-type fallback, confidence clamping, manifest page
+  filtering, warnings, and missing-info normalization.
+- Added a non-mutating helper to merge accepted page classifications back into
+  the PDF manifest.
+- Added tests for prompt safety, clean JSON, fenced JSON, fallback values,
+  invalid JSON, out-of-manifest pages, and non-mutating merge behavior.
+- Updated `README.md`, `PROJECT_PDF_INTELLIGENCE_DECISION.md`,
+  `PROJECT_PROGRESS.md`, and `PROJECT_PROGRESS.html`.
+
+### Files changed
+- `src/pdf/page-classification.js`
+- `tests/project-pdf-page-classification.test.js`
+- `package.json`
+- `README.md`
+- `PROJECT_PDF_INTELLIGENCE_DECISION.md`
+- `PROJECT_PROGRESS.md`
+- `PROJECT_PROGRESS.html`
+- `SESSION_NOTES.md`
+- `docs/sessions/furniture-pdf-intelligence-slice3-summary.md`
+
+### Checks
+- Focused PDF tests: passed, 15 tests.
+- `node --check src/pdf/page-classification.js`: passed.
+- Full project suite: passed, 482 tests.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed with line-ending warnings only.
+
+### Production boundary
+- Slice 3 did not add upload, endpoint, migration, UI, storage, provider calls,
+  or production settings.
+
+### Next
+- Build room and furniture-zone extraction schema as the next safe PDF slice.

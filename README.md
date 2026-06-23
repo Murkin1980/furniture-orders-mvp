@@ -626,8 +626,11 @@ canceled
 - `src/pdf/project-pdf-manifest.js` provides the first pure manifest/schema
   layer for PDF metadata, pages, page types, furniture zones, confidence,
   missing information, and warnings.
-- The manifest layer does not parse binary PDFs, upload files, call AI, create
-  endpoints, add migrations, or generate estimates.
+- `src/pdf/page-classification.js` adds the second pure contract layer: a
+  furniture-first page-classification prompt, strict JSON parser, safe
+  normalization, and manifest merge helper.
+- The PDF foundation does not parse binary PDFs, upload files, call external
+  AI/providers, create endpoints, add migrations, or generate estimates.
 - Page types are limited to `floor_plan`, `elevation`, `visualization`,
   `specification`, `text`, `mixed`, and `unknown`.
 - Unknown dimensions, materials, rooms, and prices stay unknown until manager

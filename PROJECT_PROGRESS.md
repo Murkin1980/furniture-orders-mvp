@@ -1,11 +1,12 @@
 # Project Progress Dashboard
 
-Last reviewed: 2026-06-22
+Last reviewed: 2026-06-23
 Current checkpoint: 8
 Next checkpoint review: after 5 more completed slices
 
-Current product focus: start Project PDF Intelligence after completing
-Commercial proposals and Portfolio/media production smokes with synthetic data.
+Current product focus: Project PDF Intelligence. The manifest and
+page-classification contract layers are complete; next slice is room and
+furniture-zone extraction schema.
 
 This is the canonical visual progress tracker for the complete furniture platform. Percentages are engineering estimates based on implemented, tested, deployed, and operationally verified behavior. A feature is not considered complete only because code exists.
 
@@ -39,7 +40,7 @@ and `SESSION_NOTES.md` together.
 | OCR and sketch recognition | `[##########] 100%` | Backend MVP complete: durable consent, retention, manager review, and fail-closed deletion; customer production pilot remains disabled | Review/apply migration 0019 and R2 binding only before an approved customer pilot |
 | SketchUp MCP | `[##########] 100%` | Safe platform boundary complete: approved OCR -> model -> plan -> signed job -> dry-run node -> guarded execution adapter -> render artifact persistence | Real SketchUp adapter remains an external approved Windows/SketchUp environment task |
 | 3D rendering pipeline | `[#######---] 65%` | Render storage paths and fail-closed HTTP-to-executor wiring are tested; default node mode remains dry-run | Install and inject an approved Windows SketchUp/render executor |
-| Project PDF Intelligence | `[#---------] 10%` | Decision and pure PDF manifest/schema foundation are complete; no upload, AI, endpoint, migration, or estimate generation yet | Build page-classification prompt/schema next |
+| Project PDF Intelligence | `[##--------] 20%` | Decision, pure PDF manifest/schema, furniture-first page classification prompt/parser, and manifest merge helper are complete; no upload, AI call, endpoint, migration, or estimate generation yet | Build room and furniture-zone extraction schema next |
 | Supplier Catalog and Pricing | `[----------] 0%` | Planned controlled supplier imports with mapping, draft diffs, approval, and immutable price-list versions | Design supplier/source/catalog schemas and start with reviewed file imports |
 
 ## Dependency Map
@@ -171,3 +172,4 @@ flowchart LR
 | Proposal/portfolio smoke runners | 2026-06-23 | Proposal lifecycle runner added; production portfolio read-only recheck confirms D1 tables, R2 bucket, public API and controlled media 404 path; deploy `29b2620e` completed | Await explicit approval for production writes: one synthetic proposal lifecycle and one temporary portfolio upload |
 | Proposal/portfolio production completion | 2026-06-23 | Synthetic proposal lifecycle approved v2 with audit note; synthetic portfolio image upload/read/publish/unpublish smoke passed | Move to Project PDF Intelligence with pure manifest/schema first |
 | PDF Intelligence Slice 1-2 | 2026-06-23 | Decision document plus pure PDF manifest/schema and tests added without AI, upload, endpoint, migration, or UI; deploy `cabcd73d` completed | Build page-classification prompt/schema |
+| PDF Intelligence Slice 3 | 2026-06-23 | Added furniture-first page classification prompt/parser, safe JSON fence handling, confidence clamp, manifest page filtering, and non-mutating merge helper | Build room and furniture-zone extraction schema |

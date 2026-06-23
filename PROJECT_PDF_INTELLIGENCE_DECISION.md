@@ -53,8 +53,9 @@ The first version is review-first and manual-first.
 
 The pipeline is split into small safe slices:
 
-1. Pure manifest/schema.
-2. Page classification prompt/schema.
+1. Pure manifest/schema. Implemented in `src/pdf/project-pdf-manifest.js`.
+2. Page classification prompt/schema. Implemented in
+   `src/pdf/page-classification.js`.
 3. Room and furniture-zone extraction schema.
 4. AI orchestration with injected sender.
 5. Admin upload draft.
@@ -76,6 +77,16 @@ Supported page type values:
 - `unknown`
 
 Unknown or unsupported page types normalize to `unknown`.
+
+## Implemented Pure Contracts
+
+- `src/pdf/project-pdf-manifest.js` creates safe PDF document/page manifests
+  from already known metadata.
+- `src/pdf/page-classification.js` builds a furniture-first classification
+  prompt, parses strict JSON responses, clamps confidence, ignores pages outside
+  the manifest, and merges page classifications without mutating the input.
+- Both contracts are pure JavaScript and do not upload files, call AI providers,
+  create endpoints, add migrations, or generate estimates.
 
 ## Furniture Context
 
