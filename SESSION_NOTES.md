@@ -716,6 +716,8 @@ Conclusion:
   and `schemaVersion: 1`.
 - `npm.cmd test`: 156 passed.
 - `npm.cmd run check`: passed.
+- `npm.cmd run deploy`: passed; latest Pages preview
+  `https://29b2620e.furniture-orders-mvp.pages.dev`.
 - In-app visual browser test was blocked by enterprise network policy; public
   HTML, embed JavaScript, API, VPS deploy, and D1 were verified directly.
 
