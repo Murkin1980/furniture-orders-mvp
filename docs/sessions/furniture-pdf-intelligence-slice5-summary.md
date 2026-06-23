@@ -61,6 +61,11 @@ Focused PDF checks passed with 34 tests.
 The full project suite passed with 501 tests. `npm.cmd run check` passed.
 `git diff --check` passed with line-ending warnings only.
 
+Deployment passed:
+
+- `npm.cmd run deploy`
+- Pages preview: `https://721c542c.furniture-orders-mvp.pages.dev`
+
 ## Next Step
 
 Design admin upload draft storage before adding endpoint/UI work. Keep any
