@@ -629,6 +629,9 @@ canceled
 - `src/pdf/page-classification.js` adds the second pure contract layer: a
   furniture-first page-classification prompt, strict JSON parser, safe
   normalization, and manifest merge helper.
+- `src/pdf/room-extraction.js` adds the next pure contract layer for extracting
+  rooms and reviewable furniture zones from classified pages into the existing
+  manifest shape.
 - The PDF foundation does not parse binary PDFs, upload files, call external
   AI/providers, create endpoints, add migrations, or generate estimates.
 - Page types are limited to `floor_plan`, `elevation`, `visualization`,

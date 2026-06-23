@@ -56,7 +56,8 @@ The pipeline is split into small safe slices:
 1. Pure manifest/schema. Implemented in `src/pdf/project-pdf-manifest.js`.
 2. Page classification prompt/schema. Implemented in
    `src/pdf/page-classification.js`.
-3. Room and furniture-zone extraction schema.
+3. Room and furniture-zone extraction schema. Implemented in
+   `src/pdf/room-extraction.js`.
 4. AI orchestration with injected sender.
 5. Admin upload draft.
 6. Manager review UI.
@@ -85,6 +86,10 @@ Unknown or unsupported page types normalize to `unknown`.
 - `src/pdf/page-classification.js` builds a furniture-first classification
   prompt, parses strict JSON responses, clamps confidence, ignores pages outside
   the manifest, and merges page classifications without mutating the input.
+- `src/pdf/room-extraction.js` builds a furniture-first room/zone extraction
+  prompt, parses strict JSON responses, keeps only zones tied to known pages,
+  normalizes zone types/dimensions/materials, and merges zones into pages
+  without mutating the input.
 - Both contracts are pure JavaScript and do not upload files, call AI providers,
   create endpoints, add migrations, or generate estimates.
 

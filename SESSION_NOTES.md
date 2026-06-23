@@ -2792,3 +2792,48 @@ Conclusion:
 
 ### Next
 - Build room and furniture-zone extraction schema as the next safe PDF slice.
+
+## 2026-06-23 - Project PDF Intelligence Slice 4
+
+### What changed
+- Added pure room/furniture-zone extraction contract module
+  `src/pdf/room-extraction.js`.
+- Added a furniture-first prompt builder for classified PDF pages that assumes
+  the document belongs to an interior/furniture project while forbidding
+  invented dimensions, materials, rooms, quantities, prices, and zones.
+- Added a strict JSON parser for rooms and furniture zones with markdown
+  code-fence stripping, source-page filtering, furniture zone type fallback,
+  confidence clamping, dimension/material normalization, missing-info handling,
+  and snake_case/camelCase support.
+- Added a non-mutating helper to merge extracted rooms and furniture zones into
+  the existing PDF manifest shape.
+- Added tests for prompt safety, clean JSON, fenced JSON, fallback values,
+  out-of-manifest pages, invalid JSON, snake_case fields, non-mutating merge,
+  and same-id zone replacement.
+- Updated `README.md`, `PROJECT_PDF_INTELLIGENCE_DECISION.md`,
+  `PROJECT_PROGRESS.md`, and `PROJECT_PROGRESS.html`.
+
+### Files changed
+- `src/pdf/room-extraction.js`
+- `tests/project-pdf-room-extraction.test.js`
+- `package.json`
+- `README.md`
+- `PROJECT_PDF_INTELLIGENCE_DECISION.md`
+- `PROJECT_PROGRESS.md`
+- `PROJECT_PROGRESS.html`
+- `SESSION_NOTES.md`
+- `docs/sessions/furniture-pdf-intelligence-slice4-summary.md`
+
+### Checks
+- Focused PDF tests: passed, 25 tests.
+- `node --check src/pdf/room-extraction.js`: passed.
+- Full project suite: passed, 492 tests.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed with line-ending warnings only.
+
+### Production boundary
+- Slice 4 did not add upload, endpoint, migration, UI, storage, provider calls,
+  production settings, binary PDF parsing, or estimate generation.
+
+### Next
+- Build injected AI orchestration with a fake sender as the next safe PDF slice.
