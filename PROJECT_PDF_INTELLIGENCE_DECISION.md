@@ -2,57 +2,130 @@
 
 ## Decision
 
-Add Project PDF Intelligence as a separate, manual-first product workstream.
-It will turn a multi-page apartment, house, or office design PDF into a
-manager-reviewed project specification before any estimate or 3D task exists.
+Project PDF Intelligence is an order-admin workflow inside
+`furniture-orders-mvp`.
 
-The system must not infer missing dimensions, materials, quantities, or room
-relationships as facts. Every extracted value carries provenance, confidence,
-and review status.
+It lets a furniture maker upload or attach an interior designer PDF to an order,
+then produces a reviewable preliminary breakdown:
 
-## Target workflow
+```text
+designer PDF
+-> page manifest
+-> page classification
+-> room and furniture-zone extraction
+-> manager review
+-> preliminary estimate draft
+-> commercial proposal draft
+-> optional OCR/SketchUp/3D handoff
+```
 
-Primary admin workflow: the furniture maker opens an order, clicks
-`Upload designer project`, and uploads one PDF. The platform performs the
-technical pipeline in the background and returns a preliminary furniture
-estimate; page classification and extraction are implementation details, not
-extra work imposed on the manager.
+The platform must assume the PDF belongs to a furniture project, but it must not
+invent dimensions, materials, rooms, prices, or 3D geometry that are not present
+or confidently extracted.
 
-1. Upload a source PDF with explicit customer-data consent.
-2. Split pages and classify plans, elevations, drawings, schedules, notes, and
-   visual references.
-3. Extract text, dimensions, rooms, furniture zones, and source coordinates.
-4. Build draft room and furniture specifications.
-5. Show uncertainties and conflicts to a manager.
-6. Produce a preliminary estimate grouped by room and furniture item, with
-   visible assumptions, confidence, and missing information.
-7. Let the furniture maker review/correct the specification and estimate.
-8. Approve a versioned project specification and commercial estimate.
-9. Create SketchUp/3D jobs only from the approved specification.
+## Product Boundary
 
-The first useful result is not a technical drawing editor. It is a reviewable
-draft estimate showing detected items, quantities, dimensions, materials,
-price-list version, subtotals by room, total, and questions for the designer.
+Project PDF Intelligence supports the furniture platform. It does not replace:
 
-## Planned slices
+- manager review;
+- measurement on site;
+- calculator pricing contracts;
+- commercial proposal approval;
+- SketchUp execution approval;
+- supplier catalog approval.
 
-1. PDF manifest, page model, limits, and safe parser contracts.
-2. Page classification and render/extraction orchestration.
-3. Room, drawing, and furniture-zone schema.
-4. Dimension and annotation extraction with source evidence.
-5. Furniture specification builder without geometry invention.
-6. Manager review workspace and conflict resolution.
-7. Versioned project estimate input and calculator mapping.
-8. Room/project estimate and commercial proposal output.
-9. SketchUp job generation from approved furniture specifications.
-10. Controlled pilot, retention, deletion, observability, and production gate.
+The first version is review-first and manual-first.
 
-## Boundaries
+## Safety Rules
 
-- Existing furniture-first OCR remains the extraction foundation.
-- Uploaded client PDFs stay private and follow consent/retention rules.
-- AI output is always draft until a manager approves it.
-- The automatic estimate is explicitly marked preliminary until manager review.
-- Existing orders and estimates retain their original price/specification
-  versions.
-- No automatic production processing in the planning slice.
+- No automatic final price.
+- No automatic customer-facing commercial proposal.
+- No autonomous SketchUp or render job.
+- No arbitrary code execution.
+- No unreviewed supplier prices.
+- Unknown values stay unknown.
+- Every extracted value keeps source page, confidence, and warnings.
+- Low-confidence extraction must become `missingInfo`, not a guessed value.
+- Designer PDF pages may include private client data; raw files and extracted
+  text must follow the source/privacy policy in `DATA_SOURCES.md`.
+
+## Extraction Model
+
+The pipeline is split into small safe slices:
+
+1. Pure manifest/schema.
+2. Page classification prompt/schema.
+3. Room and furniture-zone extraction schema.
+4. AI orchestration with injected sender.
+5. Admin upload draft.
+6. Manager review UI.
+7. Estimate draft generator.
+8. Commercial proposal integration.
+9. OCR and SketchUp handoff.
+
+## Page Types
+
+Supported page type values:
+
+- `floor_plan`
+- `elevation`
+- `visualization`
+- `specification`
+- `text`
+- `mixed`
+- `unknown`
+
+Unknown or unsupported page types normalize to `unknown`.
+
+## Furniture Context
+
+The system is furniture-first. It should look for:
+
+- kitchens;
+- wardrobes;
+- walk-in closets;
+- bathroom furniture;
+- hallways;
+- kids furniture;
+- office furniture;
+- TV zones;
+- commercial furniture;
+- storage/cabinets;
+- other custom furniture.
+
+It must not classify unrelated objects as furniture unless the PDF context makes
+that likely and the result remains reviewable.
+
+## Estimate Boundary
+
+PDF-derived estimate lines are draft-only. They can include:
+
+- room name;
+- furniture zone;
+- extracted dimensions;
+- extracted materials;
+- missing information;
+- confidence;
+- source page references;
+- suggested calculator category.
+
+They cannot include final commercial prices until manager review and approved
+pricing rules/catalog entries are applied.
+
+## Future Storage
+
+Future migrations may add:
+
+- `project_pdf_documents`;
+- `project_pdf_pages`;
+- `project_pdf_extractions`;
+- `project_pdf_estimate_drafts`.
+
+This decision slice does not add migrations.
+
+## Future Env
+
+No environment variables are required for the pure manifest slice.
+
+Future AI/provider slices may reuse the existing provider pattern and must stay
+disabled until explicit local and production smoke checks pass.

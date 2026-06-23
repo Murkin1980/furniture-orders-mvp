@@ -4,9 +4,8 @@ Last reviewed: 2026-06-22
 Current checkpoint: 8
 Next checkpoint review: after 5 more completed slices
 
-Current product focus: complete the remaining explicitly approved production
-write-smokes for commercial proposals and portfolio media without touching real
-customer data.
+Current product focus: start Project PDF Intelligence after completing
+Commercial proposals and Portfolio/media production smokes with synthetic data.
 
 This is the canonical visual progress tracker for the complete furniture platform. Percentages are engineering estimates based on implemented, tested, deployed, and operationally verified behavior. A feature is not considered complete only because code exists.
 
@@ -18,7 +17,7 @@ and `SESSION_NOTES.md` together.
 
 | Target | Progress | Meaning |
 |---|---:|---|
-| Commercial platform | `[########--] 75%` | Landings, orders, calculators, portfolio, CRM, and stable operations |
+| Commercial platform | `[#########-] 80%` | Landings, orders, calculators, portfolio, CRM, proposals, and stable operations |
 | AI-assisted platform | `[#######---] 70%` | AI qualification, safe communications, and locally verified manager-reviewed OCR |
 | Complete vision | `[#######---] 65%` | Commercial platform plus vision, guarded SketchUp boundary, gated executor wiring, render file/upload contracts, and pending real execution |
 
@@ -29,18 +28,18 @@ and `SESSION_NOTES.md` together.
 | Lead intake and order workflow | `[##########] 100%` | Production-ready MVP: intake, statuses, notes, follow-up, history, and project steps | Extend only from real user feedback |
 | Calculators | `[##########] 100%` | Production embed and lead path verified | Repeat the documented flow for the first paid landing |
 | Landing platform | `[##########] 100%` | Production publish and customer-domain HTTPS verified | Repeat the documented flow for the first paid landing |
-| Portfolio and media | `[#########-] 90%` | Production R2 bucket, D1 tables, public API, media 404 path, explicit write-smoke runner, and local preflight are complete | Approve one production test upload/publish smoke with a synthetic image |
+| Portfolio and media | `[##########] 100%` | Production R2 bucket, D1 tables, public API, media upload/read/publish/unpublish smoke, explicit runner, and local preflight are complete | Extend only with real media management needs |
 | Production infrastructure | `[#########-] 92%` | Cloudflare Pages/R2 are verified; VPS proxy layer is alive and preflight is ready, but authenticated VPS health still needs token/SSH verification | Run preflight, then authenticated VPS health/services/deploy-log checks |
 | Manual AI analysis | `[##########] 100%` | Manual-only production flow verified on a synthetic order | Keep manual-only; define consent rules before using real customer data |
 | Native CRM | `[##########] 100%` | Production-ready MVP: pipeline, filters, analytics, follow-up, and interaction history | Extend only from real manager usage |
 | Admin and CRM interface | `[##########] 100%` | Complete MVP UI: focused modules, actionable dashboard, responsive orders, efficient CRM cards, states and accessibility polish | Extend only from real manager feedback |
-| Commercial proposals | `[#########-] 98%` | Versioned D1 storage, immutable snapshots, publish/approval audit, persisted admin workflow, production migration 0022, Pages deploy, and smoke runner are complete | Approve one synthetic authenticated production lifecycle smoke with a safe test order |
+| Commercial proposals | `[##########] 100%` | Versioned D1 storage, immutable snapshots, publish/approval audit, persisted admin workflow, production migration 0022, Pages deploy, and synthetic production lifecycle smoke are complete | Extend from real КП workflow feedback |
 | Twenty CRM integration | `[#######---] 70%` | Production safety path verified; now a separate future module | Prepare separate integration repository after native CRM verification |
 | AI agents and communications | `[##########] 100%` | Safe MVP complete: manual suggestions, editing, approval/rejection, audit history, and no autonomous sending | Add Telegram/WhatsApp delivery only as separately approved channel integrations |
 | OCR and sketch recognition | `[##########] 100%` | Backend MVP complete: durable consent, retention, manager review, and fail-closed deletion; customer production pilot remains disabled | Review/apply migration 0019 and R2 binding only before an approved customer pilot |
 | SketchUp MCP | `[##########] 100%` | Safe platform boundary complete: approved OCR -> model -> plan -> signed job -> dry-run node -> guarded execution adapter -> render artifact persistence | Real SketchUp adapter remains an external approved Windows/SketchUp environment task |
 | 3D rendering pipeline | `[#######---] 65%` | Render storage paths and fail-closed HTTP-to-executor wiring are tested; default node mode remains dry-run | Install and inject an approved Windows SketchUp/render executor |
-| Project PDF Intelligence | `[----------] 0%` | Planned order-admin upload that turns a designer PDF into a reviewable preliminary room-by-room furniture estimate and later 3D handoff | Build the PDF manifest/page-classification contracts after the real SketchUp executor is stable |
+| Project PDF Intelligence | `[#---------] 10%` | Decision and pure PDF manifest/schema foundation are complete; no upload, AI, endpoint, migration, or estimate generation yet | Build page-classification prompt/schema next |
 | Supplier Catalog and Pricing | `[----------] 0%` | Planned controlled supplier imports with mapping, draft diffs, approval, and immutable price-list versions | Design supplier/source/catalog schemas and start with reviewed file imports |
 
 ## Dependency Map
@@ -170,3 +169,5 @@ flowchart LR
 | Proposal Slice 7 | 2026-06-22 | Admin restores versions, previews immutable HTML, and gates save/publish/approve actions; local D1 lifecycle and desktop/mobile Playwright smoke pass; 466 tests pass | Apply migration 0022 and deploy only after explicit production approval |
 | Proposal production gate | 2026-06-23 | Remote D1 migration 0022 applied and commit `d1b8703` deployed to Cloudflare Pages preview `ea9bedd1.furniture-orders-mvp.pages.dev` | Run one synthetic authenticated production create/save/publish/approve/history smoke after a safe admin token and test order are available |
 | Proposal/portfolio smoke runners | 2026-06-23 | Proposal lifecycle runner added; production portfolio read-only recheck confirms D1 tables, R2 bucket, public API and controlled media 404 path; deploy `29b2620e` completed | Await explicit approval for production writes: one synthetic proposal lifecycle and one temporary portfolio upload |
+| Proposal/portfolio production completion | 2026-06-23 | Synthetic proposal lifecycle approved v2 with audit note; synthetic portfolio image upload/read/publish/unpublish smoke passed | Move to Project PDF Intelligence with pure manifest/schema first |
+| PDF Intelligence Slice 1-2 | 2026-06-23 | Decision document plus pure PDF manifest/schema and tests added without AI, upload, endpoint, migration, or UI | Build page-classification prompt/schema |

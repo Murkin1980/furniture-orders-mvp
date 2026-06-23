@@ -116,6 +116,16 @@ After deploy and R2 binding:
 - Production write-smoke remains pending explicit approval to create a
   temporary draft portfolio item and R2 object.
 
+2026-06-23 write-smoke:
+
+- Created synthetic portfolio draft item `1`.
+- Uploaded temporary PNG test image to storage key
+  `portfolio/1/8853acfd-ad22-4cd3-bd8a-8f10a017081d.png`.
+- Direct media URL returned `200`.
+- D1 recorded `mime_type=image/png` and `size_bytes=68`.
+- Published item `1`, verified it was visible in public `/api/portfolio`, then
+  unpublished it back to `draft` to avoid leaving a fake public portfolio item.
+
 ## Safety Rules
 
 - Do not store real customer-private images before consent rules are confirmed.

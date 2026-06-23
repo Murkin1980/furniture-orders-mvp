@@ -16,9 +16,10 @@ const history = await listHistory(orderId);
 
 const approvedVersion = Number(approved.item?.approvedVersion);
 const currentVersion = Number(approved.item?.currentVersion);
-const historyMatch = history.items?.some((item) =>
-  String(item.summary || "").includes(`РљРѕРјРјРµСЂС‡РµСЃРєРѕРµ РїСЂРµРґР»РѕР¶РµРЅРёРµ #${approved.item.id}`)
-);
+const historyMatch = history.items?.some((item) => {
+  const summary = String(item.summary || "");
+  return summary.includes(`#${approved.item.id}`) && summary.includes(String(approvedVersion));
+});
 
 if (approved.item?.status !== "approved" || approvedVersion !== 2 || currentVersion !== 2 || !historyMatch) {
   throw new Error("Proposal lifecycle smoke failed final state verification.");

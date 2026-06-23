@@ -2673,3 +2673,72 @@ Conclusion:
 - After explicit approval, run exactly one proposal lifecycle production
   write-smoke and one portfolio media production upload smoke with synthetic
   data only.
+
+## 2026-06-23 - Proposal and portfolio production completion
+
+### What changed
+- Ran one synthetic production commercial-proposal lifecycle smoke.
+- The smoke runner created synthetic order `10`; the runner's final text check
+  failed because of a mojibake match string, but remote D1 read-only checks
+  confirmed the lifecycle completed correctly.
+- Fixed `scripts/proposal-lifecycle-smoke.mjs` to verify history notes through
+  stable `#proposalId` and version-number matching.
+- Ran one synthetic portfolio media production upload smoke.
+- Published the synthetic portfolio item, confirmed it was visible in public
+  `/api/portfolio`, then unpublished it back to `draft` to avoid leaving fake
+  public portfolio content.
+
+### Files changed
+- `scripts/proposal-lifecycle-smoke.mjs`
+- `README.md`
+- `PORTFOLIO_MEDIA_OPS.md`
+- `PROJECT_PROGRESS.md`
+- `PROJECT_PROGRESS.html`
+- `SESSION_NOTES.md`
+
+### Checks
+- Remote D1 proposal check: proposal `1`, order `10`, status `approved`,
+  current version `2`, approved version `2`, versions `2`.
+- Remote D1 order-history check: order `10` has a note for commercial proposal
+  `#1`, version `2`, created by `production-smoke`.
+- Portfolio smoke: draft item `1`, storage key
+  `portfolio/1/8853acfd-ad22-4cd3-bd8a-8f10a017081d.png`.
+- Direct media URL returned `200`.
+- Remote D1 portfolio check: image metadata stored as `image/png`, `68` bytes.
+- Public portfolio publish/unpublish check: passed.
+
+### Next
+- Move to Project PDF Intelligence.
+
+## 2026-06-23 - Project PDF Intelligence Slice 1-2
+
+### What changed
+- Added `PROJECT_PDF_INTELLIGENCE_DECISION.md`.
+- Added pure manifest/schema module `src/pdf/project-pdf-manifest.js`.
+- Added tests for PDF metadata, page records, supported file validation, page
+  type fallback, confidence clamping, furniture-zone normalization, missing
+  dimensions, no mutation, and no `undefined` payload values.
+- Updated `README.md`, `PROJECT_PROGRESS.md`, and `PROJECT_PROGRESS.html`.
+
+### Files changed
+- `PROJECT_PDF_INTELLIGENCE_DECISION.md`
+- `src/pdf/project-pdf-manifest.js`
+- `tests/project-pdf-manifest.test.js`
+- `package.json`
+- `README.md`
+- `PROJECT_PROGRESS.md`
+- `PROJECT_PROGRESS.html`
+- `SESSION_NOTES.md`
+- `docs/sessions/furniture-pdf-intelligence-slice1-2-summary.md`
+
+### Checks
+- Focused proposal/portfolio/PDF tests: passed, 30 tests.
+- `node --check src/pdf/project-pdf-manifest.js`: passed.
+- `node --check scripts/proposal-lifecycle-smoke.mjs`: passed.
+
+### Production boundary
+- PDF slice did not add upload, endpoint, migration, UI, AI calls, storage, or
+  production settings.
+
+### Next
+- Build PDF page-classification prompt/schema as the next safe slice.

@@ -609,12 +609,29 @@ canceled
   uses only env-provided admin credentials, creates a synthetic order when
   `PROPOSAL_SMOKE_ORDER_ID` is not set, then verifies v1, v2, publish,
   approval, and order-history audit.
+- Production smoke on 2026-06-23 created synthetic order `10` and commercial
+  proposal `1`; remote D1 confirmed status `approved`, current version `2`,
+  approved version `2`, two stored versions, and an order-history audit note.
 - Run `npm.cmd run proposal:demo` to create
   `output/pdf/commercial-proposal.html` from the synthetic example.
 - Full schema and future integration steps are in
   `COMMERCIAL_PROPOSAL_TEMPLATE.md`.
 - A sequential handoff for another editor (Slices 5-7 plus review scoring) is
   available in `docs/external-editor/proposals/README.md`.
+
+## Project PDF Intelligence
+
+- `PROJECT_PDF_INTELLIGENCE_DECISION.md` defines the future designer-PDF
+  workflow and safety boundary.
+- `src/pdf/project-pdf-manifest.js` provides the first pure manifest/schema
+  layer for PDF metadata, pages, page types, furniture zones, confidence,
+  missing information, and warnings.
+- The manifest layer does not parse binary PDFs, upload files, call AI, create
+  endpoints, add migrations, or generate estimates.
+- Page types are limited to `floor_plan`, `elevation`, `visualization`,
+  `specification`, `text`, `mixed`, and `unknown`.
+- Unknown dimensions, materials, rooms, and prices stay unknown until manager
+  review or later approved extraction/pricing slices.
 
 ## AI layer: текущий статус
 
