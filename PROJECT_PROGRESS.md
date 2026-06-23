@@ -4,9 +4,9 @@ Last reviewed: 2026-06-22
 Current checkpoint: 8
 Next checkpoint review: after 5 more completed slices
 
-Current product focus: complete the commercial-proposal production gate by
-reviewing migration 0022, deploying the verified lifecycle, and running one
-synthetic proposal smoke without touching real customer data.
+Current product focus: complete the remaining explicitly approved production
+write-smokes for commercial proposals and portfolio media without touching real
+customer data.
 
 This is the canonical visual progress tracker for the complete furniture platform. Percentages are engineering estimates based on implemented, tested, deployed, and operationally verified behavior. A feature is not considered complete only because code exists.
 
@@ -29,12 +29,12 @@ and `SESSION_NOTES.md` together.
 | Lead intake and order workflow | `[##########] 100%` | Production-ready MVP: intake, statuses, notes, follow-up, history, and project steps | Extend only from real user feedback |
 | Calculators | `[##########] 100%` | Production embed and lead path verified | Repeat the documented flow for the first paid landing |
 | Landing platform | `[##########] 100%` | Production publish and customer-domain HTTPS verified | Repeat the documented flow for the first paid landing |
-| Portfolio and media | `[########--] 85%` | Production R2 bucket, read-only media binding smoke, explicit write-smoke runner, and local preflight are complete | Run preflight, then approve one production test upload/publish smoke |
+| Portfolio and media | `[#########-] 90%` | Production R2 bucket, D1 tables, public API, media 404 path, explicit write-smoke runner, and local preflight are complete | Approve one production test upload/publish smoke with a synthetic image |
 | Production infrastructure | `[#########-] 92%` | Cloudflare Pages/R2 are verified; VPS proxy layer is alive and preflight is ready, but authenticated VPS health still needs token/SSH verification | Run preflight, then authenticated VPS health/services/deploy-log checks |
 | Manual AI analysis | `[##########] 100%` | Manual-only production flow verified on a synthetic order | Keep manual-only; define consent rules before using real customer data |
 | Native CRM | `[##########] 100%` | Production-ready MVP: pipeline, filters, analytics, follow-up, and interaction history | Extend only from real manager usage |
 | Admin and CRM interface | `[##########] 100%` | Complete MVP UI: focused modules, actionable dashboard, responsive orders, efficient CRM cards, states and accessibility polish | Extend only from real manager feedback |
-| Commercial proposals | `[#########-] 98%` | Versioned D1 storage, immutable snapshots, publish/approval audit, persisted admin workflow, production migration 0022, and Pages deploy are complete | Run one synthetic authenticated production lifecycle smoke with a safe test order |
+| Commercial proposals | `[#########-] 98%` | Versioned D1 storage, immutable snapshots, publish/approval audit, persisted admin workflow, production migration 0022, Pages deploy, and smoke runner are complete | Approve one synthetic authenticated production lifecycle smoke with a safe test order |
 | Twenty CRM integration | `[#######---] 70%` | Production safety path verified; now a separate future module | Prepare separate integration repository after native CRM verification |
 | AI agents and communications | `[##########] 100%` | Safe MVP complete: manual suggestions, editing, approval/rejection, audit history, and no autonomous sending | Add Telegram/WhatsApp delivery only as separately approved channel integrations |
 | OCR and sketch recognition | `[##########] 100%` | Backend MVP complete: durable consent, retention, manager review, and fail-closed deletion; customer production pilot remains disabled | Review/apply migration 0019 and R2 binding only before an approved customer pilot |
@@ -169,3 +169,4 @@ flowchart LR
 | Proposal Slice 6 | 2026-06-22 | Scoped lifecycle endpoints publish the current draft and explicitly approve the exact published version with one idempotent order-history record | Connect the admin workspace to persisted lifecycle state |
 | Proposal Slice 7 | 2026-06-22 | Admin restores versions, previews immutable HTML, and gates save/publish/approve actions; local D1 lifecycle and desktop/mobile Playwright smoke pass; 466 tests pass | Apply migration 0022 and deploy only after explicit production approval |
 | Proposal production gate | 2026-06-23 | Remote D1 migration 0022 applied and commit `d1b8703` deployed to Cloudflare Pages preview `ea9bedd1.furniture-orders-mvp.pages.dev` | Run one synthetic authenticated production create/save/publish/approve/history smoke after a safe admin token and test order are available |
+| Proposal/portfolio smoke runners | 2026-06-23 | Proposal lifecycle runner added; production portfolio read-only recheck confirms D1 tables, R2 bucket, public API and controlled media 404 path | Await explicit approval for production writes: one synthetic proposal lifecycle and one temporary portfolio upload |

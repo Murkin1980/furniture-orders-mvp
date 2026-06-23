@@ -535,6 +535,11 @@ canceled
 - Production read-only smoke on 2026-06-16 confirmed the R2 bucket exists and
   the Pages media route sees the binding; admin upload write-smoke remains the
   final operational check.
+- Production read-only recheck on 2026-06-23 confirmed remote D1 has
+  `portfolio_items` and `portfolio_images`, R2 bucket
+  `furniture-portfolio-media` exists in `EEUR`, public `/api/portfolio`
+  returns `200`, and missing `/media/portfolio/...` returns controlled
+  `404 media_not_found`.
 - `scripts/portfolio-media-smoke.mjs` can run the explicit write-smoke when an
   admin token and test image are provided.
 
@@ -600,6 +605,10 @@ canceled
   `https://ea9bedd1.furniture-orders-mvp.pages.dev`. The remaining production
   gate is one synthetic authenticated create/save/publish/approve smoke with a
   safe test order and non-public admin token.
+- `scripts/proposal-lifecycle-smoke.mjs` runs that final lifecycle smoke. It
+  uses only env-provided admin credentials, creates a synthetic order when
+  `PROPOSAL_SMOKE_ORDER_ID` is not set, then verifies v1, v2, publish,
+  approval, and order-history audit.
 - Run `npm.cmd run proposal:demo` to create
   `output/pdf/commercial-proposal.html` from the synthetic example.
 - Full schema and future integration steps are in

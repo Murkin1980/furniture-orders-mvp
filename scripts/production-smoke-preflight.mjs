@@ -30,6 +30,14 @@ export async function buildProductionSmokePreflight(env = process.env, deps = {}
     );
   }
 
+  if (targets.includes("proposal")) {
+    checks.push(
+      checkUrl("proposal.baseUrl", env.PROPOSAL_SMOKE_BASE_URL),
+      checkSecret("proposal.adminToken", env.PROPOSAL_SMOKE_ADMIN_TOKEN),
+      checkOptionalId("proposal.orderId", env.PROPOSAL_SMOKE_ORDER_ID)
+    );
+  }
+
   return {
     ok: checks.every((check) => check.ok),
     targets,
@@ -57,10 +65,10 @@ export function formatPreflightReport(result) {
 export function normalizePreflightTargets(value) {
   const raw = Array.isArray(value) ? value : String(value || "all").split(",");
   const selected = raw.map((item) => clean(item).toLowerCase()).filter(Boolean);
-  const allowed = new Set(["portfolio", "vps", "ai"]);
-  if (selected.length === 0 || selected.includes("all")) return ["portfolio", "vps", "ai"];
+  const allowed = new Set(["portfolio", "vps", "ai", "proposal"]);
+  if (selected.length === 0 || selected.includes("all")) return ["portfolio", "vps", "ai", "proposal"];
   const normalized = [...new Set(selected.filter((item) => allowed.has(item)))];
-  return normalized.length > 0 ? normalized : ["portfolio", "vps", "ai"];
+  return normalized.length > 0 ? normalized : ["portfolio", "vps", "ai", "proposal"];
 }
 
 function checkUrl(name, value) {
@@ -104,6 +112,13 @@ function checkBoolean(name, value) {
 function checkId(name, value) {
   const cleaned = clean(value);
   if (!cleaned) return fail(name, "set a synthetic order id");
+  if (!/^\d+$/.test(cleaned)) return fail(name, "order id must be numeric");
+  return pass(name, cleaned);
+}
+
+function checkOptionalId(name, value) {
+  const cleaned = clean(value);
+  if (!cleaned) return pass(name, "not set; smoke runner will create a synthetic order");
   if (!/^\d+$/.test(cleaned)) return fail(name, "order id must be numeric");
   return pass(name, cleaned);
 }

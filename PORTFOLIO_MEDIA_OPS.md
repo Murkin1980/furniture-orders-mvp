@@ -58,6 +58,14 @@ only when `PORTFOLIO_SMOKE_PUBLISH=true`.
 Run it against production only after approving creation of a temporary draft
 portfolio item and R2 object.
 
+Production write-smoke gate:
+
+- It creates a temporary portfolio draft item.
+- It uploads one test JPEG/PNG/WebP into R2.
+- It publishes only when `PORTFOLIO_SMOKE_PUBLISH=true`.
+- It must not be run against real customer images.
+- It needs explicit approval because it writes to production D1 and R2.
+
 Local upload smoke:
 
 1. Start dev server.
@@ -96,6 +104,17 @@ After deploy and R2 binding:
   binding is present instead of missing (`503`).
 - Encoded traversal path under `/media/portfolio/%2e%2e/...` returned `400`.
 - Full write-smoke from admin is still pending.
+
+2026-06-23:
+
+- Remote D1 contains `portfolio_items` and `portfolio_images`.
+- R2 bucket info confirms `furniture-portfolio-media` exists in `EEUR`.
+- Public `/api/portfolio` returned `200`.
+- Missing `/media/portfolio/nonexistent-smoke.webp` returned controlled
+  `404 media_not_found`.
+- Bucket was still empty at read-only check time (`0 objects`, `0 B`).
+- Production write-smoke remains pending explicit approval to create a
+  temporary draft portfolio item and R2 object.
 
 ## Safety Rules
 

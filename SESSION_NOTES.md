@@ -2618,3 +2618,56 @@ Conclusion:
 - Configure a safe synthetic production smoke token/order without writing the
   token into repo or chat, then run exactly one authenticated proposal
   lifecycle smoke.
+
+## 2026-06-23 - Proposal and portfolio smoke completion prep
+
+### What changed
+- Added `scripts/proposal-lifecycle-smoke.mjs`.
+- The proposal smoke runner creates a synthetic order if
+  `PROPOSAL_SMOKE_ORDER_ID` is not set, then saves proposal v1 and v2,
+  publishes v2, approves v2, and verifies the order-history audit note.
+- Extended `scripts/production-smoke-preflight.mjs` with a `proposal` target
+  and optional synthetic order id validation.
+- Updated `.env.example` with optional proposal and portfolio smoke variables.
+- Updated `PORTFOLIO_MEDIA_OPS.md` with the production write-smoke gate and the
+  2026-06-23 read-only production recheck.
+- Updated project progress files to show portfolio/media at 90% and commercial
+  proposals at 98% until explicit production write-smokes are approved.
+
+### Files changed
+- `.env.example`
+- `package.json`
+- `scripts/proposal-lifecycle-smoke.mjs`
+- `scripts/production-smoke-preflight.mjs`
+- `tests/production-smoke-preflight.test.js`
+- `README.md`
+- `PORTFOLIO_MEDIA_OPS.md`
+- `PROJECT_PROGRESS.md`
+- `PROJECT_PROGRESS.html`
+- `SESSION_NOTES.md`
+- `docs/sessions/furniture-proposal-portfolio-smoke-summary.md`
+
+### Checks
+- `node --check scripts/proposal-lifecycle-smoke.mjs`: passed.
+- `node --test tests/production-smoke-preflight.test.js`: passed, 9 tests.
+- Focused proposal/portfolio suite: passed, 26 tests.
+- `npm.cmd run check`: passed.
+- Remote D1 read-only schema check: `commercial_proposals`,
+  `commercial_proposal_versions`, `portfolio_items`, and `portfolio_images`
+  are present.
+- R2 read-only bucket info: `furniture-portfolio-media` exists in `EEUR`;
+  object count was `0`, bucket size `0 B`.
+- Public `/api/portfolio` read-only request returned `200`.
+- Missing `/media/portfolio/nonexistent-smoke.webp` returned controlled
+  `404 media_not_found`.
+
+### Production boundary
+- Production write-smokes were not run in this pass because they create
+  synthetic production records/objects and require explicit approval for that
+  exact mutation.
+- No real customer order, proposal, or image was used.
+
+### Next
+- After explicit approval, run exactly one proposal lifecycle production
+  write-smoke and one portfolio media production upload smoke with synthetic
+  data only.

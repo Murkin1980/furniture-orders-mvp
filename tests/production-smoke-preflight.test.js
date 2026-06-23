@@ -16,7 +16,10 @@ const completeEnv = {
   VPS_SMOKE_ADMIN_TOKEN: "admin-token-456",
   AI_SMOKE_BASE_URL: "https://example.pages.dev",
   AI_SMOKE_ADMIN_TOKEN: "admin-token-789",
-  AI_SMOKE_ORDER_ID: "12"
+  AI_SMOKE_ORDER_ID: "12",
+  PROPOSAL_SMOKE_BASE_URL: "https://example.pages.dev",
+  PROPOSAL_SMOKE_ADMIN_TOKEN: "admin-token-987",
+  PROPOSAL_SMOKE_ORDER_ID: "34"
 };
 
 test("preflight passes when all required smoke env is present", async () => {
@@ -71,10 +74,11 @@ test("formatted report does not print admin token values", async () => {
   const report = formatPreflightReport(result);
 
   assert.match(report, /Production smoke preflight: ready/);
-  assert.match(report, /Targets: portfolio, vps, ai/);
+  assert.match(report, /Targets: portfolio, vps, ai, proposal/);
   assert.doesNotMatch(report, /admin-token-123/);
   assert.doesNotMatch(report, /admin-token-456/);
   assert.doesNotMatch(report, /admin-token-789/);
+  assert.doesNotMatch(report, /admin-token-987/);
 });
 
 test("preflight can validate only the VPS smoke target", async () => {
@@ -104,7 +108,21 @@ test("preflight supports comma-separated targets", async () => {
 });
 
 test("target normalization falls back to all for empty or unknown values", () => {
-  assert.deepEqual(normalizePreflightTargets(""), ["portfolio", "vps", "ai"]);
-  assert.deepEqual(normalizePreflightTargets("unknown"), ["portfolio", "vps", "ai"]);
+  assert.deepEqual(normalizePreflightTargets(""), ["portfolio", "vps", "ai", "proposal"]);
+  assert.deepEqual(normalizePreflightTargets("unknown"), ["portfolio", "vps", "ai", "proposal"]);
   assert.deepEqual(normalizePreflightTargets(["vps", "vps", "ai"]), ["vps", "ai"]);
+});
+
+test("proposal preflight allows runner-created synthetic order", async () => {
+  const result = await buildProductionSmokePreflight({
+    PROPOSAL_SMOKE_BASE_URL: "https://example.pages.dev",
+    PROPOSAL_SMOKE_ADMIN_TOKEN: "admin-token-987"
+  }, {
+    targets: "proposal",
+    fileExists: async () => false
+  });
+
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.targets, ["proposal"]);
+  assert.equal(result.checks.find((check) => check.name === "proposal.orderId").message, "not set; smoke runner will create a synthetic order");
 });
