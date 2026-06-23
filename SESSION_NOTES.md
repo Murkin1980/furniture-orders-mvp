@@ -2890,3 +2890,28 @@ Conclusion:
 
 ### Next
 - Design admin upload draft storage before any endpoint/UI work.
+
+## 2026-06-23 - Repo review response and CI baseline
+
+### What changed
+- Reviewed repo hygiene feedback about possible secrets, env files, root docs,
+  CI, package-lock, and maintainability.
+- Scanned current major docs and selected history for common token/API key
+  patterns.
+- Confirmed `.env`, `.env.local`, and `.dev.vars` are not tracked.
+- Hardened `.gitignore` for `.env.*` and `.dev.vars.*` while keeping
+  `.env.example` trackable.
+- Added GitHub Actions CI workflow for `npm ci`, `npm run check`, and
+  `npm test`.
+- Added reviewer response summary:
+  `docs/sessions/furniture-repo-review-response-2026-06-23.md`.
+
+### Checks
+- Current secret-pattern scan: no real key found in scanned docs.
+- History secret-pattern scan: matched placeholders/empty env examples only.
+- `git ls-files` env check: no tracked real env files found.
+
+### Decisions
+- Keep `package-lock.json` committed for reproducible Node/CI/Wrangler tooling.
+- Move root decision/runbook docs only in a separate documentation restructure
+  slice to avoid noisy path/link churn.

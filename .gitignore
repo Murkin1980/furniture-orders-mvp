@@ -8,7 +8,10 @@ node_modules/
 wrangler-dev.*.log
 *.log
 .dev.vars
+.dev.vars.*
 .env
+.env.*
 .env.local
+!.env.example
 output/
 *.zip
