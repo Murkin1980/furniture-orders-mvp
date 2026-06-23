@@ -2579,3 +2579,42 @@ Conclusion:
 ### Next
 - Review and apply migration 0022 to production, deploy the lifecycle, then run
   one synthetic production create/save/publish/approve/history smoke.
+
+## 2026-06-23 - Proposal production migration and deploy
+
+### What changed
+- Rechecked Wrangler OAuth after the previous Cloudflare auth blocker.
+- Verified remote D1 schema before writing: `order_interactions` existed and
+  proposal lifecycle tables were absent.
+- Applied only `migrations/0022_commercial_proposals.sql` to remote D1.
+- Verified remote D1 now contains `commercial_proposals`,
+  `commercial_proposal_versions`, and `order_interactions`.
+- Deployed current commit `d1b8703` to Cloudflare Pages.
+
+### Files changed
+- `README.md`
+- `PROJECT_PROGRESS.md`
+- `PROJECT_PROGRESS.html`
+- `SESSION_NOTES.md`
+- `docs/sessions/furniture-proposal-production-wip-handoff.md`
+
+### Checks
+- `npx.cmd wrangler whoami`: passed for account
+  `ca7e89e2e4e294af2c7db130838cf0e0`.
+- Remote D1 read-only schema check before migration: passed.
+- Remote D1 migration `0022`: passed.
+- Remote D1 read-only schema check after migration: passed.
+- `npm.cmd run deploy`: passed; Pages preview
+  `https://ea9bedd1.furniture-orders-mvp.pages.dev`.
+
+### Production boundary
+- No real customer order or proposal was used.
+- Full production lifecycle smoke was not run because no local safe admin
+  smoke token/order env was available.
+- Proposal workstream is production-deployed but remains at 98% until one
+  synthetic authenticated create/save/publish/approve/history smoke passes.
+
+### Next
+- Configure a safe synthetic production smoke token/order without writing the
+  token into repo or chat, then run exactly one authenticated proposal
+  lifecycle smoke.

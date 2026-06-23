@@ -595,6 +595,11 @@ canceled
   reference-only, supports multiple priced items and terms, restores saved
   versions, and provides save, publish, approval, A4 preview, HTML download,
   and browser Print to PDF actions.
+- Production migration `0022` was applied to remote D1 on 2026-06-23 and the
+  Pages deployment for commit `d1b8703` completed at
+  `https://ea9bedd1.furniture-orders-mvp.pages.dev`. The remaining production
+  gate is one synthetic authenticated create/save/publish/approve smoke with a
+  safe test order and non-public admin token.
 - Run `npm.cmd run proposal:demo` to create
   `output/pdf/commercial-proposal.html` from the synthetic example.
 - Full schema and future integration steps are in
