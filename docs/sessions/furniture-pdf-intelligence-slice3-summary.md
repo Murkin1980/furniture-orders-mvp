@@ -54,6 +54,11 @@ Focused checks passed. The full project suite passed with 482 tests.
 `npm.cmd run check` passed. `git diff --check` passed with line-ending
 warnings only.
 
+Deployment passed:
+
+- `npm.cmd run deploy`
+- Pages preview: `https://31956eaf.furniture-orders-mvp.pages.dev`
+
 ## Next Step
 
 Build the room and furniture-zone extraction schema as the next small PDF

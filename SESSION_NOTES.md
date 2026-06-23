@@ -2783,6 +2783,8 @@ Conclusion:
 - Full project suite: passed, 482 tests.
 - `npm.cmd run check`: passed.
 - `git diff --check`: passed with line-ending warnings only.
+- `npm.cmd run deploy`: passed; Pages preview
+  `https://31956eaf.furniture-orders-mvp.pages.dev`.
 
 ### Production boundary
 - Slice 3 did not add upload, endpoint, migration, UI, storage, provider calls,
