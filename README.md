@@ -632,6 +632,9 @@ canceled
 - `src/pdf/room-extraction.js` adds the next pure contract layer for extracting
   rooms and reviewable furniture zones from classified pages into the existing
   manifest shape.
+- `src/pdf/analyze-project-pdf.js` orchestrates manifest building, page
+  classification, and room/furniture-zone extraction with an injected sender
+  only. It builds OpenAI-compatible request objects but never calls `fetch`.
 - The PDF foundation does not parse binary PDFs, upload files, call external
   AI/providers, create endpoints, add migrations, or generate estimates.
 - Page types are limited to `floor_plan`, `elevation`, `visualization`,

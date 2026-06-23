@@ -2839,3 +2839,52 @@ Conclusion:
 
 ### Next
 - Build injected AI orchestration with a fake sender as the next safe PDF slice.
+
+## 2026-06-23 - Project PDF Intelligence Slice 5
+
+### What changed
+- Added injected PDF analysis orchestration module
+  `src/pdf/analyze-project-pdf.js`.
+- The orchestration builds a safe PDF manifest, then builds OpenAI-compatible
+  request objects for page classification and room/furniture-zone extraction.
+- The module calls only `options.sendPdfAiRequest(request, context)`.
+- It never imports SDK clients, never calls `fetch`, and never falls back to
+  global network access.
+- It supports provider/model/env configuration through the existing provider
+  abstraction while keeping actual transport injected.
+- It handles missing sender, sender errors, invalid classification JSON, raw
+  string responses, `{ content }`, and OpenAI-like `choices` responses safely.
+- It merges valid classification and extraction results into a reviewable
+  manifest without mutating input data.
+- Added tests for happy path, request/stage context, provider/model/env,
+  missing sender, invalid classification, sender error, OpenAI-like response,
+  no fetch, and no input mutation.
+- Updated `README.md`, `PROJECT_PDF_INTELLIGENCE_DECISION.md`,
+  `PROJECT_PROGRESS.md`, and `PROJECT_PROGRESS.html`.
+
+### Files changed
+- `src/pdf/analyze-project-pdf.js`
+- `tests/project-pdf-analyze.test.js`
+- `src/pdf/room-extraction.js`
+- `package.json`
+- `README.md`
+- `PROJECT_PDF_INTELLIGENCE_DECISION.md`
+- `PROJECT_PROGRESS.md`
+- `PROJECT_PROGRESS.html`
+- `SESSION_NOTES.md`
+- `docs/sessions/furniture-pdf-intelligence-slice5-summary.md`
+
+### Checks
+- Focused PDF tests: passed, 34 tests.
+- `node --check src/pdf/analyze-project-pdf.js`: passed.
+- `node --check src/pdf/room-extraction.js`: passed.
+- Full project suite: passed, 501 tests.
+- `npm.cmd run check`: passed.
+- `git diff --check`: passed with line-ending warnings only.
+
+### Production boundary
+- Slice 5 did not add upload, endpoint, migration, UI, storage, real provider
+  sender, production settings, binary PDF parsing, or estimate generation.
+
+### Next
+- Design admin upload draft storage before any endpoint/UI work.

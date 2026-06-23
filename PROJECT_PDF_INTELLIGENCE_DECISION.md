@@ -58,7 +58,8 @@ The pipeline is split into small safe slices:
    `src/pdf/page-classification.js`.
 3. Room and furniture-zone extraction schema. Implemented in
    `src/pdf/room-extraction.js`.
-4. AI orchestration with injected sender.
+4. AI orchestration with injected sender. Implemented in
+   `src/pdf/analyze-project-pdf.js`.
 5. Admin upload draft.
 6. Manager review UI.
 7. Estimate draft generator.
@@ -90,6 +91,9 @@ Unknown or unsupported page types normalize to `unknown`.
   prompt, parses strict JSON responses, keeps only zones tied to known pages,
   normalizes zone types/dimensions/materials, and merges zones into pages
   without mutating the input.
+- `src/pdf/analyze-project-pdf.js` chains the pure contracts with an injected
+  sender, OpenAI-compatible request objects, safe meta/error handling, and no
+  fallback to global `fetch`.
 - Both contracts are pure JavaScript and do not upload files, call AI providers,
   create endpoints, add migrations, or generate estimates.
 

@@ -5,8 +5,8 @@ Current checkpoint: 8
 Next checkpoint review: after 5 more completed slices
 
 Current product focus: Project PDF Intelligence. The manifest,
-page-classification, and room/furniture-zone extraction contract layers are
-complete; next slice is injected AI orchestration without production calls.
+page-classification, room/furniture-zone extraction, and injected orchestration
+contract layers are complete; next slice is admin upload draft storage design.
 
 This is the canonical visual progress tracker for the complete furniture platform. Percentages are engineering estimates based on implemented, tested, deployed, and operationally verified behavior. A feature is not considered complete only because code exists.
 
@@ -40,7 +40,7 @@ and `SESSION_NOTES.md` together.
 | OCR and sketch recognition | `[##########] 100%` | Backend MVP complete: durable consent, retention, manager review, and fail-closed deletion; customer production pilot remains disabled | Review/apply migration 0019 and R2 binding only before an approved customer pilot |
 | SketchUp MCP | `[##########] 100%` | Safe platform boundary complete: approved OCR -> model -> plan -> signed job -> dry-run node -> guarded execution adapter -> render artifact persistence | Real SketchUp adapter remains an external approved Windows/SketchUp environment task |
 | 3D rendering pipeline | `[#######---] 65%` | Render storage paths and fail-closed HTTP-to-executor wiring are tested; default node mode remains dry-run | Install and inject an approved Windows SketchUp/render executor |
-| Project PDF Intelligence | `[###-------] 30%` | Decision, pure PDF manifest/schema, page classification, and room/furniture-zone extraction contracts are complete; no upload, AI call, endpoint, migration, or estimate generation yet | Build injected AI orchestration with fake sender next |
+| Project PDF Intelligence | `[####------] 40%` | Decision, pure PDF manifest/schema, page classification, room/furniture-zone extraction, and injected orchestration contracts are complete; no upload, endpoint, migration, production AI call, or estimate generation yet | Design admin upload draft storage next |
 | Supplier Catalog and Pricing | `[----------] 0%` | Planned controlled supplier imports with mapping, draft diffs, approval, and immutable price-list versions | Design supplier/source/catalog schemas and start with reviewed file imports |
 
 ## Dependency Map
@@ -174,3 +174,4 @@ flowchart LR
 | PDF Intelligence Slice 1-2 | 2026-06-23 | Decision document plus pure PDF manifest/schema and tests added without AI, upload, endpoint, migration, or UI; deploy `cabcd73d` completed | Build page-classification prompt/schema |
 | PDF Intelligence Slice 3 | 2026-06-23 | Added furniture-first page classification prompt/parser, safe JSON fence handling, confidence clamp, manifest page filtering, and non-mutating merge helper; deploy `31956eaf` completed | Build room and furniture-zone extraction schema |
 | PDF Intelligence Slice 4 | 2026-06-23 | Added furniture-first room/furniture-zone extraction prompt/parser, source-page filtering, zone type fallback, dimension/material normalization, and non-mutating manifest merge; deploy `19c7444c` completed | Build injected AI orchestration with fake sender |
+| PDF Intelligence Slice 5 | 2026-06-23 | Added injected PDF analysis orchestration that builds manifest, classification request, extraction request, merges results, handles safe errors, and never calls fetch | Design admin upload draft storage |

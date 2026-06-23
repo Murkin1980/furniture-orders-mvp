@@ -20,6 +20,7 @@ export function buildPdfRoomExtractionPrompt(manifest = {}, pageInputs = [], opt
 
   return [
     "You analyze an interior designer PDF for a furniture workshop.",
+    "Task: furniture-zone extraction and room extraction.",
     "Assume the document is about an apartment, house, office, or commercial furniture project.",
     "Extract only rooms and furniture zones that are visible or explicitly described.",
     "Do not invent dimensions, materials, quantities, prices, rooms, or furniture zones.",
