@@ -55,6 +55,11 @@ Both focused checks passed with 25 PDF tests.
 The full project suite passed with 492 tests. `npm.cmd run check` passed.
 `git diff --check` passed with line-ending warnings only.
 
+Deployment passed:
+
+- `npm.cmd run deploy`
+- Pages preview: `https://19c7444c.furniture-orders-mvp.pages.dev`
+
 ## Next Step
 
 Build injected PDF AI orchestration with fake sender only. Keep production,
