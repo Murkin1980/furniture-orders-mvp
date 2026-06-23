@@ -6,6 +6,11 @@ if (!baseUrl || !token) {
   process.exit(2);
 }
 
+if (!isSafeHeaderValue(token) || token.includes("<") || token.includes(">")) {
+  console.error("VPS_SMOKE_ADMIN_TOKEN must be the real ASCII admin token, not a placeholder or Cyrillic text.");
+  process.exit(2);
+}
+
 const endpoints = [
   "/api/vps/health",
   "/api/vps/services",
@@ -36,4 +41,8 @@ async function request(path) {
 
 function clean(value) {
   return value === undefined || value === null ? "" : String(value).trim();
+}
+
+function isSafeHeaderValue(value) {
+  return /^[\x21-\x7e]+$/.test(value);
 }

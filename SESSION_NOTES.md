@@ -2952,3 +2952,23 @@ Conclusion:
 
 ### Next
 - Continue PDF Intelligence storage design.
+
+## 2026-06-23 - VPS smoke token validation
+
+### What changed
+- Added a clear `VPS_SMOKE_ADMIN_TOKEN` validation guard to
+  `scripts/vps-readonly-smoke.mjs`.
+- The runner now fails before `fetch` when the token is a Cyrillic placeholder,
+  contains angle brackets, spaces, or other non-ASCII header-unsafe characters.
+
+### Files changed
+- `scripts/vps-readonly-smoke.mjs`
+- `SESSION_NOTES.md`
+
+### Checks
+- `node --check scripts/vps-readonly-smoke.mjs`: passed.
+- Local placeholder validation smoke: passed; Cyrillic placeholder now returns
+  a clear error.
+
+### Next
+- Run the VPS read-only smoke only with the real ASCII production admin token.
