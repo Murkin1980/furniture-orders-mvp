@@ -146,6 +146,8 @@ Current controlled production verification focus:
   `control.34-140-181-91.nip.io`;
 - controlled live HTML deploy for site `1` succeeded on the Google test VPS at
   `/srv/sites/lc6-production-landing/index.html`;
+- temporary public Google VPS landing host is verified:
+  `http://lc6-test.34-140-181-91.nip.io/`;
 - one synthetic-order manual AI smoke with `scripts/ai-manual-smoke.mjs`.
 
 Do not run these checks against real customer data without explicit approval.

@@ -62,6 +62,8 @@ confirmed:
   `/api/vps/health`, `/api/vps/services`, and `/api/vps/deploy/logs?limit=5`.
 - controlled live HTML deploy for site `1` succeeded and wrote
   `/srv/sites/lc6-production-landing/index.html` on the Google test VPS.
+- temporary public Google VPS landing host
+  `http://lc6-test.34-140-181-91.nip.io/` returns `200 OK`.
 
 The active test Cloudflare secrets are:
 

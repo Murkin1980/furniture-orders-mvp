@@ -3009,6 +3009,8 @@ Conclusion:
 - After `sudo chown -R furniture-control:furniture-control /srv/sites` and a
   write test as `furniture-control`, live HTML deploy for site `1` succeeded:
   `/srv/sites/lc6-production-landing/index.html`.
+- Added nginx public host `lc6-test.34-140-181-91.nip.io` for the deployed
+  landing and verified `http://lc6-test.34-140-181-91.nip.io/` returns `200`.
 
 ### Notes
 - Raw IP origin `http://34.140.181.91` returned upstream `403` through
