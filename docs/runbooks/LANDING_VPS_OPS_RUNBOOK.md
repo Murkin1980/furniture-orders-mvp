@@ -60,6 +60,8 @@ confirmed:
   reverse proxy and bearer boundary are alive;
 - authenticated Cloudflare -> VPS read-only smoke passes for
   `/api/vps/health`, `/api/vps/services`, and `/api/vps/deploy/logs?limit=5`.
+- controlled live HTML deploy for site `1` succeeded and wrote
+  `/srv/sites/lc6-production-landing/index.html` on the Google test VPS.
 
 The active test Cloudflare secrets are:
 
@@ -83,6 +85,24 @@ does not call deploy or reload endpoints.
 If a Cloudflare smoke uses a raw IP origin and returns upstream `403`, switch
 `VPS_CONTROL_BASE_URL` to the DNS hostname
 `http://control.34-140-181-91.nip.io`; that path was verified on 2026-06-24.
+
+If live deploy returns upstream `502` while read-only and dry-run deploy checks
+pass, verify staging ownership. The Google test VPS initially had
+`/srv/sites/.staging` owned by the SSH user, so the `furniture-control` service
+could not write the HTML artifact. Fix:
+
+```bash
+sudo chown -R furniture-control:furniture-control /srv/sites
+sudo chmod -R u+rwX,g+rX,o+rX /srv/sites
+```
+
+Then verify:
+
+```bash
+sudo -u furniture-control mkdir -p /srv/sites/.staging/test-write
+sudo -u furniture-control sh -c 'echo "<!doctype html><html><body>ok</body></html>" > /srv/sites/.staging/test-write/index.html'
+sudo -u furniture-control rm -rf /srv/sites/.staging/test-write
+```
 
 Do not retry deploy/reload operations in a loop while the node is unreachable.
 Inspect the VPS state in the provider panel manually. If it is stopped, obtain

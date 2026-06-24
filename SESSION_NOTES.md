@@ -3002,6 +3002,13 @@ Conclusion:
 - Cloudflare -> VPS read-only smoke passed:
   `/api/vps/health`, `/api/vps/services`, and
   `/api/vps/deploy/logs?limit=5`.
+- Cloudflare -> VPS dry-run deploy passed for `lc6-production-landing`.
+- First live deploy attempt failed with upstream `502`; cause was
+  `/srv/sites/.staging` ownership by the SSH user instead of
+  `furniture-control`.
+- After `sudo chown -R furniture-control:furniture-control /srv/sites` and a
+  write test as `furniture-control`, live HTML deploy for site `1` succeeded:
+  `/srv/sites/lc6-production-landing/index.html`.
 
 ### Notes
 - Raw IP origin `http://34.140.181.91` returned upstream `403` through

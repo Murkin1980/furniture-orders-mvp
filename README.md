@@ -144,6 +144,8 @@ Current controlled production verification focus:
 - authenticated VPS read-only smoke with `scripts/vps-readonly-smoke.mjs`
   passes through Cloudflare to the active Google Cloud test VPS
   `control.34-140-181-91.nip.io`;
+- controlled live HTML deploy for site `1` succeeded on the Google test VPS at
+  `/srv/sites/lc6-production-landing/index.html`;
 - one synthetic-order manual AI smoke with `scripts/ai-manual-smoke.mjs`.
 
 Do not run these checks against real customer data without explicit approval.
