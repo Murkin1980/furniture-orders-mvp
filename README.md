@@ -110,7 +110,8 @@ dry-run and no real SketchUp/MCP/process executor exists. Slice 10
 adds the pure `sketchup-render-artifact/v1` manifest and future order-attachment
 payload with allowlisted media types, safe storage keys, byte counts, and
 SHA-256 hashes. Slice 11 adds an operations-scoped
-`POST /api/orders/:id/sketchup/render-artifacts` endpoint and D1 storage for
+`POST /api/orders/:id/sketchup/render-artifacts` endpoint, a read-scoped
+`GET /api/orders/:id/sketchup/render-artifacts` endpoint, and D1 storage for
 validated render manifests/attachment payloads. It still does not write or
 upload files, start SketchUp, or call MCP. Slice 12 adds a guarded
 `POST /api/orders/:id/sketchup/render-files` upload boundary for already

@@ -2,8 +2,14 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-import { saveOrderRenderArtifactCore } from "../src/sketchup/render-core.js";
-import { onRequestPost } from "../functions/api/orders/[id]/sketchup/render-artifacts.js";
+import {
+  listOrderRenderArtifactsCore,
+  saveOrderRenderArtifactCore
+} from "../src/sketchup/render-core.js";
+import {
+  onRequestGet,
+  onRequestPost
+} from "../functions/api/orders/[id]/sketchup/render-artifacts.js";
 
 const HASH = "b".repeat(64);
 const NOW = "2026-06-20T09:00:00.000Z";
@@ -35,6 +41,25 @@ test("updates an existing artifact for the same job id", async () => {
   assert.equal(updated.status, 200);
   assert.equal(db.renderArtifacts.length, 1);
   assert.equal(updated.body.item.primaryStorageKey, "orders/8/render/updated.webp");
+});
+
+test("lists render artifacts for an order without mutating stored manifests", async () => {
+  const db = createDb({ jobStatus: "accepted" });
+  await saveOrderRenderArtifactCore({ db }, 8, input(), { now: NOW });
+  const result = await listOrderRenderArtifactsCore({ db }, 8);
+
+  assert.equal(result.status, 200);
+  assert.equal(result.body.items.length, 1);
+  assert.equal(result.body.items[0].jobId, "job-render-001");
+  assert.equal(result.body.items[0].manifest.files[1].role, "render");
+  assert.equal(db.renderArtifacts.length, 1);
+});
+
+test("list rejects invalid order id", async () => {
+  const result = await listOrderRenderArtifactsCore({ db: createDb({ jobStatus: "accepted" }) }, "bad");
+
+  assert.equal(result.status, 400);
+  assert.equal(result.body.error, "invalid_render_artifact_request");
 });
 
 test("rejects missing, failed, or mismatched SketchUp jobs", async () => {
@@ -80,6 +105,29 @@ test("endpoint requires ops scope and saves with authorized token", async () => 
   assert.equal(response.status, 201);
   assert.equal(body.item.jobId, "job-render-001");
   assert.equal(db.renderArtifacts[0].job_id, "job-render-001");
+});
+
+test("GET endpoint lists render artifacts with read token", async () => {
+  const db = createDb({ jobStatus: "accepted" });
+  await saveOrderRenderArtifactCore({ db }, 8, input(), { now: NOW });
+
+  const unauthorized = await onRequestGet({
+    request: getRequest("bad-token"),
+    env: { ADMIN_READ_TOKEN: "read-token", DB: db },
+    params: { id: "8" }
+  });
+  assert.equal(unauthorized.status, 401);
+
+  const response = await onRequestGet({
+    request: getRequest("read-token"),
+    env: { ADMIN_READ_TOKEN: "read-token", DB: db },
+    params: { id: "8" }
+  });
+  const body = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.equal(body.items.length, 1);
+  assert.equal(body.items[0].primaryStorageKey, "orders/8/render/main.webp");
 });
 
 test("endpoint rejects invalid JSON without saving", async () => {
@@ -142,6 +190,13 @@ function request(token) {
   });
 }
 
+function getRequest(token) {
+  return new Request("https://example.test/api/orders/8/sketchup/render-artifacts", {
+    method: "GET",
+    headers: { Authorization: `Bearer ${token}` }
+  });
+}
+
 function createDb({ jobStatus }) {
   const state = {
     renderArtifacts: [],
@@ -160,6 +215,16 @@ function createDb({ jobStatus }) {
                 return item ? toRow(item) : null;
               }
               return null;
+            },
+            async all() {
+              if (sql.includes("FROM sketchup_render_artifacts") && sql.includes("WHERE order_id = ?")) {
+                return {
+                  results: state.renderArtifacts
+                    .filter((artifact) => artifact.order_id === values[0])
+                    .map(toRow)
+                };
+              }
+              return { results: [] };
             },
             async run() {
               if (sql.includes("INSERT INTO sketchup_render_artifacts")) {

@@ -1,14 +1,33 @@
 import { AUTH_SCOPES, authorizeRequest } from "../../../../../src/auth.js";
-import { saveOrderRenderArtifactCore } from "../../../../../src/sketchup/render-core.js";
+import {
+  listOrderRenderArtifactsCore,
+  saveOrderRenderArtifactCore
+} from "../../../../../src/sketchup/render-core.js";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Admin-Token"
 };
 
 export async function onRequestOptions() {
   return new Response(null, { status: 204, headers: corsHeaders });
+}
+
+export async function onRequestGet(context) {
+  const auth = authorizeRequest(context.request, context.env, AUTH_SCOPES.READ);
+  if (!auth.ok) return jsonResponse({ success: false, error: auth.error, message: auth.message }, auth.status);
+
+  try {
+    const result = await listOrderRenderArtifactsCore(
+      { db: context.env.DB },
+      context.params.id
+    );
+    return jsonResponse(result.body, result.status);
+  } catch (error) {
+    console.error("Order SketchUp render artifacts API failed", error);
+    return jsonResponse({ success: false, error: "server_error", message: "SketchUp render artifacts were not loaded." }, 500);
+  }
 }
 
 export async function onRequestPost(context) {
@@ -40,7 +59,7 @@ export async function onRequestPost(context) {
 }
 
 export async function onRequest() {
-  return jsonResponse({ success: false, error: "method_not_allowed", message: "Use POST /api/orders/:id/sketchup/render-artifacts." }, 405, { Allow: "POST, OPTIONS" });
+  return jsonResponse({ success: false, error: "method_not_allowed", message: "Use GET or POST /api/orders/:id/sketchup/render-artifacts." }, 405, { Allow: "GET, POST, OPTIONS" });
 }
 
 function jsonResponse(body, status = 200, headers = {}) {

@@ -3023,3 +3023,31 @@ Conclusion:
 - Rebuild or replace the PS.kz VPS before any future production reuse.
 - Continue Project PDF Intelligence admin upload draft storage design after
   the infrastructure checkpoint is committed.
+
+## 2026-06-24 - 3D render read API slice
+
+### What changed
+- Added `listOrderRenderArtifactsCore({ db }, orderId)` in
+  `src/sketchup/render-core.js`.
+- Added read-scoped `GET /api/orders/:id/sketchup/render-artifacts` beside the
+  existing ops-scoped save endpoint.
+- Extended render-core tests to cover list behavior, invalid order IDs, read
+  token authorization, unauthorized access, and preserved manifest parsing.
+- Updated README and progress trackers for the 3D rendering pipeline.
+
+### Checks
+- `node --test tests/sketchup-render-core.test.js`: passed, 10 tests.
+- `node --check src/sketchup/render-core.js`: passed.
+- `node --check functions/api/orders/[id]/sketchup/render-artifacts.js`:
+  passed.
+- `npm.cmd run check`: passed.
+- `npm.cmd test`: passed, 504 tests.
+
+### Notes
+- This slice does not start SketchUp, call MCP, generate renders, upload files,
+  or change production secrets.
+- The default node/executor path remains dry-run and fail-closed.
+
+### Next
+- Surface render artifacts in the admin order view.
+- Then prepare the approved Windows SketchUp/render executor integration.

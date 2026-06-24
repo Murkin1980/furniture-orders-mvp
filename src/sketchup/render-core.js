@@ -91,6 +91,32 @@ export async function saveOrderRenderArtifactCore({ db }, orderId, input = {}, o
   }, existing?.id ? 200 : 201);
 }
 
+export async function listOrderRenderArtifactsCore({ db }, orderId) {
+  if (!db) throw new Error("D1 binding DB is not configured.");
+  const id = positiveInteger(orderId);
+  if (!id) {
+    return errorResult(400, "invalid_render_artifact_request", "Order ID is required.");
+  }
+
+  const result = await db.prepare(
+    `SELECT id, order_id AS orderId, job_id AS jobId,
+            artifact_version AS artifactVersion, status,
+            primary_storage_key AS primaryStorageKey,
+            model_storage_key AS modelStorageKey,
+            manifest_json AS manifestJson,
+            reported_by AS reportedBy,
+            created_at AS createdAt,
+            updated_at AS updatedAt
+     FROM sketchup_render_artifacts
+     WHERE order_id = ?
+     ORDER BY updated_at DESC, id DESC`
+  ).bind(id).all();
+
+  return okResult({
+    items: (result?.results || []).map(normalizeSavedArtifact)
+  });
+}
+
 function normalizeSavedArtifact(row = {}) {
   return {
     id: positiveInteger(row.id),
