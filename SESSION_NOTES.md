@@ -3110,3 +3110,38 @@ Conclusion:
 ### Next
 - Build or review the local SketchUp Ruby consumer / approved render executor
   that consumes `inbox/{jobId}.json` and writes the validated outbox response.
+
+## 2026-06-24 - SketchUp Ruby outbox finalizer
+
+### What changed
+- Added `sketchup-node-service/ruby/queue_consumer_contract.rb` as a
+  fail-closed Ruby helper for a future local SketchUp 2026 extension.
+- The helper reads `inbox/{jobId}.json`, validates the bridge version, job ID,
+  manager identity, command-plan version, and allowlisted command types.
+- It reads matching `approvals/{jobId}.json`, requires `approved=true`, matching
+  job/manager identity, and a valid ISO approval timestamp.
+- It only writes `outbox/{jobId}.json` after real local files already exist:
+  `artifacts/{jobId}/model.skp` plus at least one preview or render image.
+- Added `sketchup-node-service/tests/ruby-consumer-contract.test.js`.
+  The test statically checks safety markers when Ruby is unavailable and runs a
+  real Ruby smoke automatically when Ruby is installed.
+- Updated README, SketchUp decision document, and project progress trackers.
+
+### Checks
+- `ruby --version`: not available in the current Windows environment.
+- `npm.cmd --prefix sketchup-node-service test`: passed, 26 tests
+  (25 passed, 1 skipped because Ruby is not installed locally).
+- `npm.cmd --prefix sketchup-node-service run check`: passed.
+- `npm.cmd run check`: passed.
+- `npm.cmd test`: passed, 510 tests (509 passed, 1 skipped because Ruby is
+  not installed locally).
+
+### Notes
+- The Ruby helper does not create geometry, call SketchUp APIs, call
+  EasyKitchen, shell out, upload files, or generate fake artifacts.
+- The Node service still does not invoke Ruby or start any process.
+
+### Next
+- Build the real local SketchUp/EasyKitchen geometry and render adapter that
+  creates the local `model.skp`, preview, and render files before this finalizer
+  publishes the outbox response.

@@ -3,6 +3,8 @@
 Local Windows-side dry-run receiver for signed `sketchup-node-job/v1` jobs.
 It validates transport headers, HMAC, expiry, command-plan shape, and replay
 protection. It does not start SketchUp, MCP, Ruby, or any executable command.
+The optional Ruby file in this package is a queue contract finalizer for a
+future local SketchUp extension; the Node service does not invoke it.
 
 ## Local start
 
@@ -60,6 +62,25 @@ not start a process, load an `.skp`, execute Ruby, or render by itself. A local
 SketchUp 2026 Ruby extension must consume the inbox and create the outbox
 result. EasyKitchen Demo may be used only inside that licensed local SketchUp
 environment; its library files must not be copied into this repository or R2.
+
+## Ruby queue contract finalizer
+
+`ruby/queue_consumer_contract.rb` is a minimal fail-closed helper intended to
+run inside, or beside, a future local SketchUp 2026 Ruby extension after that
+extension has generated real files. It:
+
+- reads `inbox/{jobId}.json`;
+- checks the bridge version, job ID, manager identity, command-plan version, and
+  the allowlisted command types;
+- reads matching `approvals/{jobId}.json`;
+- requires an existing `artifacts/{jobId}/model.skp`;
+- requires at least one existing preview or render image;
+- atomically writes a render-ready `outbox/{jobId}.json`.
+
+It does not create geometry, call SketchUp APIs, call EasyKitchen, shell out,
+upload files, or generate fake artifacts. If Ruby is not installed in the local
+development environment, the Node test suite still checks the script's safety
+markers; when Ruby is available, the same test also performs a runtime smoke.
 
 Legacy outbox response:
 

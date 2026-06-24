@@ -230,7 +230,15 @@ The Windows service can inject a local versioned file-queue executor when
 `SKETCHUP_NODE_QUEUE_DIR` is configured. A matching manager approval file is
 still required before the HTTP execution adapter writes a command plan to the
 queue. The bridge accepts only a successful response for the same job and a
-safe relative `artifacts/.../*.skp` reference.
+safe relative SKP artifact reference. Render-ready `artifacts[]` responses must
+include a safe `skp` reference and at least one safe `preview` or `render`
+reference.
+
+The repository also includes `sketchup-node-service/ruby/queue_consumer_contract.rb`
+as a fail-closed Ruby contract finalizer for a future local SketchUp extension.
+It validates the inbox request, matching approval, allowlisted command types,
+existing `artifacts/{jobId}/model.skp`, and at least one existing preview or
+render image before atomically writing `outbox/{jobId}.json`.
 
 This slice does not automate SketchUp or EasyKitchen. A separately reviewed
 SketchUp 2026 Ruby adapter remains responsible for consuming the validated
@@ -263,6 +271,7 @@ result. EasyKitchen assets remain local and are never platform/R2 assets.
 12. Guarded render file upload to R2. Complete in code; production binding not configured here.
 13. Gated HTTP-to-executor wiring. Slice 13A complete; real Windows
     SketchUp/render executor remains pending. Slice 13B adds the local
-    file-queue bridge; the Ruby queue consumer remains pending.
+    file-queue bridge plus a fail-closed Ruby outbox finalizer; the real
+    SketchUp/EasyKitchen geometry and render adapter remains pending.
 14. Real render generation and production attachment flow. Pending approved
     executor and operational setup.
