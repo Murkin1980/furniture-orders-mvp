@@ -3182,3 +3182,40 @@ Conclusion:
 - Verify the scaffold inside local SketchUp 2026 with a synthetic approved job.
 - Then add dynamic component placement using locally licensed EasyKitchen or a
   reviewed in-house component catalog.
+
+## 2026-06-24 - Dynamic component catalog contract
+
+### What changed
+- Added `src/sketchup/component-catalog.js`.
+- Added safe versioned contracts:
+  - `sketchup-component-catalog/v1`;
+  - `sketchup-component-placement/v1`.
+- The catalog supports `in_house`, `easykitchen`, and `external_reference`
+  sources as inert references only.
+- Component definitions normalize safe IDs, labels, families, aliases, adapter
+  keys, defaults, and notes.
+- Unsafe IDs are ignored, duplicate components are ignored, unsafe adapter keys
+  are stripped, and unknown enums fall back safely.
+- `buildComponentPlacementPlan` maps approved model component labels to catalog
+  aliases and returns `metadata_only` placements.
+- Added `tests/sketchup-component-catalog.test.js`.
+- Added the new module to `npm run check`.
+- Updated README, SketchUp decision document, and progress trackers.
+
+### Checks
+- `node --test tests/sketchup-component-catalog.test.js`: passed, 8 tests.
+- `node --check src/sketchup/component-catalog.js`: passed.
+- `npm.cmd run check`: passed.
+- `npm.cmd test`: passed, 519 tests (518 passed, 1 skipped because Ruby is
+  not installed locally).
+
+### Notes
+- This does not copy EasyKitchen assets or call EasyKitchen/SketchUp.
+- This does not create geometry, render files, endpoints, migrations, or
+  production settings.
+- Real dynamic component placement remains a local SketchUp/EasyKitchen adapter
+  task.
+
+### Next
+- Build a reviewed local adapter that consumes `sketchup-component-placement/v1`
+  inside SketchUp and maps references to licensed dynamic components.

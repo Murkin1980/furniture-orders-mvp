@@ -139,6 +139,14 @@ local licensed SketchUp 2026 adapter candidate; real dynamic components and
 photorealistic rendering still require a reviewed SketchUp/EasyKitchen geometry
 adapter.
 
+The platform-side dynamic component foundation is
+`src/sketchup/component-catalog.js`. It defines a safe versioned catalog and a
+metadata-only placement plan that maps approved model component labels to
+allowlisted component references. Component sources can be `in_house`,
+`easykitchen`, or `external_reference`; adapter keys are treated as safe
+references only, never executable code or file paths. This prepares the growing
+component library without copying EasyKitchen assets or calling SketchUp.
+
 Production landing/VPS operations, known failures, and verified solutions:
 [`docs/runbooks/LANDING_VPS_OPS_RUNBOOK.md`](docs/runbooks/LANDING_VPS_OPS_RUNBOOK.md).
 

@@ -246,6 +246,12 @@ validates the same inbox/approval boundary, accepts only the three allowlisted
 commands, creates a simple overall envelope from confirmed dimensions, saves
 `model.skp`, writes `preview.png`, and writes a render-ready outbox response.
 
+`src/sketchup/component-catalog.js` defines the platform-side dynamic component
+catalog contract. It normalizes safe component definitions, supports
+`in_house`, `easykitchen`, and `external_reference` sources, stores adapter keys
+as inert references, and builds a metadata-only placement plan from approved
+model component labels. Unknown or unsafe entries fail closed with warnings.
+
 This slice does not automate EasyKitchen, dynamic components, detailed
 cabinetry, hardware, materials, or photorealistic rendering. A separately
 reviewed SketchUp 2026 Ruby adapter remains responsible for turning metadata
@@ -282,5 +288,8 @@ platform/R2 assets.
     SketchUp/EasyKitchen geometry and render adapter remains pending. Slice
     13D adds a manual SketchUp envelope consumer scaffold; real dynamic
     components and photorealistic rendering remain pending.
+15. Dynamic component catalog contract. Complete as a pure platform-side
+    catalog/placement model; real SketchUp/EasyKitchen placement remains
+    pending.
 14. Real render generation and production attachment flow. Pending approved
     executor and operational setup.
