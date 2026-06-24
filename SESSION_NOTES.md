@@ -3051,3 +3051,31 @@ Conclusion:
 ### Next
 - Surface render artifacts in the admin order view.
 - Then prepare the approved Windows SketchUp/render executor integration.
+
+## 2026-06-24 - 3D render admin visibility slice
+
+### What changed
+- Added render artifact view-model helpers in `public/admin-orders.js`.
+- Added a `3D renders` action to each admin order row.
+- The action lazy-loads `GET /api/orders/:id/sketchup/render-artifacts` and
+  shows loading, empty, error, and success states inline.
+- The success state shows artifact count, render/preview counts, model
+  presence, job id, status, updated date, primary storage key, and optional
+  model storage key.
+- Updated README and project progress trackers.
+
+### Checks
+- `node --test tests/admin-orders-ai.test.js`: passed, 10 tests.
+- `node --check public/admin-orders.js`: passed.
+- `node --check public/admin.js`: passed.
+- `npm.cmd run check`: passed.
+- `npm.cmd test`: passed, 506 tests.
+
+### Notes
+- No SketchUp process, MCP call, render generation, file upload, migration, or
+  production secret change was introduced.
+- This is a manager visibility slice over already stored artifacts.
+
+### Next
+- Prepare the approved Windows SketchUp/render executor integration, still
+  behind the existing dry-run/approval gates.

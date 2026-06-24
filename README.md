@@ -117,7 +117,10 @@ upload files, start SketchUp, or call MCP. Slice 12 adds a guarded
 `POST /api/orders/:id/sketchup/render-files` upload boundary for already
 generated model/preview/render files: it requires an accepted job, operations
 scope, allowlisted media type/role, SHA-256 calculation, and a configured
-`SKETCHUP_RENDER_BUCKET` R2 binding.
+`SKETCHUP_RENDER_BUCKET` R2 binding. The admin order list includes a lazy
+`3D renders` action that reads stored render artifacts and shows status,
+render/preview/model counts, and storage keys without starting SketchUp or a
+renderer.
 
 SketchUp Slice 13B adds the disabled-by-default local file-queue runtime used by
 the Windows HTTP service after all Slice 13A gates pass. It atomically writes a

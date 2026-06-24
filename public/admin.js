@@ -1,5 +1,5 @@
     const statuses = ["new", "in_review", "quoted", "in_production", "completed", "canceled"];
-    import { getOcrRecognitionViewModel, getOrderAiViewModel, getOrderCrmViewModel, parseOcrReviewJson } from "./admin-orders.js";
+    import { getOcrRecognitionViewModel, getOrderAiViewModel, getOrderCrmViewModel, getOrderRenderArtifactsSummary, getOrderRenderArtifactViewModel, parseOcrReviewJson } from "./admin-orders.js";
     import { calculateAdminSummary, filterAdminOrders } from "./admin-core.js";
     import { buildAdminProposalDraft, buildProposalPayload, getProposalLifecycleView } from "./admin-proposals.js";
 
@@ -168,8 +168,10 @@
               <button class="secondary" type="button" data-ocr-order-id="${escapeHtml(item.id)}">OCR review</button>
               <button class="secondary" type="button" data-ai-order-id="${escapeHtml(item.id)}">${escapeHtml(getOrderAiViewModel(item).buttonLabel)}</button>
               <button class="secondary" type="button" data-crm-order-id="${escapeHtml(item.id)}">${escapeHtml(getOrderCrmViewModel(item).buttonLabel)}</button>
+              <button class="secondary" type="button" data-render-order-id="${escapeHtml(item.id)}">3D renders</button>
               <button class="secondary" type="button" data-proposal-order-id="${escapeHtml(item.id)}">Создать КП</button>
               ${renderOrderCrm(item)}
+              <div class="order-ai" data-render-list-for="${escapeHtml(item.id)}" hidden></div>
             </form>
           </td>
         </tr>
@@ -192,6 +194,9 @@
       }
       for (const button of tbody.querySelectorAll("[data-proposal-order-id]")) {
         button.addEventListener("click", () => openProposal(Number(button.dataset.proposalOrderId)));
+      }
+      for (const button of tbody.querySelectorAll("[data-render-order-id]")) {
+        button.addEventListener("click", () => loadOrderRenderArtifacts(Number(button.dataset.renderOrderId), button));
       }
     }
 
@@ -504,6 +509,50 @@
         button.disabled = false;
         button.textContent = originalLabel;
       }
+    }
+
+    async function loadOrderRenderArtifacts(orderId, button) {
+      const output = [...tbody.querySelectorAll("[data-render-list-for]")]
+        .find((item) => item.dataset.renderListFor === String(orderId));
+      if (!output) return;
+      const originalLabel = button.textContent;
+      button.disabled = true;
+      button.textContent = "Loading 3D...";
+      output.hidden = false;
+      output.innerHTML = '<span class="muted">Loading 3D render artifacts...</span>';
+      try {
+        const json = await adminFetchJson(`/api/orders/${orderId}/sketchup/render-artifacts`, {
+          fallbackMessage: "3D render artifacts were not loaded."
+        });
+        output.innerHTML = renderOrderRenderArtifacts(json.items || []);
+        setMessage(`3D render artifacts for order #${orderId}: ${(json.items || []).length}.`, "ok");
+      } catch (error) {
+        output.innerHTML = `<span class="ai-error">${escapeHtml(error.message)}</span>`;
+        setMessage(error.message, "bad");
+      } finally {
+        button.disabled = false;
+        button.textContent = originalLabel;
+      }
+    }
+
+    function renderOrderRenderArtifacts(items) {
+      const summary = getOrderRenderArtifactsSummary(items);
+      if (!summary.hasArtifacts) {
+        return '<span class="muted">No 3D render artifacts yet.</span>';
+      }
+      return `
+        <strong>3D artifacts: ${escapeHtml(summary.count)}</strong>
+        <span>Renders: ${escapeHtml(summary.renderCount)} · Previews: ${escapeHtml(summary.previewCount)} · Model: ${summary.modelIncluded ? "yes" : "no"}</span>
+        ${items.map((item) => {
+          const view = getOrderRenderArtifactViewModel(item);
+          if (!view.hasArtifact) return "";
+          return `
+            <span>Job: ${escapeHtml(view.jobId)} · ${escapeHtml(view.status)} · ${escapeHtml(view.updatedAt || "no date")}</span>
+            <span>Primary: ${escapeHtml(view.primaryStorageKey || "—")}</span>
+            ${view.modelStorageKey ? `<span>Model: ${escapeHtml(view.modelStorageKey)}</span>` : ""}
+          `;
+        }).join("")}
+      `;
     }
 
     function showAdminView(view) {

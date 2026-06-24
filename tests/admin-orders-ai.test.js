@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   getOcrRecognitionViewModel, getOrderAiViewModel, getOrderCrmViewModel,
+  getOrderRenderArtifactsSummary, getOrderRenderArtifactViewModel,
   parseOcrReviewJson, parseOrderAiMissingInfo
 } from "../public/admin-orders.js";
 
@@ -78,4 +79,41 @@ test("OCR review JSON parser rejects invalid and array input", () => {
   assert.equal(parseOcrReviewJson('{"furnitureType":"kitchen"}').furnitureType, "kitchen");
   assert.throws(() => parseOcrReviewJson("{bad"), /valid JSON object/);
   assert.throws(() => parseOcrReviewJson("[]"), /valid JSON object/);
+});
+
+test("builds render artifact view model for admin order surface", () => {
+  const view = getOrderRenderArtifactViewModel({
+    id: 3,
+    jobId: "job-render-001",
+    status: "ready",
+    primaryStorageKey: "sketchup/orders/8/job-render-001/render/file-1.webp",
+    modelStorageKey: "sketchup/orders/8/job-render-001/model/file-1.skp",
+    reportedBy: "node-service",
+    updatedAt: "2026-06-24T12:00:00.000Z",
+    manifest: {
+      summary: { modelIncluded: true, renderCount: 1, previewCount: 0 },
+      files: [
+        { role: "render", mediaType: "image/webp", storageKey: "sketchup/orders/8/job-render-001/render/file-1.webp", bytes: 2048 }
+      ]
+    }
+  });
+
+  assert.equal(view.hasArtifact, true);
+  assert.equal(view.summary.modelIncluded, true);
+  assert.equal(view.summary.renderCount, 1);
+  assert.equal(view.files[0].role, "render");
+});
+
+test("summarizes render artifacts safely", () => {
+  const summary = getOrderRenderArtifactsSummary([
+    { jobId: "job-render-001", primaryStorageKey: "render.webp", manifest: { summary: { renderCount: 2 } } },
+    { jobId: "job-render-002", modelStorageKey: "model.skp", manifest: { summary: { modelIncluded: true, previewCount: 1 } } },
+    {}
+  ]);
+
+  assert.equal(summary.hasArtifacts, true);
+  assert.equal(summary.count, 2);
+  assert.equal(summary.renderCount, 2);
+  assert.equal(summary.previewCount, 1);
+  assert.equal(summary.modelIncluded, true);
 });

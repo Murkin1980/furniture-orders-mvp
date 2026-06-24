@@ -68,6 +68,44 @@ export function getOcrRecognitionViewModel(record = {}) {
   };
 }
 
+export function getOrderRenderArtifactViewModel(record = {}) {
+  const manifest = record.manifest && typeof record.manifest === "object" && !Array.isArray(record.manifest)
+    ? record.manifest
+    : {};
+  const summary = manifest.summary && typeof manifest.summary === "object" ? manifest.summary : {};
+  const files = Array.isArray(manifest.files) ? manifest.files.map(normalizeRenderFile).filter((file) => file.storageKey) : [];
+
+  return {
+    hasArtifact: Boolean(clean(record.jobId) || clean(record.primaryStorageKey)),
+    id: record.id ?? null,
+    jobId: clean(record.jobId),
+    status: clean(record.status) || "ready",
+    primaryStorageKey: clean(record.primaryStorageKey),
+    modelStorageKey: clean(record.modelStorageKey),
+    reportedBy: clean(record.reportedBy),
+    updatedAt: clean(record.updatedAt || record.createdAt),
+    summary: {
+      modelIncluded: Boolean(summary.modelIncluded || record.modelStorageKey),
+      renderCount: safeCount(summary.renderCount),
+      previewCount: safeCount(summary.previewCount)
+    },
+    files
+  };
+}
+
+export function getOrderRenderArtifactsSummary(items = []) {
+  const views = Array.isArray(items) ? items.map(getOrderRenderArtifactViewModel).filter((item) => item.hasArtifact) : [];
+  return {
+    count: views.length,
+    hasArtifacts: views.length > 0,
+    latestUpdatedAt: views[0]?.updatedAt || "",
+    primaryStorageKey: views[0]?.primaryStorageKey || "",
+    modelIncluded: views.some((item) => item.summary.modelIncluded),
+    renderCount: views.reduce((sum, item) => sum + item.summary.renderCount, 0),
+    previewCount: views.reduce((sum, item) => sum + item.summary.previewCount, 0)
+  };
+}
+
 export function parseOcrReviewJson(value) {
   try {
     const parsed = JSON.parse(clean(value));
@@ -80,6 +118,20 @@ export function parseOcrReviewJson(value) {
 
 function normalizeList(value) {
   return Array.isArray(value) ? value.map(clean).filter(Boolean) : [];
+}
+
+function normalizeRenderFile(value = {}) {
+  return {
+    role: clean(value.role),
+    mediaType: clean(value.mediaType),
+    storageKey: clean(value.storageKey),
+    bytes: Number.isFinite(Number(value.bytes)) ? Number(value.bytes) : 0
+  };
+}
+
+function safeCount(value) {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? Math.round(number) : 0;
 }
 
 function clean(value) {
