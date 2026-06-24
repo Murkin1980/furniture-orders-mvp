@@ -7,6 +7,7 @@ import os from "node:os";
 import path from "node:path";
 
 const SCRIPT = fileURLToPath(new URL("../ruby/queue_consumer_contract.rb", import.meta.url));
+const SKETCHUP_CONSUMER = fileURLToPath(new URL("../ruby/sketchup_envelope_consumer.rb", import.meta.url));
 const PACKAGE_DIR = path.dirname(path.dirname(SCRIPT));
 const JOB_ID = "job-ruby-001";
 
@@ -20,6 +21,22 @@ test("Ruby queue consumer contract keeps fail-closed safety markers", async () =
   assert.match(source, /A generated model\.skp artifact is required/);
   assert.match(source, /At least one generated preview or render artifact is required/);
   assert.doesNotMatch(source, /Sketchup\.active_model|UI\.messagebox|system\(|Open3|`/);
+});
+
+test("SketchUp envelope consumer is manual and allowlist-bound", async () => {
+  const source = await readFile(SKETCHUP_CONSUMER, "utf8");
+
+  assert.match(source, /module FurniturePlatform/);
+  assert.match(source, /module SketchUpEnvelopeConsumer/);
+  assert.match(source, /SketchUp Ruby API is required/);
+  assert.match(source, /ALLOWED_COMMANDS = %w\[set_units create_envelope attach_metadata\]/);
+  assert.match(source, /Command plan must contain exactly three commands/);
+  assert.match(source, /model\.save_copy/);
+  assert.match(source, /active_view\.write_image/);
+  assert.match(source, /artifacts\/#\{job_id\}\/model\.skp/);
+  assert.match(source, /artifacts\/#\{job_id\}\/preview\.png/);
+  assert.doesNotMatch(source, /system\(|Open3|eval\(|exec\(|spawn\(|`/);
+  assert.doesNotMatch(source, /Net::HTTP|URI\.open|Faraday|HTTParty/);
 });
 
 test("Ruby queue consumer publishes outbox when Ruby is available", async (t) => {

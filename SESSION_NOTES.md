@@ -3145,3 +3145,40 @@ Conclusion:
 - Build the real local SketchUp/EasyKitchen geometry and render adapter that
   creates the local `model.skp`, preview, and render files before this finalizer
   publishes the outbox response.
+
+## 2026-06-24 - Manual SketchUp envelope consumer scaffold
+
+### What changed
+- Added `sketchup-node-service/ruby/sketchup_envelope_consumer.rb`.
+- The scaffold is intended to be loaded manually inside SketchUp 2026 Ruby
+  Console or a reviewed local extension.
+- It validates the queue inbox request, matching manager approval, command-plan
+  version, and the three allowlisted command types.
+- It creates only a simple confirmed overall envelope from `create_envelope`.
+- It stores safe metadata from `attach_metadata` on the generated group.
+- It saves `artifacts/{jobId}/model.skp`, writes
+  `artifacts/{jobId}/preview.png`, and publishes render-ready
+  `outbox/{jobId}.json`.
+- Extended the Ruby contract test with static checks for the SketchUp scaffold.
+- Updated README, SketchUp decision document, and progress trackers.
+
+### Checks
+- Runtime SketchUp verification was not possible in this environment because
+  SketchUp/Ruby API is not available here.
+- `npm.cmd --prefix sketchup-node-service test`: passed, 27 tests
+  (26 passed, 1 skipped because Ruby is not installed locally).
+- `npm.cmd --prefix sketchup-node-service run check`: passed.
+- `npm.cmd run check`: passed.
+- `npm.cmd test`: passed, 511 tests (510 passed, 1 skipped because Ruby is
+  not installed locally).
+
+### Notes
+- The scaffold is not invoked by the Node service.
+- It does not use EasyKitchen, place dynamic components, create cabinet
+  internals, apply real materials, or produce photorealistic renders.
+- It does not shell out or call network APIs.
+
+### Next
+- Verify the scaffold inside local SketchUp 2026 with a synthetic approved job.
+- Then add dynamic component placement using locally licensed EasyKitchen or a
+  reviewed in-house component catalog.

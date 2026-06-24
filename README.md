@@ -131,9 +131,13 @@ response must include a safe `skp` reference and at least one safe `preview` or
 `render` reference. The node package includes a fail-closed Ruby outbox
 finalizer that only publishes already generated local artifacts after request
 and approval validation. It does not start SketchUp, create geometry, call
-EasyKitchen, execute shell commands, or copy EasyKitchen assets. EasyKitchen
-Demo 5.3.2 is a local licensed SketchUp 2026 adapter candidate; real automation
-still requires a reviewed SketchUp/EasyKitchen geometry adapter.
+EasyKitchen, execute shell commands, or copy EasyKitchen assets. A separate
+manual SketchUp Ruby envelope consumer scaffold can be loaded inside SketchUp
+2026 to create only a confirmed overall envelope, save `model.skp`, write a
+preview image, and publish the validated outbox. EasyKitchen Demo 5.3.2 is a
+local licensed SketchUp 2026 adapter candidate; real dynamic components and
+photorealistic rendering still require a reviewed SketchUp/EasyKitchen geometry
+adapter.
 
 Production landing/VPS operations, known failures, and verified solutions:
 [`docs/runbooks/LANDING_VPS_OPS_RUNBOOK.md`](docs/runbooks/LANDING_VPS_OPS_RUNBOOK.md).

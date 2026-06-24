@@ -240,10 +240,17 @@ It validates the inbox request, matching approval, allowlisted command types,
 existing `artifacts/{jobId}/model.skp`, and at least one existing preview or
 render image before atomically writing `outbox/{jobId}.json`.
 
-This slice does not automate SketchUp or EasyKitchen. A separately reviewed
-SketchUp 2026 Ruby adapter remains responsible for consuming the validated
-queue, using locally licensed components, saving the model, and writing the
-result. EasyKitchen assets remain local and are never platform/R2 assets.
+`sketchup-node-service/ruby/sketchup_envelope_consumer.rb` is the first manual
+SketchUp-side scaffold. When explicitly loaded inside SketchUp 2026, it
+validates the same inbox/approval boundary, accepts only the three allowlisted
+commands, creates a simple overall envelope from confirmed dimensions, saves
+`model.skp`, writes `preview.png`, and writes a render-ready outbox response.
+
+This slice does not automate EasyKitchen, dynamic components, detailed
+cabinetry, hardware, materials, or photorealistic rendering. A separately
+reviewed SketchUp 2026 Ruby adapter remains responsible for turning metadata
+into real furniture components. EasyKitchen assets remain local and are never
+platform/R2 assets.
 
 ## Safety Boundaries
 
@@ -272,6 +279,8 @@ result. EasyKitchen assets remain local and are never platform/R2 assets.
 13. Gated HTTP-to-executor wiring. Slice 13A complete; real Windows
     SketchUp/render executor remains pending. Slice 13B adds the local
     file-queue bridge plus a fail-closed Ruby outbox finalizer; the real
-    SketchUp/EasyKitchen geometry and render adapter remains pending.
+    SketchUp/EasyKitchen geometry and render adapter remains pending. Slice
+    13D adds a manual SketchUp envelope consumer scaffold; real dynamic
+    components and photorealistic rendering remain pending.
 14. Real render generation and production attachment flow. Pending approved
     executor and operational setup.

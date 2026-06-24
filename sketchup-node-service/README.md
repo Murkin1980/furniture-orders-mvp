@@ -82,6 +82,36 @@ upload files, or generate fake artifacts. If Ruby is not installed in the local
 development environment, the Node test suite still checks the script's safety
 markers; when Ruby is available, the same test also performs a runtime smoke.
 
+## Manual SketchUp envelope consumer
+
+`ruby/sketchup_envelope_consumer.rb` is a first manual SketchUp-side scaffold.
+It is intended to be loaded inside SketchUp 2026 Ruby Console or a reviewed
+local extension:
+
+```ruby
+load "C:/path/to/sketchup-node-service/ruby/sketchup_envelope_consumer.rb"
+FurniturePlatform::SketchUpEnvelopeConsumer.run(
+  queue_dir: "C:/FurnitureQueue",
+  job_id: "job-example-001"
+)
+```
+
+The consumer:
+
+- requires the SketchUp Ruby API to exist;
+- validates the same inbox request and matching approval boundary;
+- accepts only the three allowlisted commands from `sketchup-command-plan/v1`;
+- creates a simple confirmed overall envelope from `create_envelope`;
+- stores metadata from `attach_metadata` on the generated group;
+- writes `artifacts/{jobId}/model.skp`;
+- writes `artifacts/{jobId}/preview.png`;
+- writes render-ready `outbox/{jobId}.json`.
+
+This is not a full furniture generator. It does not place cabinets, doors,
+shelves, hardware, EasyKitchen components, materials, dimensions, or final
+photorealistic renders. Dynamic component placement remains a future local
+SketchUp/EasyKitchen adapter step.
+
 Legacy outbox response:
 
 ```json
