@@ -141,10 +141,17 @@ Current controlled production verification focus:
   smoke check at a time;
 - portfolio media write-smoke with `scripts/portfolio-media-smoke.mjs` after an
   approved admin token and test image are selected;
-- authenticated VPS read-only smoke with `scripts/vps-readonly-smoke.mjs`;
+- authenticated VPS read-only smoke with `scripts/vps-readonly-smoke.mjs`
+  passes through Cloudflare to the active Google Cloud test VPS
+  `control.34-140-181-91.nip.io`;
 - one synthetic-order manual AI smoke with `scripts/ai-manual-smoke.mjs`.
 
 Do not run these checks against real customer data without explicit approval.
+
+VPS incident note: the old PS.kz node `194.32.140.229` was isolated after the
+provider reported an attack. Do not reuse it for production without a clean
+rebuild or replacement. The active test VPS is the Google Cloud Debian 12 node
+`34.140.181.91`.
 
 Verified public landing demo: `https://demo.salamat-mebel.kz`.
 

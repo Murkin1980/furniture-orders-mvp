@@ -1,6 +1,6 @@
 # Project Progress Dashboard
 
-Last reviewed: 2026-06-23
+Last reviewed: 2026-06-24
 Current checkpoint: 8
 Next checkpoint review: after 5 more completed slices
 
@@ -30,7 +30,7 @@ and `SESSION_NOTES.md` together.
 | Calculators | `[##########] 100%` | Production embed and lead path verified | Repeat the documented flow for the first paid landing |
 | Landing platform | `[##########] 100%` | Production publish and customer-domain HTTPS verified | Repeat the documented flow for the first paid landing |
 | Portfolio and media | `[##########] 100%` | Production R2 bucket, D1 tables, public API, media upload/read/publish/unpublish smoke, explicit runner, and local preflight are complete | Extend only with real media management needs |
-| Production infrastructure | `[#########-] 92%` | Cloudflare Pages/R2 are verified; VPS proxy layer is alive and preflight is ready, but authenticated VPS health still needs token/SSH verification | Run preflight, then authenticated VPS health/services/deploy-log checks |
+| Production infrastructure | `[##########] 100%` | Cloudflare Pages/R2 are verified; PS.kz VPS incident is isolated, Google Cloud test VPS is online, and authenticated Cloudflare -> VPS read-only smoke passes | Use the Google test VPS for controlled landing deploy checks; rebuild/replace PS.kz before any production reuse |
 | Manual AI analysis | `[##########] 100%` | Manual-only production flow verified on a synthetic order | Keep manual-only; define consent rules before using real customer data |
 | Native CRM | `[##########] 100%` | Production-ready MVP: pipeline, filters, analytics, follow-up, and interaction history | Extend only from real manager usage |
 | Admin and CRM interface | `[##########] 100%` | Complete MVP UI: focused modules, actionable dashboard, responsive orders, efficient CRM cards, states and accessibility polish | Extend only from real manager feedback |
@@ -176,3 +176,4 @@ flowchart LR
 | PDF Intelligence Slice 4 | 2026-06-23 | Added furniture-first room/furniture-zone extraction prompt/parser, source-page filtering, zone type fallback, dimension/material normalization, and non-mutating manifest merge; deploy `19c7444c` completed | Build injected AI orchestration with fake sender |
 | PDF Intelligence Slice 5 | 2026-06-23 | Added injected PDF analysis orchestration that builds manifest, classification request, extraction request, merges results, handles safe errors, and never calls fetch; deploy `721c542c` completed | Design admin upload draft storage |
 | Repo documentation cleanup | 2026-06-23 | Moved long-form decision, runbook, and template docs from root into `docs/decisions/`, `docs/runbooks/`, and `docs/templates/`; added CI in the previous hygiene pass | Continue PDF Intelligence storage design after verifying links/tests |
+| Google VPS recovery | 2026-06-24 | Google Cloud Debian 12 test VPS `34.140.181.91` installed with nginx, ufw, Node 20, `furniture-vps-control`, Cloudflare secrets, and authenticated read-only smoke | Use `control.34-140-181-91.nip.io` as the active test VPS control origin; do not reuse compromised PS.kz without rebuild |

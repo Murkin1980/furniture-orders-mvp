@@ -1,6 +1,6 @@
 # Landing VPS Operations Runbook
 
-Last verified: 2026-06-12
+Last verified: 2026-06-24
 
 This runbook records the production landing path, failures found during LC
 Slice 6, and verified solutions. Read it before changing Pages, D1, nginx, VPS
@@ -9,9 +9,11 @@ control, DNS, or customer landing SSL.
 ## Verified Production Path
 
 - Platform: `https://furniture-orders-mvp.pages.dev`
-- VPS: `194.32.140.229`
-- VPS user: `ubuntu`
-- VPS control: `https://control.194-32-140-229.nip.io`
+- Active test VPS: Google Cloud Debian 12, `34.140.181.91`
+- Active test VPS user: `murkash2049`
+- Active test VPS control: `http://control.34-140-181-91.nip.io`
+- Retired/incident VPS: PS.kz `194.32.140.229` is not trusted for reuse until
+  it is rebuilt or replaced after the provider attack notice.
 - Public demo: `https://demo.salamat-mebel.kz`
 - Demo directory: `/srv/sites/lc6-production-landing`
 - Demo platform site ID: `1`
@@ -46,22 +48,26 @@ recognized". This is expected because `sudo` is a Linux command.
 
 ## Current Operational Status
 
-As of 2026-06-16, the Cloudflare Pages application and R2 portfolio bucket are
-available. Production read-only checks confirmed:
+As of 2026-06-24, the Cloudflare Pages application, R2 portfolio bucket, and
+Google Cloud test VPS control path are available. Production read-only checks
+confirmed:
 
 - `https://furniture-orders-mvp.pages.dev/` returns `200`;
 - `GET /api/portfolio` returns `200`;
 - `GET /media/portfolio/not-found.webp` returns controlled `404`, which means
   the Pages media route sees `PORTFOLIO_MEDIA_BUCKET`;
-- unauthenticated VPS proxy endpoints return `401`, so the endpoint layer is
-  alive and protected.
+- unauthenticated direct VPS control endpoint returns `401`, so the nginx
+  reverse proxy and bearer boundary are alive;
+- authenticated Cloudflare -> VPS read-only smoke passes for
+  `/api/vps/health`, `/api/vps/services`, and `/api/vps/deploy/logs?limit=5`.
 
-The VPS path itself still needs authenticated operational verification:
+The active test Cloudflare secrets are:
 
-- use production admin/ops credentials to check `/api/vps/health`,
-  `/api/vps/services`, and deploy logs;
-- verify direct SSH/VNC access to `194.32.140.229`;
-- verify `furniture-vps-control` and nginx on the node.
+- `VPS_CONTROL_BASE_URL=http://control.34-140-181-91.nip.io`
+- `VPS_CONTROL_TOKEN=<stored in Cloudflare Pages secret and /etc/furniture-control.env>`
+
+Do not write the token to repository files, chat, docs, or shell history
+snippets.
 
 Optional read-only smoke runner:
 
@@ -74,9 +80,13 @@ node scripts/vps-readonly-smoke.mjs
 The runner performs only GET requests to health, services, and deploy logs. It
 does not call deploy or reload endpoints.
 
+If a Cloudflare smoke uses a raw IP origin and returns upstream `403`, switch
+`VPS_CONTROL_BASE_URL` to the DNS hostname
+`http://control.34-140-181-91.nip.io`; that path was verified on 2026-06-24.
+
 Do not retry deploy/reload operations in a loop while the node is unreachable.
 Inspect the VPS state in the provider panel manually. If it is stopped, obtain
-explicit approval before starting it. If it is running, use VNC/provider
+explicit approval before starting it. If it is running, use the provider SSH
 console to verify networking, `sshd`, nginx, and `furniture-vps-control`, then
 repeat one health/services/deploy-log check.
 

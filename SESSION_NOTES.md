@@ -2972,3 +2972,45 @@ Conclusion:
 
 ### Next
 - Run the VPS read-only smoke only with the real ASCII production admin token.
+
+## 2026-06-24 - Google Cloud VPS recovery path
+
+### What changed
+- Replaced the lost production admin token in Cloudflare Pages after explicit
+  user approval; the new token is stored locally outside the repository.
+- Confirmed the PS.kz VPS path is unavailable because the provider reported an
+  attack and disabled the node. Treat that node as untrusted until rebuild or
+  replacement.
+- Created and prepared a Google Cloud Debian 12 test VPS:
+  `34.140.181.91`, user `murkash2049`.
+- Installed and verified base server tooling: `ufw`, nginx, Node.js 20, npm,
+  and the cloned `vps-control-service`.
+- Installed `furniture-vps-control` as a systemd service and verified local
+  `/health` and `/services` calls with bearer auth.
+- Published the service through nginx at
+  `http://control.34-140-181-91.nip.io`.
+- Updated Cloudflare Pages secrets:
+  `VPS_CONTROL_BASE_URL=http://control.34-140-181-91.nip.io` and
+  `VPS_CONTROL_TOKEN=<secret>`.
+- Deployed Cloudflare Pages and ran the read-only VPS smoke through
+  `https://furniture-orders-mvp.pages.dev`.
+
+### Checks
+- `vps-control-service`: `npm run check` passed on the Google VPS.
+- `vps-control-service`: `npm test` passed on the Google VPS, 19 tests.
+- Direct unauthenticated VPS control request returns protected `401`.
+- Cloudflare -> VPS read-only smoke passed:
+  `/api/vps/health`, `/api/vps/services`, and
+  `/api/vps/deploy/logs?limit=5`.
+
+### Notes
+- Raw IP origin `http://34.140.181.91` returned upstream `403` through
+  Cloudflare. Switching `VPS_CONTROL_BASE_URL` to the nip.io hostname fixed the
+  path.
+- Do not print, commit, or document the actual admin or VPS control tokens.
+
+### Next
+- Use the Google test VPS for controlled landing deploy checks.
+- Rebuild or replace the PS.kz VPS before any future production reuse.
+- Continue Project PDF Intelligence admin upload draft storage design after
+  the infrastructure checkpoint is committed.
