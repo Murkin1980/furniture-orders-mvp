@@ -125,11 +125,13 @@ renderer.
 SketchUp Slice 13B adds the disabled-by-default local file-queue runtime used by
 the Windows HTTP service after all Slice 13A gates pass. It atomically writes a
 validated plan to `inbox/{jobId}.json`, reads manager approval from
-`approvals/{jobId}.json`, and accepts only a matching successful result with a
-safe SKP artifact reference from `outbox/{jobId}.json`. It does not start
-SketchUp, execute Ruby, or copy EasyKitchen assets. EasyKitchen Demo 5.3.2 is a
-local licensed SketchUp 2026 adapter candidate; real automation still requires
-a reviewed Ruby queue consumer.
+`approvals/{jobId}.json`, and accepts either the legacy safe SKP artifact or a
+render-ready `artifacts[]` result from `outbox/{jobId}.json`. The render-ready
+response must include a safe `skp` reference and at least one safe `preview` or
+`render` reference. It does not start SketchUp, execute Ruby, or copy
+EasyKitchen assets. EasyKitchen Demo 5.3.2 is a local licensed SketchUp 2026
+adapter candidate; real automation still requires a reviewed Ruby queue
+consumer.
 
 Production landing/VPS operations, known failures, and verified solutions:
 [`docs/runbooks/LANDING_VPS_OPS_RUNBOOK.md`](docs/runbooks/LANDING_VPS_OPS_RUNBOOK.md).

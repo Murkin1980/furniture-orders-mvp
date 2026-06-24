@@ -52,7 +52,7 @@ file-queue adapter:
 ```text
 approvals/{jobId}.json  manager approval written out of band
 inbox/{jobId}.json      validated command plan for the SketchUp plugin
-outbox/{jobId}.json     plugin result with a safe artifacts/.../*.skp reference
+outbox/{jobId}.json     plugin result with safe artifacts/... references
 ```
 
 Files are created atomically and paths/job IDs are constrained. The bridge does
@@ -60,3 +60,45 @@ not start a process, load an `.skp`, execute Ruby, or render by itself. A local
 SketchUp 2026 Ruby extension must consume the inbox and create the outbox
 result. EasyKitchen Demo may be used only inside that licensed local SketchUp
 environment; its library files must not be copied into this repository or R2.
+
+Legacy outbox response:
+
+```json
+{
+  "jobId": "job-example-001",
+  "status": "executed",
+  "executed": true,
+  "artifact": {
+    "type": "skp",
+    "reference": "artifacts/job-example-001/model.skp"
+  }
+}
+```
+
+3D render-ready outbox response:
+
+```json
+{
+  "jobId": "job-example-001",
+  "status": "executed",
+  "executed": true,
+  "artifacts": [
+    {
+      "type": "skp",
+      "reference": "artifacts/job-example-001/model.skp"
+    },
+    {
+      "type": "preview",
+      "reference": "artifacts/job-example-001/preview.webp"
+    },
+    {
+      "type": "render",
+      "reference": "artifacts/job-example-001/render-main.webp"
+    }
+  ]
+}
+```
+
+When `artifacts[]` is used, the response must include a safe `skp` reference
+and at least one `preview` or `render` reference. This keeps model generation
+and render generation explicit while preserving the older single-SKP response.

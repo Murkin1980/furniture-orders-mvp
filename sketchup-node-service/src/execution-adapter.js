@@ -29,6 +29,7 @@ export async function runSketchUpExecutionAdapter(job = {}, options = {}) {
       status: "executed",
       executed: true,
       artifact: normalizeArtifact(result.artifact),
+      artifacts: normalizeArtifacts(result.artifacts, result.artifact),
       message: clean(result.message) || "Injected SketchUp executor confirmed execution."
     };
   } catch (error) {
@@ -55,6 +56,11 @@ function normalizeArtifact(value) {
     type: clean(value.type),
     reference: clean(value.reference)
   };
+}
+
+function normalizeArtifacts(values, fallback) {
+  const source = Array.isArray(values) ? values : [fallback];
+  return source.map(normalizeArtifact).filter((artifact) => artifact?.type && artifact?.reference);
 }
 
 function validTime(value) {

@@ -53,12 +53,23 @@ test("passes a clone of the plan and minimal manager context", async () => {
     executePlan: async (plan, context) => {
       received = { plan, context };
       plan.commands[0].unit = "changed";
-      return { executed: true, artifact: { type: "skp", reference: "local-ref-1", ignored: "value" } };
+      return {
+        executed: true,
+        artifact: { type: "skp", reference: "local-ref-1", ignored: "value" },
+        artifacts: [
+          { type: "skp", reference: "local-ref-1", ignored: "value" },
+          { type: "render", reference: "render-ref-1" }
+        ]
+      };
     }
   });
   assert.equal(result.status, "executed");
   assert.equal(result.executed, true);
   assert.deepEqual(result.artifact, { type: "skp", reference: "local-ref-1" });
+  assert.deepEqual(result.artifacts, [
+    { type: "skp", reference: "local-ref-1" },
+    { type: "render", reference: "render-ref-1" }
+  ]);
   assert.equal(received.context.requestedBy, APPROVAL.requestedBy);
   assert.equal(JOB.payload.commandPlan.commands[0].unit, "millimeter");
 });

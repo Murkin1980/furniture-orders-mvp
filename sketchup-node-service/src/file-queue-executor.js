@@ -95,15 +95,34 @@ function normalizeResponse(response, jobId) {
   if (response.status !== "executed" || response.executed !== true) {
     throw new Error(clean(response.message) || "SketchUp queue execution failed.");
   }
-  const artifact = response.artifact;
-  if (!artifact || artifact.type !== "skp" || !safeRelativeReference(artifact.reference)) {
-    throw new Error("SketchUp queue response must contain a safe SKP artifact reference.");
-  }
+  const artifacts = normalizeArtifacts(response);
   return {
     executed: true,
-    artifact: { type: "skp", reference: artifact.reference },
+    artifact: artifacts.find((artifact) => artifact.type === "skp") || artifacts[0],
+    artifacts,
     message: clean(response.message) || "SketchUp file queue completed execution."
   };
+}
+
+function normalizeArtifacts(response) {
+  const hasArtifactList = Array.isArray(response.artifacts);
+  const candidates = hasArtifactList ? response.artifacts : [response.artifact];
+  const artifacts = candidates.map(normalizeArtifact).filter(Boolean);
+  if (!artifacts.some((artifact) => artifact.type === "skp")) {
+    throw new Error("SketchUp queue response must contain a safe SKP artifact reference.");
+  }
+  if (hasArtifactList && !artifacts.some((artifact) => artifact.type === "render" || artifact.type === "preview")) {
+    throw new Error("SketchUp queue response must contain a safe render or preview artifact reference.");
+  }
+  return artifacts;
+}
+
+function normalizeArtifact(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const type = clean(value.type).toLowerCase();
+  const reference = clean(value.reference);
+  if (!["skp", "preview", "render"].includes(type) || !safeRelativeReference(reference)) return null;
+  return { type, reference };
 }
 
 function requireAbsoluteDirectory(value) {

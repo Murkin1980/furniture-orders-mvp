@@ -28,10 +28,31 @@ test("writes a versioned request and accepts a safe SKP response", async (t) => 
 
   assert.equal(result.executed, true);
   assert.equal(result.artifact.reference, `artifacts/${JOB_ID}/model.skp`);
+  assert.deepEqual(result.artifacts, [{ type: "skp", reference: `artifacts/${JOB_ID}/model.skp` }]);
   const request = JSON.parse(await readFile(path.join(queueDir, "inbox", `${JOB_ID}.json`), "utf8"));
   assert.equal(request.bridgeVersion, "furniture-sketchup-file-queue/v1");
   assert.equal(request.requestedBy, "manager@example.com");
   assert.deepEqual(request.commandPlan, PLAN);
+});
+
+test("accepts model preview and render artifact references", async (t) => {
+  const queueDir = await temporaryQueue(t);
+  await writeResponse(queueDir, {
+    jobId: JOB_ID,
+    status: "executed",
+    executed: true,
+    artifacts: [
+      { type: "skp", reference: `artifacts/${JOB_ID}/model.skp` },
+      { type: "preview", reference: `artifacts/${JOB_ID}/preview.webp` },
+      { type: "render", reference: `artifacts/${JOB_ID}/render-main.webp` }
+    ]
+  });
+  const executePlan = createFileQueueExecutor({ queueDir, pollMs: 50, timeoutMs: 1000 });
+  const result = await executePlan(PLAN, { jobId: JOB_ID, requestedBy: "manager@example.com" });
+
+  assert.equal(result.executed, true);
+  assert.equal(result.artifacts.length, 3);
+  assert.equal(result.artifacts[2].type, "render");
 });
 
 test("rejects unsafe artifact references", async (t) => {
@@ -46,6 +67,21 @@ test("rejects unsafe artifact references", async (t) => {
   await assert.rejects(
     executePlan(PLAN, { jobId: JOB_ID, requestedBy: "manager@example.com" }),
     /safe SKP artifact/
+  );
+});
+
+test("artifact list requires a render or preview reference", async (t) => {
+  const queueDir = await temporaryQueue(t);
+  await writeResponse(queueDir, {
+    jobId: JOB_ID,
+    status: "executed",
+    executed: true,
+    artifacts: [{ type: "skp", reference: `artifacts/${JOB_ID}/model.skp` }]
+  });
+  const executePlan = createFileQueueExecutor({ queueDir, pollMs: 50, timeoutMs: 1000 });
+  await assert.rejects(
+    executePlan(PLAN, { jobId: JOB_ID, requestedBy: "manager@example.com" }),
+    /render or preview/
   );
 });
 

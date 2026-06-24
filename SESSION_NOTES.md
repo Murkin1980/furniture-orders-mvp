@@ -3079,3 +3079,34 @@ Conclusion:
 ### Next
 - Prepare the approved Windows SketchUp/render executor integration, still
   behind the existing dry-run/approval gates.
+
+## 2026-06-24 - 3D render queue response contract
+
+### What changed
+- Extended `sketchup-node-service/src/file-queue-executor.js` so the local
+  file queue can accept render-ready `artifacts[]` responses.
+- Preserved the legacy single `artifact: { type: "skp" }` response for the
+  existing model-only path.
+- When `artifacts[]` is used, the response must include a safe `skp` reference
+  and at least one safe `preview` or `render` reference.
+- Extended `sketchup-node-service/src/execution-adapter.js` to pass normalized
+  `artifacts[]` through the gated adapter result.
+- Updated node-service tests and README with legacy and render-ready outbox
+  examples.
+- Updated project progress trackers.
+
+### Checks
+- `npm.cmd --prefix sketchup-node-service test`: passed, 24 tests.
+- `npm.cmd --prefix sketchup-node-service run check`: passed.
+- `npm.cmd run check`: passed.
+- `npm.cmd test`: passed, 508 tests.
+
+### Notes
+- Initial sandboxed test/check commands failed with Windows `EPERM` on the
+  Cyrillic user path; rerun with approved elevated shell passed.
+- No SketchUp process, Ruby execution, MCP call, renderer, file upload,
+  migration, production secret, or deploy setting was introduced.
+
+### Next
+- Build or review the local SketchUp Ruby consumer / approved render executor
+  that consumes `inbox/{jobId}.json` and writes the validated outbox response.
