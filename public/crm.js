@@ -243,7 +243,7 @@ async function triggerHermes(event) {
       container.innerHTML = `
         <strong>Hermes Agent · требуется проверка менеджера</strong>
         <p>${escapeHtml(json.hermes.summary || "")}</p>
-        <p><em>Не хватает: ${(json.hermes.missingInfo || []).join(", ") || "—"}</em></p>
+        <p><em>Не хватает: ${escapeHtml((json.hermes.missingInfo || []).join(", ") || "—")}</em></p>
         <p>${escapeHtml(json.hermes.nextQuestion || "")}</p>
         <textarea readonly>${escapeHtml(json.hermes.replyDraft)}</textarea>
         ${json.draft ? `<small>Черновик #${json.draft.id} сохранён · ${escapeHtml(json.draft.status)}</small>` : ""}
