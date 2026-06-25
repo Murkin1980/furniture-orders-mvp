@@ -410,14 +410,14 @@
         <p class="lead">Живая карта разработки платформы: готовые продуктовые контуры, активные инфраструктурные задачи и цепочка будущих AI-возможностей.</p>
         <div class="meta-row">
           <span class="meta">Обновлено: 25 июня 2026</span>
-          <span class="meta">Checkpoint 8 · Hermes Agent backend MVP 100%</span>
-          <span class="meta">579 тестов проходят</span>
+          <span class="meta">Checkpoint 8 · Hermes Agent Stage 5 UI + PDF Slice 6</span>
+          <span class="meta">596 тестов проходят</span>
           <span class="meta">Synthetic production flow: пройден</span>
         </div>
       </section>
       <aside class="readiness">
         <p class="section-kicker">Коммерческая готовность</p>
-        <div class="score">80%<small>AI-assisted готовность: 70%. Hermes Agent backend MVP завершён (pure модули, client, endpoint, best-effort inline вызов, draft persistence). Безопасный AI communications MVP завершён. Главный текущий риск — доступность VPS и настройка production secrets.</small></div>
+        <div class="score">80%<small>AI-assisted готовность: 72%. Hermes Agent backend MVP + CRM/Admin UI завершены. PDF Intelligence: 50% (Draft storage ready). Безопасный AI communications MVP завершён. Главный текущий риск — доступность VPS и настройка production secrets.</small></div>
       </aside>
     </header>
 
@@ -496,11 +496,13 @@
       { name: "OCR и распознавание эскизов", progress: 100, state: "complete", status: "Backend MVP завершён", detail: "Есть durable consent, retention, manager review и fail-closed deletion; customer production pilot выключен.", next: "Перед пилотом отдельно проверить migration 0019 и OCR_MEDIA_BUCKET." },
       { name: "SketchUp MCP", progress: 100, state: "complete", status: "Safe platform boundary complete", detail: "Approved OCR -> model -> plan -> signed job -> dry-run node -> guarded execution adapter -> render artifact persistence.", next: "Real SketchUp adapter stays external to an approved Windows/SketchUp environment." },
       { name: "3D-рендер заказа", progress: 89, state: "active", status: "Execution package contract ready", detail: "Render storage paths, guarded upload, read API, admin visibility, render-ready file-queue response contract, fail-closed HTTP-to-executor wiring, Ruby outbox finalizer, manual SketchUp envelope scaffold, component catalog, and execution package contracts are tested or guarded; default node mode remains dry-run.", next: "Build real dynamic component placement and render generation in the local SketchUp/EasyKitchen adapter." },
-      { name: "Project PDF Intelligence", progress: 40, state: "active", status: "Injected orchestration ready", detail: "Decision, pure PDF manifest/schema, page classification, room/furniture-zone extraction, and injected orchestration contracts are complete; no upload, endpoint, migration, production AI call, or estimate generation yet.", next: "Design admin upload draft storage next." },
+      { name: "Project PDF Intelligence", progress: 50, state: "active", status: "Draft storage ready", detail: "Pure PDF manifest, page classification, room/furniture-zone extraction, injected orchestration, and D1 draft storage are complete; no upload, endpoint, production AI call, or estimate generation yet.", next: "Build protected manual endpoint and trigger analysis." },
       { name: "Supplier Catalog & Pricing", progress: 0, state: "planned", status: "Запланировано", detail: "Контролируемый импорт прайсов поставщиков, mapping, draft diff, approval и неизменяемые версии прайса.", next: "Спроектировать supplier/source/catalog schema и первый reviewed file import." }
     ];
 
     const stages = [
+      { date: "25.06.2026", state: "complete", title: "Hermes Agent Stage 5 — CRM/Admin UI", detail: "Added Hermes Agent button to admin order actions and CRM card. Displays Hermes summary, missing info, next question, and reply draft inline. Uses existing POST /api/orders/:id/agent/hermes endpoint. Hermes disabled by default.", result: "596 tests pass. Hermes backend + UI MVP complete; production enablement requires VPS deployment." },
+      { date: "25.06.2026", state: "active", title: "PDF Intelligence Slice 6 — draft storage", detail: "Added migration 0023_project_pdf_drafts.sql and pure pdf-draft-store.js with buildPdfDraftRecord, buildPdfDraftManifestUpdate, serialization helpers, and 17 focused tests. No endpoint, upload, UI, or production change.", result: "D1 storage contract for PDF drafts is ready. Next: protected manual endpoint and trigger analysis." },
       { date: "23.06.2026", state: "active", title: "Proposal/portfolio smoke runners", detail: "Proposal lifecycle runner added; production portfolio read-only recheck confirms D1 tables, R2 bucket, public API, controlled media 404 path, and deploy 29b2620e.", result: "Remaining gate: explicit approval for production writes: one synthetic proposal lifecycle and one temporary portfolio upload." },
       { date: "23.06.2026", state: "complete", title: "Proposal/portfolio production completion", detail: "Synthetic proposal lifecycle approved version 2 with audit note; synthetic portfolio image upload/read/publish/unpublish smoke passed.", result: "Commercial proposals and Portfolio/media are complete. Next focus is Project PDF Intelligence." },
       { date: "23.06.2026", state: "active", title: "PDF Intelligence Slice 1-2", detail: "Decision document plus pure PDF manifest/schema and tests added without AI, upload, endpoint, migration, or UI; deploy cabcd73d completed.", result: "Next: page-classification prompt/schema." },
