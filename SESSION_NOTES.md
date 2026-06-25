@@ -3456,6 +3456,32 @@ Conclusion:
 - PDF Intelligence Slice 7: protected manual endpoint for creating PDF draft
   records and triggering analysis.
 
+## 2026-06-25 — Hermes Agent production deployment and smoke test
+
+### What changed
+- Deployed Hermes webhook server (Node.js HTTP) on Google Cloud VPS
+  `34.140.181.91` as `hermes-webhook` systemd service on port 3001.
+- Configured nginx at `http://hermes.34-140-181-91.nip.io/webhook/order` with
+  Bearer token auth (`HERMES_TOKEN=hermes-prod-token-2026`).
+- Set Cloudflare Pages secrets: `HERMES_AGENT_WEBHOOK_URL` (HTTP),
+  `HERMES_AGENT_TOKEN`, `HERMES_AGENT_TIMEOUT_MS=4000`.
+- Ran synthetic production smoke on order #12 (kitchen, 870000 KZT):
+  - Hermes classified as `hot`, generated summary + replyDraft.
+  - Communication draft #2 persisted in D1.
+- Disabled after smoke: deleted `HERMES_AGENT_ENABLED` secret + redeployed.
+  Endpoint returns `503 hermes_agent_disabled`.
+- Updated `docs/runbooks/HERMES_AGENT_RUNBOOK.md` with current status.
+
+### Files changed
+- `docs/runbooks/HERMES_AGENT_RUNBOOK.md`
+- `SESSION_NOTES.md`
+
+### Current Hermes state
+- Hermes VPS: ✅ running, HTTP + Bearer token
+- Platform integration: ✅ backend MVP + UI
+- Active: ❌ disabled via deleted secret
+- Enable: set `HERMES_AGENT_ENABLED=true` secret → deploy → verify
+
 ## 2026-06-25 — Hermes Agent Stage 5 CRM/Admin UI
 
 ### What changed

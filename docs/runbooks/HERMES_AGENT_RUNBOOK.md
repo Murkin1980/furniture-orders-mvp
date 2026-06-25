@@ -12,7 +12,12 @@ when Hermes is unavailable.
 ## Current status
 
 - Hermes integration: backend MVP implemented, disabled by default; production
-  Hermes VPS not connected yet.
+  Hermes VPS connected (Google Cloud VPS 34.140.181.91, HTTP webhook
+  `hermes.34-140-181-91.nip.io`), Bearer token auth configured, synthetic
+  smoke test passed (order #12, kitchen, 870000 KZT → draft #2).
+- Hermes is disabled after smoke (`HERMES_AGENT_ENABLED` secret deleted).
+- To enable: set `HERMES_AGENT_ENABLED=true` secret in Cloudflare Pages,
+  deploy, verify with synthetic order.
 - Implementation slices are defined in
   `docs/decisions/HERMES_AGENT_INTEGRATION_DECISION.md`.
 - Hermes is disabled by default (`HERMES_AGENT_ENABLED=false`).
