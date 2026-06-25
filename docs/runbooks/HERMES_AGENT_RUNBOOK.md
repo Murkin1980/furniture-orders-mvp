@@ -11,12 +11,19 @@ when Hermes is unavailable.
 
 ## Current status
 
-- Hermes integration: Stage 0 (documentation only).
+- Hermes integration: backend MVP implemented, disabled by default; production
+  Hermes VPS not connected yet.
 - Implementation slices are defined in
   `docs/decisions/HERMES_AGENT_INTEGRATION_DECISION.md`.
-- Hermes is disabled by default.
-- No Hermes endpoint, client, or payload changes have been made to the platform
-  yet.
+- Hermes is disabled by default (`HERMES_AGENT_ENABLED=false`).
+- All platform-side modules are implemented: pure response parser, minimal
+  payload builder (no PII), guarded HTTP client with injected fetch,
+  admin-protected manual endpoint (`POST /api/orders/:id/agent/hermes`),
+  best-effort inline call in `createOrder()`, communication draft persistence,
+  and CRM/Admin UI buttons.
+- Production enablement requires deploying the Hermes Agent process on Google
+  Cloud VPS and configuring production secrets (`HERMES_AGENT_WEBHOOK_URL`,
+  `HERMES_AGENT_TOKEN`).
 
 ## Environment variables
 
