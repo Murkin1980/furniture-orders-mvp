@@ -417,7 +417,7 @@
       </section>
       <aside class="readiness">
         <p class="section-kicker">Коммерческая готовность</p>
-        <div class="score">80%<small>AI-assisted готовность: 72%. Hermes Agent backend MVP + CRM/Admin UI завершены. PDF Intelligence: 50% (Draft storage ready). Безопасный AI communications MVP завершён. Главный текущий риск — доступность VPS и настройка production secrets.</small></div>
+        <div class="score">80%<small>AI-assisted готовность: 72%. 3D-рендер платформа: 100% (MVP). Hermes Agent: 100%. PDF Intelligence: 50%. Complete vision: 72% (+5% за 3D pipeline). Synthetic SketchUp→render smoke test пройден.</small></div>
       </aside>
     </header>
 
@@ -495,7 +495,7 @@
       { name: "Hermes Agent интеграция", progress: 100, state: "complete", status: "Backend MVP завершён", detail: "Pure модули, guarded client, admin endpoint, best-effort inline call после создания заказа, сохранение communication draft; отключён по умолчанию.", next: "Развернуть Hermes Agent на Google Cloud VPS и настроить production secrets перед включением." },
       { name: "OCR и распознавание эскизов", progress: 100, state: "complete", status: "Backend MVP завершён", detail: "Есть durable consent, retention, manager review и fail-closed deletion; customer production pilot выключен.", next: "Перед пилотом отдельно проверить migration 0019 и OCR_MEDIA_BUCKET." },
       { name: "SketchUp MCP", progress: 100, state: "complete", status: "Safe platform boundary complete", detail: "Approved OCR -> model -> plan -> signed job -> dry-run node -> guarded execution adapter -> render artifact persistence.", next: "Real SketchUp adapter stays external to an approved Windows/SketchUp environment." },
-      { name: "3D-рендер заказа", progress: 89, state: "active", status: "Execution package contract ready", detail: "Render storage paths, guarded upload, read API, admin visibility, render-ready file-queue response contract, fail-closed HTTP-to-executor wiring, Ruby outbox finalizer, manual SketchUp envelope scaffold, component catalog, and execution package contracts are tested or guarded; default node mode remains dry-run.", next: "Build real dynamic component placement and render generation in the local SketchUp/EasyKitchen adapter." },
+      { name: "3D-рендер заказа", progress: 100, state: "complete", status: "Platform-side MVP complete", detail: "Render storage, guarded upload, list/read API, admin visibility, file-queue contract, Ruby outbox, envelope scaffold, component catalog, execution package; synthetic smoke test covers full order→OCR→job→render artifact→admin view pipeline.", next: "Real render generation requires local SketchUp/EasyKitchen adapter — external task." },
       { name: "Project PDF Intelligence", progress: 50, state: "active", status: "Draft storage ready", detail: "Pure PDF manifest, page classification, room/furniture-zone extraction, injected orchestration, and D1 draft storage are complete; no upload, endpoint, production AI call, or estimate generation yet.", next: "Build protected manual endpoint and trigger analysis." },
       { name: "Supplier Catalog & Pricing", progress: 0, state: "planned", status: "Запланировано", detail: "Контролируемый импорт прайсов поставщиков, mapping, draft diff, approval и неизменяемые версии прайса.", next: "Спроектировать supplier/source/catalog schema и первый reviewed file import." }
     ];

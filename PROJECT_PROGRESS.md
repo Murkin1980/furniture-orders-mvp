@@ -20,7 +20,7 @@ and `SESSION_NOTES.md` together.
 |---|---:|---|
 | Commercial platform | `[#########-] 80%` | Landings, orders, calculators, portfolio, CRM, proposals, and stable operations |
 | AI-assisted platform | `[#######---] 70%` | AI qualification, safe communications, and locally verified manager-reviewed OCR |
-| Complete vision | `[#######---] 67%` | Commercial platform plus vision, guarded SketchUp boundary, gated executor wiring, render file/upload contracts, manual envelope scaffold, dynamic component catalog contract, and pending real component placement/rendering |
+| Complete vision | `[#######--] 72%` | Commercial platform plus vision, guarded SketchUp boundary, render pipeline platform MVP complete, synthetic smoke test verified; real component placement/rendering requires local SketchUp/EasyKitchen adapter |
 
 ## Workstreams
 
@@ -40,7 +40,7 @@ and `SESSION_NOTES.md` together.
 | Hermes Agent integration | `[##########] 100%` | Backend MVP complete: pure modules, guarded client with injected fetch, admin-protected manual endpoint, best-effort inline call after order creation, communication draft persistence, disabled by default | Deploy Hermes Agent on Google Cloud VPS and configure production secrets before enabling |
 | OCR and sketch recognition | `[##########] 100%` | Backend MVP complete: durable consent, retention, manager review, and fail-closed deletion; customer production pilot remains disabled | Review/apply migration 0019 and R2 binding only before an approved customer pilot |
 | SketchUp MCP | `[##########] 100%` | Safe platform boundary complete: approved OCR -> model -> plan -> signed job -> dry-run node -> guarded execution adapter -> render artifact persistence | Real SketchUp adapter remains an external approved Windows/SketchUp environment task |
-| 3D rendering pipeline | `[#########-] 89%` | Render storage paths, guarded upload, read API, admin visibility, render-ready file-queue response contract, fail-closed HTTP-to-executor wiring, Ruby outbox finalizer, manual SketchUp envelope scaffold, component catalog, and execution package contracts are tested or guarded; default node mode remains dry-run | Build real dynamic component placement and render generation in the local SketchUp/EasyKitchen adapter |
+| 3D rendering pipeline | `[##########] 100%` | Platform-side MVP complete: render storage, guarded upload, list/read API, admin visibility, file-queue contract, Ruby outbox, envelope scaffold, component catalog, execution package; synthetic smoke test covers full order→OCR→job→render artifact→admin view pipeline; real render generation requires local SketchUp/EasyKitchen adapter | Real SketchUp/EasyKitchen dynamic component placement and render generation remains an external local-environment task |
 | Project PDF Intelligence | `[#####-----] 50%` | Pure PDF manifest, page classification, room/furniture-zone extraction, injected orchestration, and D1 draft storage are complete; no upload, endpoint, production AI call, or estimate generation yet | Build protected manual endpoint and trigger analysis |
 | Supplier Catalog and Pricing | `[----------] 0%` | Planned controlled supplier imports with mapping, draft diffs, approval, and immutable price-list versions | Design supplier/source/catalog schemas and start with reviewed file imports |
 
