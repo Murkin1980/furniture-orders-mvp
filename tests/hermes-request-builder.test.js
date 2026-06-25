@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { buildHermesPayload } from "../src/agents/hermes-request-builder.js";
+import { buildHermesPayload, sanitizeHermesFreeText } from "../src/agents/hermes-request-builder.js";
 
 describe("buildHermesPayload", () => {
   it("returns null for nullish input", () => {
@@ -142,5 +142,66 @@ describe("buildHermesPayload", () => {
     });
     assert.equal(payload.order.budget, null);
     assert.equal(payload.order.description, null);
+  });
+});
+
+describe("sanitizeHermesFreeText", () => {
+  it("masks Kazakh phone numbers", () => {
+    assert.equal(sanitizeHermesFreeText("+77011234567"), "[phone]");
+    assert.equal(sanitizeHermesFreeText("87771234567"), "[phone]");
+    assert.equal(sanitizeHermesFreeText("+7 (701) 123-45-67"), "[phone]");
+    assert.equal(sanitizeHermesFreeText("8 701 123 45 67"), "[phone]");
+  });
+
+  it("masks phone in running text", () => {
+    const result = sanitizeHermesFreeText("Позвоните мне +77011234567 срочно");
+    assert.equal(result, "Позвоните мне [phone] срочно");
+  });
+
+  it("masks multiple phones", () => {
+    const result = sanitizeHermesFreeText("+77011234567 и 87021234567");
+    assert.equal(result, "[phone] и [phone]");
+  });
+
+  it("masks email", () => {
+    assert.equal(sanitizeHermesFreeText("test@example.com"), "[email]");
+  });
+
+  it("masks email in running text", () => {
+    const result = sanitizeHermesFreeText("пишите на email@test.kz или звоните");
+    assert.equal(result, "пишите на [email] или звоните");
+  });
+
+  it("masks phone and email together", () => {
+    const result = sanitizeHermesFreeText("+77011234567, email@test.kz");
+    assert.equal(result, "[phone], [email]");
+  });
+
+  it("limits long text", () => {
+    const long = "a".repeat(3000);
+    const result = sanitizeHermesFreeText(long);
+    assert.equal(result.length, 2003);
+    assert.ok(result.endsWith("..."));
+  });
+
+  it("returns non-string input as-is", () => {
+    assert.equal(sanitizeHermesFreeText(null), null);
+    assert.equal(sanitizeHermesFreeText(undefined), undefined);
+    assert.equal(sanitizeHermesFreeText(""), "");
+  });
+
+  it("sanitizes description in payload build", () => {
+    const payload = buildHermesPayload({
+      id: 1,
+      description: "Нужна кухня, тел +77011234567, email@test.kz"
+    });
+    assert.equal(payload.order.description, "Нужна кухня, тел [phone], [email]");
+  });
+
+  it("does not mutate input order description", () => {
+    const order = { id: 1, description: "+77011234567" };
+    const frozen = Object.freeze({ ...order });
+    const payload = buildHermesPayload(frozen);
+    assert.equal(payload.order.description, "[phone]");
   });
 });

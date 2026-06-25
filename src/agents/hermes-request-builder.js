@@ -28,6 +28,9 @@ export function buildHermesPayload(order = {}) {
     }
   }
 
+  if (safeOrder.description) {
+    safeOrder.description = sanitizeHermesFreeText(safeOrder.description);
+  }
   if (safeOrder.calculatorMeta && typeof safeOrder.calculatorMeta === "object") {
     safeOrder.calculatorMeta = sanitizeCalculatorMeta(safeOrder.calculatorMeta);
   }
@@ -37,6 +40,24 @@ export function buildHermesPayload(order = {}) {
     schemaVersion: 1,
     order: safeOrder
   };
+}
+
+const PHONE_PATTERN = /(\+?7|8)[\s(-]*\d{3}[\s)-]*\d{3}[\s-]*\d{2}[\s-]*\d{2}/g;
+const EMAIL_PATTERN = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+const MAX_DESCRIPTION_LENGTH = 2000;
+
+export function sanitizeHermesFreeText(text) {
+  if (typeof text !== "string" || !text.trim()) return text;
+
+  let result = text
+    .replace(PHONE_PATTERN, "[phone]")
+    .replace(EMAIL_PATTERN, "[email]");
+
+  if (result.length > MAX_DESCRIPTION_LENGTH) {
+    result = result.slice(0, MAX_DESCRIPTION_LENGTH) + "...";
+  }
+
+  return result;
 }
 
 function sanitizeCalculatorMeta(meta) {
