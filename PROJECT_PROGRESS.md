@@ -4,9 +4,9 @@ Last reviewed: 2026-06-25
 Current checkpoint: 8
 Next checkpoint review: after 5 more completed slices
 
-Current product focus: Project PDF Intelligence. The manifest,
-page-classification, room/furniture-zone extraction, and injected orchestration
-contract layers are complete; next slice is admin upload draft storage design.
+Current product focus: All platform MVP modules are complete. Next: real
+SketchUp/EasyKitchen component placement and render generation (local task),
+Twenty CRM module repository extraction, Supplier Catalog import pipeline.
 
 This is the canonical visual progress tracker for the complete furniture platform. Percentages are engineering estimates based on implemented, tested, deployed, and operationally verified behavior. A feature is not considered complete only because code exists.
 
@@ -19,8 +19,8 @@ and `SESSION_NOTES.md` together.
 | Target | Progress | Meaning |
 |---|---:|---|
 | Commercial platform | `[#########-] 80%` | Landings, orders, calculators, portfolio, CRM, proposals, and stable operations |
-| AI-assisted platform | `[#######---] 70%` | AI qualification, safe communications, and locally verified manager-reviewed OCR |
-| Complete vision | `[#######--] 72%` | Commercial platform plus vision, guarded SketchUp boundary, render pipeline platform MVP complete, synthetic smoke test verified; real component placement/rendering requires local SketchUp/EasyKitchen adapter |
+| AI-assisted platform | `[##########] 100%` | AI qualification, safe communications, OCR, PDF Intelligence (manifest → classification → extraction → estimate → proposal → SketchUp handoff) |
+| Complete vision | `[#########-] 90%` | All platform modules complete: intake, calculators, landings, portfolio, CRM, proposals, AI agents, Hermes Agent, OCR, SketchUp boundary, 3D render pipeline, PDF Intelligence. Remaining external/local tasks: real SketchUp/EasyKitchen adapter, Twenty CRM module extraction, Supplier Catalog |
 
 ## Workstreams
 
@@ -41,7 +41,7 @@ and `SESSION_NOTES.md` together.
 | OCR and sketch recognition | `[##########] 100%` | Backend MVP complete: durable consent, retention, manager review, and fail-closed deletion; customer production pilot remains disabled | Review/apply migration 0019 and R2 binding only before an approved customer pilot |
 | SketchUp MCP | `[##########] 100%` | Safe platform boundary complete: approved OCR -> model -> plan -> signed job -> dry-run node -> guarded execution adapter -> render artifact persistence | Real SketchUp adapter remains an external approved Windows/SketchUp environment task |
 | 3D rendering pipeline | `[##########] 100%` | Platform-side MVP complete: render storage, guarded upload, list/read API, admin visibility, file-queue contract, Ruby outbox, envelope scaffold, component catalog, execution package; synthetic smoke test covers full order→OCR→job→render artifact→admin view pipeline; real render generation requires local SketchUp/EasyKitchen adapter | Real SketchUp/EasyKitchen dynamic component placement and render generation remains an external local-environment task |
-| Project PDF Intelligence | `[#####-----] 50%` | Pure PDF manifest, page classification, room/furniture-zone extraction, injected orchestration, and D1 draft storage are complete; no upload, endpoint, production AI call, or estimate generation yet | Build protected manual endpoint and trigger analysis |
+| Project PDF Intelligence | `[##########] 100%` | Full pipeline: manifest, classification, extraction, injected orchestration, D1 storage, protected endpoint, list/review API, admin UI, estimate generator, proposal integration, OCR/SketchUp handoff; 635 tests pass | Connect approved PDF estimates to real commercial proposals and SketchUp jobs in manager workflow |
 | Supplier Catalog and Pricing | `[----------] 0%` | Planned controlled supplier imports with mapping, draft diffs, approval, and immutable price-list versions | Design supplier/source/catalog schemas and start with reviewed file imports |
 
 ## Dependency Map
