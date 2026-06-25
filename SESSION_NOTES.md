@@ -3219,3 +3219,205 @@ Conclusion:
 ### Next
 - Build a reviewed local adapter that consumes `sketchup-component-placement/v1`
   inside SketchUp and maps references to licensed dynamic components.
+
+## 2026-06-24 - SketchUp execution package contract
+
+### What changed
+- Added `src/sketchup/execution-package.js`.
+- Added `sketchup-execution-package/v1` as a pure local-adapter handoff object.
+- The package combines a validated `sketchup-command-plan/v1` and validated
+  `sketchup-component-placement/v1`.
+- The helper can build placement from a safe component catalog when an explicit
+  placement plan is not supplied.
+- Validation checks package shape, source audit, command plan validity,
+  component placement source, warnings, and readiness.
+- Added `tests/sketchup-execution-package.test.js`.
+- Added the new module to `npm run check`.
+- Updated README, SketchUp decision document, and project progress trackers.
+
+### Checks
+- `node --test tests/sketchup-execution-package.test.js`: passed, 6 tests.
+- `node --check src/sketchup/execution-package.js`: passed.
+- `npm.cmd run check`: passed.
+- `npm.cmd test`: passed, 525 tests (524 passed, 1 skipped because Ruby is
+  not installed locally).
+
+### Notes
+- This is not wired into the current endpoint or signed node job transport.
+- No SketchUp, EasyKitchen, Ruby, render, upload, migration, endpoint, secret,
+  or deploy setting was changed.
+
+### Next
+- Use the execution package inside a reviewed local SketchUp adapter after the
+  manual envelope scaffold is verified inside SketchUp 2026.
+
+## 2026-06-25 — Hermes Agent Stage 0 documentation
+
+### What changed
+- Added `docs/decisions/HERMES_AGENT_INTEGRATION_DECISION.md` with architecture,
+  data minimization, safety rules, integration slices, and deployment plan for
+  Hermes Agent on Google Cloud VPS.
+- Added `docs/runbooks/HERMES_AGENT_RUNBOOK.md` with setup, environment variables,
+  safety boundaries, troubleshooting, and verification steps.
+- Hermes Agent is an external agent assistant; the platform remains the source
+  of truth.
+- Hermes is disabled by default (`HERMES_AGENT_ENABLED=false`).
+- No runtime behavior, endpoint, migration, deploy, or production setting was
+  changed.
+
+### Files changed
+- `docs/decisions/HERMES_AGENT_INTEGRATION_DECISION.md`
+- `docs/runbooks/HERMES_AGENT_RUNBOOK.md`
+- `SESSION_NOTES.md`
+
+### Checks
+- `git diff --check` - passed (CRLF warnings only, no content errors).
+- `npm.cmd run check` - passed.
+- `npm.cmd test` - 524 passed, 0 failed, 1 skipped.
+
+### Next
+- Stage 1: create pure modules `src/agents/hermes-result.js`,
+  `src/agents/hermes-request-builder.js` with tests.
+
+## 2026-06-25 — Hermes Agent Stage 1 pure modules
+
+### What changed
+- Added `src/agents/hermes-result.js` — normalizes and validates Hermes JSON
+  response: strict `schemaVersion: 1` check, forces `requiresHumanApproval=true`,
+  enum normalization for furnitureType/leadTemperature, array/string
+  normalization for missingInfo/warnings, safe fallback for invalid input,
+  unknown fields are ignored.
+- Added `src/agents/hermes-request-builder.js` — builds minimal payload for
+  Hermes from order data: strips phone/email/address/raw_payload/notes/status,
+  allows only id/source/city/furnitureType/budget/description/calculatorMeta/
+  createdAt, sanitizes calculatorMeta to exclude units/materialRuleCode/
+  materialMultiplier, returns null for missing/invalid id, no fetch calls.
+- Both modules are pure functions with no network, database, or endpoint
+  dependencies.
+
+### Files changed
+- `src/agents/hermes-result.js`
+- `src/agents/hermes-request-builder.js`
+- `tests/hermes-result.test.js`
+- `tests/hermes-request-builder.test.js`
+- `package.json`
+- `SESSION_NOTES.md`
+
+### Checks
+- `node --test tests/hermes-result.test.js` — 12 passed.
+- `node --test tests/hermes-request-builder.test.js` — 14 passed.
+- `npm.cmd test` — 550 passed, 0 failed, 1 skipped.
+- `npm.cmd run check` — passed.
+- `git diff --check` — passed (CRLF warnings only).
+
+### Next
+- Stage 2: create `src/agents/hermes-client.js` with injected `fetchFn`,
+  timeout/abort, disabled/missing_url/missing_token/timeout/http_error/
+  invalid_json errors, no global fetch fallback, no retry on 429.
+
+## 2026-06-25 — Hermes Agent Stage 2 guarded client
+
+### What changed
+- Added `src/agents/hermes-client.js` with `sendToHermes(payload, options)`.
+- Requires explicit `enabled: true`, `webhookUrl`, `token`, and injected
+  `fetchFn` — no automatic global fetch fallback.
+- Pre-request validation returns clear errors: disabled, missing_url,
+  missing_token, invalid_payload.
+- Uses AbortController with configurable timeout (default 4000ms).
+- No retry on HTTP 429 or any error.
+- Returns normalized error objects for timeout, http_error, invalid_json,
+  and network_error.
+- Added 13 focused tests covering all error paths, injected fetch assertion,
+  payload verification, and timeout behavior.
+
+### Files changed
+- `src/agents/hermes-client.js`
+- `tests/hermes-client.test.js`
+- `package.json`
+- `SESSION_NOTES.md`
+
+### Checks
+- `node --test tests/hermes-client.test.js` — 13 passed.
+- `node --test tests/hermes-result.test.js tests/hermes-request-builder.test.js tests/hermes-client.test.js` — 39 passed.
+- `npm.cmd test` — 563 passed, 0 failed, 1 skipped.
+- `npm.cmd run check` — passed.
+- `git diff --check` — passed (CRLF warnings only).
+
+### Next
+- Stage 3: create `src/agents/hermes-order-core.js` and
+  `functions/api/orders/[id]/agent/hermes.js` with admin-protected manual
+  endpoint, communication draft persistence, disabled-by-default gate.
+
+## 2026-06-25 — Hermes Agent Stage 3 order core and endpoint
+
+### What changed
+- Added `src/agents/hermes-order-core.js` — loads order from D1, builds minimal
+  payload via `buildHermesPayload`, calls Hermes via injected `sendHermesRequest`,
+  normalizes response via `normalizeHermesResult`, saves `replyDraft` as
+  communication draft via `createCommunicationDraft`.
+- Returns 503 when Hermes is disabled, 502 when Hermes returns error, 200 on
+  success. Never changes order status, notes, or follow-up.
+- Added `functions/api/orders/[id]/agent/hermes.js` — admin-protected endpoint
+  with existing Bearer/X-Admin-Token convention. Pre-flights Hermes config
+  before calling core: disabled returns 503, missing URL/token returns 503.
+  Supports injected sender via `context.data.sendHermesRequest`.
+- Added `tests/hermes-order-core.test.js` — 8 tests for core: invalid id, missing
+  order, disabled, success, Hermes error, preserved fields on error, draft save,
+  no global fetch.
+- Added `tests/hermes-endpoint.test.js` — 7 tests for endpoint: unauthorized,
+  admin not configured, disabled, not configured, injected sender, method reject,
+  OPTIONS.
+
+### Files changed
+- `src/agents/hermes-order-core.js`
+- `functions/api/orders/[id]/agent/hermes.js`
+- `tests/hermes-order-core.test.js`
+- `tests/hermes-endpoint.test.js`
+- `package.json`
+- `SESSION_NOTES.md`
+
+### Checks
+- `node --test tests/hermes-order-core.test.js` — 8 passed.
+- `node --test tests/hermes-endpoint.test.js` — 7 passed.
+- `node --test tests/hermes-result.test.js tests/hermes-request-builder.test.js tests/hermes-client.test.js tests/hermes-order-core.test.js tests/hermes-endpoint.test.js` — 45 passed.
+- `npm.cmd test` — 578 passed, 0 failed, 1 skipped.
+- `npm.cmd run check` — passed.
+- `git diff --check` — passed (CRLF warnings only).
+
+### Next
+- Stage 4: add `notifyHermesAgent()` call in `src/orders-core.js` after
+  `notifyTelegram()`. Best-effort: 201 returned even if Hermes is unavailable.
+  Controlled by `HERMES_AGENT_ENABLED=true`.
+
+## 2026-06-25 — Hermes Agent Stage 4 best-effort integration
+
+### What changed
+- Added `notifyHermesAgent({ db, env, order, payload, fetchImpl })` to
+  `src/agents/hermes-order-core.js`. Best-effort function that never throws.
+  Returns `{ sent: true/false, skipped: true/false }`. Builds minimal payload
+  from already available order data (no extra D1 query). Sends via Hermes
+  client. Optionally saves communication draft if replyDraft present.
+- Modified `createOrder()` in `src/orders-core.js` to call
+  `notifyHermesAgent()` after `notifyTelegram()`. Added `hermesSent` field to
+  the 201 response. Hermes is only activated when `HERMES_AGENT_ENABLED=true`;
+  otherwise silently skipped.
+- Order creation returns 201 even if Hermes is unavailable, times out, or
+  returns an error. No order status/notes/follow-up are changed.
+
+### Files changed
+- `src/agents/hermes-order-core.js`
+- `src/orders-core.js`
+- `tests/orders-core.test.js`
+- `SESSION_NOTES.md`
+
+### Checks
+- `node --test tests/orders-core.test.js` — 46 passed (includes new Hermes test).
+- `node --test tests/hermes-order-core.test.js` — 8 passed.
+- `npm.cmd test` — 579 passed, 0 failed, 1 skipped.
+- `npm.cmd run check` — passed.
+- `git diff --check` — passed (CRLF warnings only).
+
+### Next
+- Stage 5: CRM/Admin UI for Hermes — add Hermes summary, missing info, next
+  question, draft reply, and status display to order card. Apply
+  `skills/saas-product-interface/SKILL.md`.

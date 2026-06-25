@@ -1,6 +1,7 @@
 import { isOrderStatus } from "./order-statuses.js";
 import { findProjectTemplate, getTemplateSteps, isStepStatus, PROJECT_TEMPLATES } from "./project-templates.js";
 import { hasMinimumPhoneDigits, normalizePhone } from "./phone.js";
+import { notifyHermesAgent } from "./agents/hermes-order-core.js";
 
 const REQUIRED_FIELDS = ["name", "phone"];
 
@@ -66,6 +67,7 @@ export async function createOrder({ db, payload, env = {}, fetchImpl = fetch }) 
   const client = await upsertClient(db, normalized);
   const order = await insertOrder(db, client.id, normalized);
   const telegram = await notifyTelegram({ env, order, client, payload: normalized, fetchImpl });
+  const hermes = await notifyHermesAgent({ db, env, order, payload: normalized, fetchImpl });
 
   return {
     ok: true,
@@ -75,7 +77,8 @@ export async function createOrder({ db, payload, env = {}, fetchImpl = fetch }) 
       orderId: order.id,
       clientId: client.id,
       status: order.status,
-      telegramSent: telegram.sent
+      telegramSent: telegram.sent,
+      hermesSent: hermes.sent
     }
   };
 }

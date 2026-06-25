@@ -72,8 +72,53 @@ test("creates client and order, then sends telegram when configured", async () =
   assert.equal(result.body.orderId, 1);
   assert.equal(result.body.clientId, 1);
   assert.equal(result.body.telegramSent, true);
+  assert.equal(result.body.hermesSent, false);
   assert.equal(telegramCalls.length, 1);
   assert.match(JSON.parse(telegramCalls[0].options.body).text, /Новая заявка на мебель/);
+});
+
+test("creates order and sends Hermes when enabled", async () => {
+  const db = createMockDb();
+  const hermesCalls = [];
+  const result = await createOrder({
+    db,
+    env: {
+      RUNTIME_SCHEMA_INIT: "true",
+      HERMES_AGENT_ENABLED: "true",
+      HERMES_AGENT_WEBHOOK_URL: "https://hermes.test/webhook",
+      HERMES_AGENT_TOKEN: "test-token"
+    },
+    fetchImpl: async (url, options) => {
+      hermesCalls.push({ url, options });
+      return {
+        ok: true,
+        json: async () => ({
+          schemaVersion: 1,
+          requiresHumanApproval: true,
+          summary: "test",
+          furnitureType: "other",
+          leadTemperature: "neutral",
+          missingInfo: [],
+          nextQuestion: "",
+          replyDraft: "",
+          warnings: []
+        })
+      };
+    },
+    payload: {
+      name: "Ерлан",
+      phone: "+77011234567",
+      source: "site",
+      city: "Алматы",
+      furnitureType: "kitchen",
+      budget: 500000,
+      description: "Тестовый заказ"
+    }
+  });
+
+  assert.equal(result.status, 201);
+  assert.equal(result.body.hermesSent, true);
+  assert.ok(hermesCalls.length >= 1);
 });
 
 test("returns 400 without writing invalid orders", async () => {
