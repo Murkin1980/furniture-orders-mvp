@@ -95,6 +95,71 @@ export async function analyzeOrderPdfCore({ db }, orderId, input = {}, options =
   });
 }
 
+export async function listOrderPdfDraftsCore({ db }, orderId) {
+  if (!db) throw new Error("D1 binding DB is not configured.");
+  const id = Number(orderId);
+  if (!Number.isInteger(id) || id < 1) {
+    return result(400, { success: false, error: "invalid_order_id", message: "orderId must be a positive integer." });
+  }
+  const order = await db.prepare("SELECT id FROM orders WHERE id = ?").bind(id).first();
+  if (!order) return result(404, { success: false, error: "order_not_found", message: "Order was not found." });
+
+  const rows = await db.prepare(
+    `SELECT id, order_id AS orderId, file_name AS fileName, file_size_bytes AS fileSizeBytes,
+            mime_type AS mimeType, page_count AS pageCount, manifest_json AS manifestJson,
+            status, error, created_by AS createdBy, reviewed_by AS reviewedBy,
+            reviewed_at AS reviewedAt, created_at AS createdAt, updated_at AS updatedAt
+     FROM project_pdf_drafts WHERE order_id = ? ORDER BY created_at DESC, id DESC`
+  ).bind(id).all();
+
+  return result(200, { success: true, items: (rows?.results || []).map(normalizeRow) });
+}
+
+export async function reviewOrderPdfDraftCore({ db }, orderId, input = {}) {
+  if (!db) throw new Error("D1 binding DB is not configured.");
+  const id = Number(orderId);
+  const draftId = Number(input.draftId ?? input.draft_id);
+  if (!Number.isInteger(id) || id < 1 || !Number.isInteger(draftId) || draftId < 1) {
+    return result(400, { success: false, error: "invalid_review_request", message: "Order and draft IDs must be positive integers." });
+  }
+  const status = clean(input.status);
+  if (!["approved", "rejected"].includes(status)) {
+    return result(400, { success: false, error: "invalid_review_status", message: "Status must be approved or rejected." });
+  }
+  const existing = await db.prepare(
+    `SELECT id FROM project_pdf_drafts WHERE id = ? AND order_id = ?`
+  ).bind(draftId, id).first();
+  if (!existing) return result(404, { success: false, error: "draft_not_found", message: "PDF draft was not found." });
+
+  const reviewedBy = clean(input.reviewedBy || "manager");
+  const reviewedAt = new Date().toISOString();
+  const manifestUpdate = input.manifest ? JSON.stringify(input.manifest) : null;
+
+  if (manifestUpdate) {
+    await db.prepare(
+      `UPDATE project_pdf_drafts SET status = ?, manifest_json = ?, reviewed_by = ?,
+         reviewed_at = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND order_id = ?`
+    ).bind(status, manifestUpdate, reviewedBy, reviewedAt, draftId, id).run();
+  } else {
+    await db.prepare(
+      `UPDATE project_pdf_drafts SET status = ?, reviewed_by = ?,
+         reviewed_at = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND order_id = ?`
+    ).bind(status, reviewedBy, reviewedAt, draftId, id).run();
+  }
+
+  const saved = await db.prepare(
+    `SELECT id, order_id AS orderId, file_name AS fileName, file_size_bytes AS fileSizeBytes,
+            mime_type AS mimeType, page_count AS pageCount, manifest_json AS manifestJson,
+            status, error, created_by AS createdBy, reviewed_by AS reviewedBy,
+            reviewed_at AS reviewedAt, created_at AS createdAt, updated_at AS updatedAt
+     FROM project_pdf_drafts WHERE id = ?`
+  ).bind(draftId).first();
+
+  return result(200, { success: true, item: normalizeRow(saved) });
+}
+
 function result(status, body) {
   return { ok: status >= 200 && status < 300, status, body };
 }
+
+function clean(value) { return value === undefined || value === null ? "" : String(value).trim(); }

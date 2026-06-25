@@ -166,6 +166,7 @@
               <button type="submit">Обновить</button>
               <button class="secondary" type="button" data-project-id="${escapeHtml(item.id)}">Открыть проект</button>
               <button class="secondary" type="button" data-ocr-order-id="${escapeHtml(item.id)}">OCR review</button>
+              <button class="secondary" type="button" data-pdf-order-id="${escapeHtml(item.id)}">PDF анализ</button>
               <button class="secondary" type="button" data-ai-order-id="${escapeHtml(item.id)}">${escapeHtml(getOrderAiViewModel(item).buttonLabel)}</button>
               <button class="secondary" type="button" data-hermes-order-id="${escapeHtml(item.id)}">Hermes Agent</button>
               <button class="secondary" type="button" data-crm-order-id="${escapeHtml(item.id)}">${escapeHtml(getOrderCrmViewModel(item).buttonLabel)}</button>
@@ -201,6 +202,9 @@
       }
       for (const button of tbody.querySelectorAll("[data-render-order-id]")) {
         button.addEventListener("click", () => loadOrderRenderArtifacts(Number(button.dataset.renderOrderId), button));
+      }
+      for (const button of tbody.querySelectorAll("[data-pdf-order-id]")) {
+        button.addEventListener("click", () => openPdfReview(Number(button.dataset.pdfOrderId)));
       }
     }
 
@@ -719,6 +723,76 @@
         setMessage(error.message, "bad");
       } finally {
         buttons.forEach((item) => { item.disabled = false; });
+      }
+    }
+
+    async function openPdfReview(orderId) {
+      setMessage(`Загрузка PDF-анализов заказа #${orderId}...`);
+      try {
+        const json = await adminFetchJson(`/api/orders/${orderId}/pdf/drafts`, {
+          fallbackMessage: "PDF-анализы не загружены."
+        });
+        const items = json.items || [];
+        if (!items.length) {
+          setMessage(`PDF-анализов для заказа #${orderId} нет.`, "");
+          return;
+        }
+        let html = items.map((draft) => {
+          const manifest = draft.manifest || {};
+          const pages = Array.isArray(manifest.pages) ? manifest.pages : [];
+          return `<details style="margin:8px 0;padding:8px;border:1px solid var(--line);border-radius:5px">
+            <summary><strong>#${escapeHtml(draft.id)}</strong> · ${escapeHtml(draft.fileName || "PDF")} · ${escapeHtml(draft.status)}</summary>
+            <p style="font-size:12px;margin:6px 0">Страниц: ${escapeHtml(draft.pageCount || "—")} · Создан: ${escapeHtml(draft.createdAt || "")}</p>
+            ${draft.error ? `<p class="ai-error">${escapeHtml(draft.error)}</p>` : ""}
+            <p style="font-size:12px;color:var(--muted)">Типы страниц: ${pages.map((p) => escapeHtml(p.pageType || "unknown")).join(", ") || "—"}</p>
+            ${draft.status === "reviewed" ? `
+              <div style="display:flex;gap:5px;margin-top:6px">
+                <button class="secondary" type="button" data-pdf-approve="${escapeHtml(draft.id)}" data-order-id="${orderId}">Одобрить</button>
+                <button class="secondary" type="button" data-pdf-reject="${escapeHtml(draft.id)}" data-order-id="${orderId}" style="border-color:var(--bad);color:var(--bad)">Отклонить</button>
+              </div>` : ""}
+          </details>`;
+        }).join("");
+        const panel = document.createElement("div");
+        panel.innerHTML = html;
+        panel.querySelectorAll("[data-pdf-approve]").forEach((btn) => btn.addEventListener("click", () => reviewPdfDraft(btn.dataset.pdfApprove, orderId, "approved")));
+        panel.querySelectorAll("[data-pdf-reject]").forEach((btn) => btn.addEventListener("click", () => reviewPdfDraft(btn.dataset.pdfReject, orderId, "rejected")));
+
+        const container = document.querySelector("#pdf-review-modal");
+        if (container) {
+          container.innerHTML = `<h3 style="margin:0 0 8px">PDF-анализ заказа #${orderId}</h3>`;
+          container.append(panel);
+          container.hidden = false;
+        } else {
+          // Fallback: show inline
+          const row = [...tbody.querySelectorAll("tr")].find((tr) => tr.querySelector(`[data-pdf-order-id="${orderId}"]`));
+          if (row) {
+            const actions = row.querySelector(".actions");
+            const existing = row.querySelector(".pdf-review-inline");
+            if (existing) existing.remove();
+            const div = document.createElement("div");
+            div.className = "pdf-review-inline";
+            div.innerHTML = `<h4 style="margin:4px 0">PDF-анализ заказа #${orderId}</h4>`;
+            div.append(panel);
+            actions?.after(div);
+          }
+        }
+        setMessage(`PDF-анализы заказа #${orderId}: ${items.length}.`, "ok");
+      } catch (error) {
+        setMessage(error.message, "bad");
+      }
+    }
+
+    async function reviewPdfDraft(draftId, orderId, status) {
+      try {
+        const json = await adminFetchJson(`/api/orders/${orderId}/pdf/drafts`, {
+          method: "POST",
+          payload: { draftId: Number(draftId), status, reviewedBy: "manager" },
+          fallbackMessage: "PDF-анализ не обновлён."
+        });
+        setMessage(`PDF-анализ #${draftId}: ${status}.`, status === "approved" ? "ok" : "");
+        await openPdfReview(orderId);
+      } catch (error) {
+        setMessage(error.message, "bad");
       }
     }
 
