@@ -1,6 +1,6 @@
 # Project Progress Dashboard
 
-Last reviewed: 2026-06-24
+Last reviewed: 2026-06-25
 Current checkpoint: 8
 Next checkpoint review: after 5 more completed slices
 
@@ -37,9 +37,10 @@ and `SESSION_NOTES.md` together.
 | Commercial proposals | `[##########] 100%` | Versioned D1 storage, immutable snapshots, publish/approval audit, persisted admin workflow, production migration 0022, Pages deploy, and synthetic production lifecycle smoke are complete | Extend from real КП workflow feedback |
 | Twenty CRM integration | `[#######---] 70%` | Production safety path verified; now a separate future module | Prepare separate integration repository after native CRM verification |
 | AI agents and communications | `[##########] 100%` | Safe MVP complete: manual suggestions, editing, approval/rejection, audit history, and no autonomous sending | Add Telegram/WhatsApp delivery only as separately approved channel integrations |
+| Hermes Agent integration | `[##########] 100%` | Backend MVP complete: pure modules, guarded client with injected fetch, admin-protected manual endpoint, best-effort inline call after order creation, communication draft persistence, disabled by default | Deploy Hermes Agent on Google Cloud VPS and configure production secrets before enabling |
 | OCR and sketch recognition | `[##########] 100%` | Backend MVP complete: durable consent, retention, manager review, and fail-closed deletion; customer production pilot remains disabled | Review/apply migration 0019 and R2 binding only before an approved customer pilot |
 | SketchUp MCP | `[##########] 100%` | Safe platform boundary complete: approved OCR -> model -> plan -> signed job -> dry-run node -> guarded execution adapter -> render artifact persistence | Real SketchUp adapter remains an external approved Windows/SketchUp environment task |
-| 3D rendering pipeline | `[#########-] 88%` | Render storage paths, guarded upload, read API, admin visibility, render-ready file-queue response contract, fail-closed HTTP-to-executor wiring, Ruby outbox finalizer, manual SketchUp envelope scaffold, and platform-side component catalog contract are tested or guarded; default node mode remains dry-run | Build real dynamic component placement and render generation in the local SketchUp/EasyKitchen adapter |
+| 3D rendering pipeline | `[#########-] 89%` | Render storage paths, guarded upload, read API, admin visibility, render-ready file-queue response contract, fail-closed HTTP-to-executor wiring, Ruby outbox finalizer, manual SketchUp envelope scaffold, component catalog, and execution package contracts are tested or guarded; default node mode remains dry-run | Build real dynamic component placement and render generation in the local SketchUp/EasyKitchen adapter |
 | Project PDF Intelligence | `[####------] 40%` | Decision, pure PDF manifest/schema, page classification, room/furniture-zone extraction, and injected orchestration contracts are complete; no upload, endpoint, migration, production AI call, or estimate generation yet | Design admin upload draft storage next |
 | Supplier Catalog and Pricing | `[----------] 0%` | Planned controlled supplier imports with mapping, draft diffs, approval, and immutable price-list versions | Design supplier/source/catalog schemas and start with reviewed file imports |
 
@@ -163,6 +164,7 @@ flowchart LR
 | SketchUp Slice 13C | 2026-06-24 | Fail-closed Ruby queue finalizer validates inbox request, approval, allowlisted commands, existing model.skp, and preview/render before writing outbox | Build the real SketchUp/EasyKitchen geometry and render adapter |
 | SketchUp Slice 13D | 2026-06-24 | Manual SketchUp Ruby envelope consumer scaffold validates inbox/approval, creates confirmed overall envelope, saves model.skp, writes preview.png, and publishes render-ready outbox | Add dynamic component placement and real render generation after local SketchUp verification |
 | SketchUp Slice 14A | 2026-06-24 | Pure dynamic component catalog contract normalizes safe in-house/EasyKitchen/external component references and builds metadata-only placement plans | Connect catalog placements to a reviewed local SketchUp/EasyKitchen adapter |
+| SketchUp Slice 14B | 2026-06-24 | Pure execution package combines validated command plan and component placement plan for local adapter handoff | Keep endpoint/job transport unchanged until local adapter smoke passes |
 | Admin/CRM visual refresh | 2026-06-21 | AdminLTE-inspired graphite shell and Golos Text applied to admin, native CRM, and public intake; commit `d04d46d` deployed and verified | Extend only from real manager workflow feedback |
 | Proposal Slice 1 | 2026-06-21 | TUBA-inspired A4 template, safe normalization, automatic totals, synthetic example, CLI, 437 passing project tests, and visual PDF verification | Add manager form and order-to-proposal mapper; do not infer tax or legal terms |
 | Proposal Slice 2 | 2026-06-21 | Pure order-to-proposal draft mapper supports camel/snake case, safe raw payload parsing, calculator reference metadata, and no input mutation | Add protected HTML preview endpoint; budget remains reference-only |
@@ -180,3 +182,4 @@ flowchart LR
 | PDF Intelligence Slice 5 | 2026-06-23 | Added injected PDF analysis orchestration that builds manifest, classification request, extraction request, merges results, handles safe errors, and never calls fetch; deploy `721c542c` completed | Design admin upload draft storage |
 | Repo documentation cleanup | 2026-06-23 | Moved long-form decision, runbook, and template docs from root into `docs/decisions/`, `docs/runbooks/`, and `docs/templates/`; added CI in the previous hygiene pass | Continue PDF Intelligence storage design after verifying links/tests |
 | Google VPS recovery | 2026-06-24 | Google Cloud Debian 12 test VPS `34.140.181.91` installed with nginx, ufw, Node 20, `furniture-vps-control`, Cloudflare secrets, authenticated read-only smoke, controlled live HTML deploy, and public test landing `http://lc6-test.34-140-181-91.nip.io/` | Use `control.34-140-181-91.nip.io` as the active test VPS control origin; do not reuse compromised PS.kz without rebuild |
+| Hermes Agent integration | 2026-06-25 | Backend MVP: pure modules, guarded client, admin endpoint, best-effort inline call, draft persistence, 579 tests pass, disabled by default | Deploy Hermes Agent on Google Cloud VPS before enabling production use |

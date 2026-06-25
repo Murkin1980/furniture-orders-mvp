@@ -3421,3 +3421,66 @@ Conclusion:
 - Stage 5: CRM/Admin UI for Hermes — add Hermes summary, missing info, next
   question, draft reply, and status display to order card. Apply
   `skills/saas-product-interface/SKILL.md`.
+
+## 2026-06-25 — Dashboard update + PDF Intelligence Slice 6
+
+### What changed
+- Added Hermes Agent workstream to `PROJECT_PROGRESS.md` (100%, backend MVP)
+  and `PROJECT_PROGRESS.html` (workstream card, stage entry, dependency map
+  node, readiness scores updated to 80%/70%, metadata updated).
+- Added `migrations/0023_project_pdf_drafts.sql` with D1 storage for PDF
+  draft records linked to orders: file metadata, manifest JSON, status
+  (draft/processing/reviewed/approved/rejected), and review audit fields.
+- Added `src/pdf/pdf-draft-store.js` with pure helpers: `buildPdfDraftRecord`,
+  `buildPdfDraftManifestUpdate`, `serializePdfManifest`,
+  `parseStoredPdfManifest`, `normalizeStatus`, `normalizeRow`,
+  `normalizeRows`.
+- No endpoint, upload, provider call, UI, deploy, or production change.
+
+### Files changed
+- `PROJECT_PROGRESS.md`
+- `PROJECT_PROGRESS.html`
+- `migrations/0023_project_pdf_drafts.sql`
+- `src/pdf/pdf-draft-store.js`
+- `tests/pdf-draft-store.test.js`
+- `package.json`
+- `SESSION_NOTES.md`
+
+### Checks
+- `node --test tests/pdf-draft-store.test.js` — 17 passed.
+- `npm.cmd test` — 596 passed, 0 failed, 1 skipped.
+- `npm.cmd run check` — passed.
+- `git diff --check` — passed (CRLF warnings only).
+
+### Next
+- PDF Intelligence Slice 7: protected manual endpoint for creating PDF draft
+  records and triggering analysis.
+
+## 2026-06-25 — Hermes Agent Stage 5 CRM/Admin UI
+
+### What changed
+- Added `getOrderHermesViewModel` helper to `public/admin-orders.js`.
+- Added "Hermes Agent" button to admin order actions row (calls
+  `POST /api/orders/:id/agent/hermes`), with `analyzeOrderWithHermes` handler,
+  loading/error state, and result message. Registered via
+  `[data-hermes-order-id]` click handler.
+- Added "Hermes" button to CRM card with `triggerHermes` handler. On success,
+  shows summary, missing info, next question, and reply draft inline in the
+  existing draft display area.
+- Hermes disabled by default; button returns controlled 503 when disabled.
+- No existing UI contracts, API behavior, or backend logic changed.
+
+### Files changed
+- `public/admin-orders.js`
+- `public/admin.js`
+- `public/crm.js`
+- `SESSION_NOTES.md`
+
+### Checks
+- `npm.cmd run check` — passed.
+- `npm.cmd test` — 596 passed, 0 failed, 1 skipped.
+- `git diff --check` — passed (CRLF warnings only).
+
+### Next
+- PDF Intelligence Slice 7: protected manual endpoint for creating PDF draft
+  records and triggering analysis.

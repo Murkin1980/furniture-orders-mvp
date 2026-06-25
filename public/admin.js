@@ -167,6 +167,7 @@
               <button class="secondary" type="button" data-project-id="${escapeHtml(item.id)}">Открыть проект</button>
               <button class="secondary" type="button" data-ocr-order-id="${escapeHtml(item.id)}">OCR review</button>
               <button class="secondary" type="button" data-ai-order-id="${escapeHtml(item.id)}">${escapeHtml(getOrderAiViewModel(item).buttonLabel)}</button>
+              <button class="secondary" type="button" data-hermes-order-id="${escapeHtml(item.id)}">Hermes Agent</button>
               <button class="secondary" type="button" data-crm-order-id="${escapeHtml(item.id)}">${escapeHtml(getOrderCrmViewModel(item).buttonLabel)}</button>
               <button class="secondary" type="button" data-render-order-id="${escapeHtml(item.id)}">3D renders</button>
               <button class="secondary" type="button" data-proposal-order-id="${escapeHtml(item.id)}">Создать КП</button>
@@ -191,6 +192,9 @@
       }
       for (const button of tbody.querySelectorAll("[data-crm-order-id]")) {
         button.addEventListener("click", () => syncOrderToCrm(Number(button.dataset.crmOrderId), button));
+      }
+      for (const button of tbody.querySelectorAll("[data-hermes-order-id]")) {
+        button.addEventListener("click", () => analyzeOrderWithHermes(Number(button.dataset.hermesOrderId), button));
       }
       for (const button of tbody.querySelectorAll("[data-proposal-order-id]")) {
         button.addEventListener("click", () => openProposal(Number(button.dataset.proposalOrderId)));
@@ -502,6 +506,26 @@
           fallbackMessage: "Заказ не отправлен в CRM."
         });
         setMessage(`CRM sync заказа #${json.orderId}: ${json.sync?.status}.`, json.sync?.status === "success" ? "ok" : "bad");
+        await loadOrders();
+      } catch (error) {
+        setMessage(error.message, "bad");
+      } finally {
+        button.disabled = false;
+        button.textContent = originalLabel;
+      }
+    }
+
+    async function analyzeOrderWithHermes(orderId, button) {
+      const originalLabel = button.textContent;
+      button.disabled = true;
+      button.textContent = "Hermes...";
+      setMessage(`Запуск Hermes Agent для заказа #${orderId}...`);
+      try {
+        const json = await adminFetchJson(`/api/orders/${orderId}/agent/hermes`, {
+          method: "POST",
+          fallbackMessage: "Hermes Agent не выполнен."
+        });
+        setMessage(`Hermes Agent заказа #${json.orderId}: ${json.hermes?.summary || "готов"}.`, json.success ? "ok" : "bad");
         await loadOrders();
       } catch (error) {
         setMessage(error.message, "bad");

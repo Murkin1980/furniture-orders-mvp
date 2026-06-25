@@ -106,6 +106,32 @@ export function getOrderRenderArtifactsSummary(items = []) {
   };
 }
 
+export function getOrderHermesViewModel(order = {}) {
+  return {
+    hermesDraftId: order.hermesDraftId || null,
+    hermesSummary: order.hermesSummary || "",
+    hermesMissingInfo: parseList(order.hermesMissingInfo),
+    hermesNextQuestion: order.hermesNextQuestion || "",
+    hasHermes: Boolean(order.hermesDraftId),
+    status: order.hermesDraftId ? "complete" : "pending"
+  };
+}
+
+export function parseOrderHermesMissingInfo(value) {
+  return parseList(value);
+}
+
+function parseList(value) {
+  if (Array.isArray(value)) return value.map(clean).filter(Boolean);
+  if (typeof value !== "string" || !value.trim()) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed.map(clean).filter(Boolean) : [];
+  } catch {
+    return [];
+  }
+}
+
 export function parseOcrReviewJson(value) {
   try {
     const parsed = JSON.parse(clean(value));

@@ -80,6 +80,7 @@ function renderBoard(groups) {
   for (const button of board.querySelectorAll("[data-show-history]")) button.addEventListener("click", showHistory);
   for (const button of board.querySelectorAll("[data-suggest-reply]")) button.addEventListener("click", suggestReply);
   for (const button of board.querySelectorAll("[data-show-drafts]")) button.addEventListener("click", showDrafts);
+  for (const button of board.querySelectorAll("[data-hermes-order-id]")) button.addEventListener("click", triggerHermes);
 }
 
 function renderCard(order) {
@@ -107,6 +108,7 @@ function renderCard(order) {
         <button type="button" data-interaction-type="message" data-order-id="${escapeHtml(item.id)}">Написал</button>
         <button type="button" data-interaction-type="measurement" data-order-id="${escapeHtml(item.id)}">Замер</button>
         <button class="reply-button" type="button" data-suggest-reply="${escapeHtml(item.id)}">AI-ответ</button>
+        <button class="reply-button" type="button" data-hermes-order-id="${escapeHtml(item.id)}" style="border-color:var(--muted);background:var(--muted)">Hermes</button>
       </div>
       <details class="card-workspace"><summary>Заметки, follow-up и черновики</summary><div class="card-workspace-body">
       <label>Заметка<textarea data-order-note="${escapeHtml(item.id)}" placeholder="Следующий контакт, замер, договорённость">${escapeHtml(item.notes)}</textarea></label>
@@ -226,6 +228,35 @@ async function loadDrafts(orderId) {
       : "<p>Черновиков пока нет.</p>";
   } catch (error) {
     container.textContent = error.message;
+  }
+}
+
+async function triggerHermes(event) {
+  const button = event.currentTarget;
+  const orderId = Number(button.dataset.hermesOrderId);
+  const container = board.querySelector(`[data-reply-draft="${orderId}"]`);
+  button.disabled = true;
+  container.textContent = "Hermes Agent анализирует...";
+  try {
+    const json = await adminFetchJson(`/api/orders/${orderId}/agent/hermes`, { method: "POST" });
+    if (json.hermes?.replyDraft) {
+      container.innerHTML = `
+        <strong>Hermes Agent · требуется проверка менеджера</strong>
+        <p>${escapeHtml(json.hermes.summary || "")}</p>
+        <p><em>Не хватает: ${(json.hermes.missingInfo || []).join(", ") || "—"}</em></p>
+        <p>${escapeHtml(json.hermes.nextQuestion || "")}</p>
+        <textarea readonly>${escapeHtml(json.hermes.replyDraft)}</textarea>
+        ${json.draft ? `<small>Черновик #${json.draft.id} сохранён · ${escapeHtml(json.draft.status)}</small>` : ""}
+      `;
+    } else {
+      container.innerHTML = `<p>Hermes: ${escapeHtml(json.message || "готов")}</p>`;
+    }
+    setMessage(`Hermes Agent для заказа #${orderId} завершён.`, json.success ? "ok" : "bad");
+  } catch (error) {
+    container.textContent = error.message;
+    setMessage(error.message, "bad");
+  } finally {
+    button.disabled = false;
   }
 }
 
