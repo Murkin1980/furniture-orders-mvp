@@ -173,8 +173,11 @@
     tr:last-child td { border-bottom: 0; }
     .muted { color: var(--muted); }
     .money { white-space: nowrap; }
-    .actions { min-width: 230px; }
-    .actions form { display: grid; gap: 8px; }
+    .actions { min-width: 320px; }
+    .actions form { display: flex; gap: 6px; flex-wrap: wrap; }
+    .actions form button, .actions form select, .actions form textarea { min-width: 0; flex: 1 1 auto; }
+    .actions form select { max-width: 140px; }
+    .actions form textarea { width: 100%; min-height: 32px; }
     .order-ai {
       min-width: 210px;
       display: grid;
