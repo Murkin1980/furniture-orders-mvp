@@ -147,7 +147,7 @@
 
     table {
       width: 100%;
-      min-width: 1080px;
+      min-width: 1400px;
       border-collapse: collapse;
     }
 
@@ -173,11 +173,28 @@
     tr:last-child td { border-bottom: 0; }
     .muted { color: var(--muted); }
     .money { white-space: nowrap; }
-    .actions { min-width: 320px; }
-    .actions form { display: flex; gap: 6px; flex-wrap: wrap; }
-    .actions form button, .actions form select, .actions form textarea { min-width: 0; flex: 1 1 auto; }
-    .actions form select { max-width: 140px; }
-    .actions form textarea { width: 100%; min-height: 32px; }
+    .actions {
+      min-width: 380px;
+      position: sticky;
+      right: 0;
+      background: inherit;
+      box-shadow: -4px 0 8px rgba(0,0,0,0.04);
+    }
+    .actions form {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      min-width: 360px;
+    }
+    .actions form button, .actions form select, .actions form textarea {
+      min-width: 0;
+      flex: 1 1 auto;
+      font-size: 12px;
+      padding: 6px 8px;
+    }
+    .actions form select { max-width: 120px; }
+    .actions form textarea { width: 100%; min-height: 30px; }
+    .actions form .secondary { font-size: 11px; padding: 5px 7px; }
     .order-ai {
       min-width: 210px;
       display: grid;
