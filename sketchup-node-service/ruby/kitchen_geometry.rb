@@ -2,6 +2,8 @@
 
 module FurniturePlatform
   module KitchenGeometry
+    COUNTER_HEIGHT_MM = 900
+
     module_function
 
     def set_units_mm(model)
@@ -9,7 +11,7 @@ module FurniturePlatform
       options = model.options
       return unless options.respond_to?(:[])
       options["UnitsOptions"] ||= {}
-      options["UnitsOptions"]["LengthUnit"] = 1  # 1 = Millimeters
+      options["UnitsOptions"]["LengthUnit"] = 1
       options["UnitsOptions"]["Precision"] = 0
     end
 
@@ -18,92 +20,83 @@ module FurniturePlatform
       wall_a = cmd["wallAmm"].to_f
       wall_b = cmd["wallBmm"].to_f
       ceiling = cmd["ceilingHeightMm"].to_f
-
       entities = model.active_entities
       return unless entities.respond_to?(:add_face)
 
-      # Create floor rectangle
-      if layout == "l"
-        # L-shape: A along X, B along Y
-        pts = [
-          Geom::Point3d.new(0, 0, 0),
-          Geom::Point3d.new(wall_a, 0, 0),
-          Geom::Point3d.new(wall_a, wall_b, 0),
-          Geom::Point3d.new(0, wall_b, 0)
-        ]
-      else
-        # Straight: single wall along X
-        pts = [
-          Geom::Point3d.new(0, 0, 0),
-          Geom::Point3d.new(wall_a, 0, 0),
-          Geom::Point3d.new(wall_a, -1200, 0),
-          Geom::Point3d.new(0, -1200, 0)
-        ]
-      end
+      pts = if layout == "l"
+              [Geom::Point3d.new(0, 0, 0), Geom::Point3d.new(wall_a, 0, 0),
+               Geom::Point3d.new(wall_a, wall_b, 0), Geom::Point3d.new(0, wall_b, 0)]
+            else
+              [Geom::Point3d.new(0, 0, 0), Geom::Point3d.new(wall_a, 0, 0),
+               Geom::Point3d.new(wall_a, -1200, 0), Geom::Point3d.new(0, -1200, 0)]
+            end
 
       floor = entities.add_face(pts)
       return unless floor
-
       floor.reverse! if floor.normal.z < 0
-
-      # Push/pull to ceiling height
       floor.pushpull(ceiling) if ceiling > 0
     end
 
-    def place_block_module(model, cmd)
+    def place_base_module(model, cmd)
+      place_module_at(model, cmd, z_offset: 0, use_counter: false)
+    end
+
+    def place_wall_module(model, cmd)
+      z_offset = cmd["mountBottomMm"] || 1400
+      place_module_at(model, cmd, z_offset: z_offset, use_counter: false)
+    end
+
+    def place_appliance(model, cmd)
+      kind = cmd["kind"].to_s
+      entry = KitchenComponentRegistry.lookup(kind)
+      placement = entry && entry[:placement] ? entry[:placement] : :floor
+
+      case placement
+      when :counter_top
+        # Hob, sink — sit on top of counter (at counter height)
+        place_module_at(model, cmd, z_offset: COUNTER_HEIGHT_MM, use_counter: true)
+      when :under_counter
+        # Oven, dishwasher — sit under counter, on floor
+        place_module_at(model, cmd, z_offset: 0, use_counter: false)
+      when :wall_mounted
+        # Hood — mounted on wall above counter
+        place_module_at(model, cmd, z_offset: COUNTER_HEIGHT_MM + 400, use_counter: false)
+      else
+        # Fridge, etc — on floor
+        place_module_at(model, cmd, z_offset: 0, use_counter: false)
+      end
+    end
+
+    def place_module_at(model, cmd, z_offset: 0, use_counter: false)
       x = cmd["xMm"].to_f
       width = cmd["widthMm"].to_f
       height = cmd["heightMm"].to_f
       depth = cmd["depthMm"].to_f
       wall = cmd["wall"].to_s.downcase
-      zone = cmd["zone"].to_s
       kind = cmd["kind"].to_s
-      mount_bottom = cmd["mountBottomMm"]
-
+      zone = cmd["zone"].to_s
       entities = model.active_entities
 
-      # Determine position: base on floor, wall on mount line
-      z_offset = zone == "wall" ? (mount_bottom || 1400) : 0
-
-      # Default wall A = X axis
-      case wall
-      when "a"
-        pt = Geom::Point3d.new(x, 0, z_offset)
-      when "b"
-        pt = Geom::Point3d.new(0, x, z_offset)
-      else
-        pt = Geom::Point3d.new(x, 0, z_offset)
-      end
+      pt = case wall
+           when "a" then Geom::Point3d.new(x, depth, z_offset)
+           when "b" then Geom::Point3d.new(depth, x, z_offset)
+           else Geom::Point3d.new(x, depth, z_offset)
+           end
 
       group = entities.add_group
-      group_entities = group.entities
+      ge = group.entities
 
-      # Create block
-      pts = [
-        Geom::Point3d.new(0, 0, 0),
-        Geom::Point3d.new(width, 0, 0),
-        Geom::Point3d.new(width, depth, 0),
-        Geom::Point3d.new(0, depth, 0)
-      ]
-      face = group_entities.add_face(pts)
+      pts = [Geom::Point3d.new(0, 0, 0), Geom::Point3d.new(width, 0, 0),
+             Geom::Point3d.new(width, -depth, 0), Geom::Point3d.new(0, -depth, 0)]
+      face = ge.add_face(pts)
       face.reverse! if face.normal.z < 0
       face.pushpull(height)
 
-      group.material = color_for_kind(kind) if group.respond_to?(:material=)
+      apply_color(group, kind)
       group.name = "#{zone}_#{kind}_#{x.to_i}"
-
-      # Move group to position
       tr = Geom::Transformation.translation(pt)
       group.transform!(tr)
-
-      # Write metadata
       set_entity_metadata(group, cmd)
-    end
-
-    def place_block_appliance(model, cmd)
-      # Appliances use same placement as base modules
-      cmd["zone"] = "appliance"
-      place_block_module(model, cmd)
     end
 
     def set_entity_metadata(entity, cmd)
@@ -121,15 +114,15 @@ module FurniturePlatform
       entity.set_attribute("furniture", "zone", cmd["zone"].to_s) if cmd["zone"]
     end
 
-    def color_for_kind(kind)
+    def apply_color(group, kind)
+      return unless group.respond_to?(:material=)
       entry = KitchenComponentRegistry.lookup(kind)
-      return nil unless entry
-      color_hex = entry[:color]
-      return nil unless color_hex
-      r = color_hex[1..2].to_i(16) / 255.0
-      g = color_hex[3..4].to_i(16) / 255.0
-      b = color_hex[5..6].to_i(16) / 255.0
-      Geom::Color.new(r, g, b) rescue nil
+      return unless entry && entry[:color]
+      hex = entry[:color]
+      r = hex[1..2].to_i(16) / 255.0
+      g = hex[3..4].to_i(16) / 255.0
+      b = hex[5..6].to_i(16) / 255.0
+      group.material = Geom::Color.new(r, g, b) rescue nil
     end
 
     def absolute_queue_dir!(value)

@@ -10,6 +10,35 @@ module FurniturePlatform
 
     module_function
 
+    def ensure_scene(model)
+      return unless model.respond_to?(:pages)
+      pages = model.pages
+      return unless pages.respond_to?(:add)
+
+      existing = pages.find { |p| p.name == "Preview" }
+      return existing if existing
+
+      scene = pages.add("Preview")
+      return scene unless scene.respond_to?(:update)
+
+      view = model.active_view
+      return scene unless view
+
+      # Set a default isometric camera
+      camera = view.camera
+      return scene unless camera
+
+      eye = Geom::Point3d.new(4500, -3500, 2500)
+      target = Geom::Point3d.new(1500, -500, 900)
+      up = Geom::Vector3d.new(0, 0, 1)
+      new_cam = Geom::Camera.new(eye, target, up)
+      camera.set(new_cam)
+      scene.update
+      scene
+    rescue StandardError
+      nil
+    end
+
     def save_model(model, model_path)
       raise "Model is required." unless model.respond_to?(:save)
       FileUtils.mkdir_p(File.dirname(model_path))

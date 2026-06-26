@@ -15,6 +15,8 @@ const KITCHEN_GEOMETRY = fileURLToPath(new URL("../ruby/kitchen_geometry.rb", im
 const KITCHEN_PUBLISHER = fileURLToPath(new URL("../ruby/kitchen_artifact_publisher.rb", import.meta.url));
 const KITCHEN_REGISTRY = fileURLToPath(new URL("../ruby/kitchen_component_registry.rb", import.meta.url));
 const KITCHEN_BUILDER = fileURLToPath(new URL("../ruby/kitchen_component_builder.rb", import.meta.url));
+const KITCHEN_UPDATE = fileURLToPath(new URL("../ruby/kitchen_update_in_place.rb", import.meta.url));
+const KITCHEN_EK = fileURLToPath(new URL("../ruby/kitchen_easykitchen_adapter.rb", import.meta.url));
 const PACKAGE_DIR = path.dirname(path.dirname(SCRIPT));
 const JOB_ID = "job-ruby-001";
 
@@ -27,6 +29,10 @@ test("Kitchen executor safety markers — no dangerous Ruby calls", async () => 
   assert.match(source, /KitchenGeometry/);
   assert.match(source, /KitchenArtifactPublisher/);
   assert.match(source, /validate_layout_support/);
+  assert.match(source, /KitchenArtifactPublisher\.ensure_scene/);
+  assert.match(source, /KitchenGeometry\.place_base_module/);
+  assert.match(source, /KitchenGeometry\.place_wall_module/);
+  assert.match(source, /KitchenGeometry\.place_appliance/);
   assert.doesNotMatch(source, /system\(|Open3|eval\(|exec\(|spawn\(|`/);
   assert.doesNotMatch(source, /Net::HTTP|URI\.open|Faraday|HTTParty/);
 });
@@ -48,7 +54,9 @@ test("Kitchen component registry is a static allowlist", async () => {
   assert.match(source, /ALLOWED_COMMANDS = %w\[set_units_mm create_room_envelope place_block_module place_block_appliance\]/);
   assert.match(source, /SUPPORTED_LAYOUTS = %w\[straight l\]/);
   assert.match(source, /ALLOWED_WALLS = %w\[a b c\]/);
+  assert.match(source, /ALLOWED_ZONES/);
   assert.match(source, /COMPONENT_MAP/);
+  assert.match(source, /placement/);
   // All 14 component kinds present
   assert.match(source, /sink-base/);
   assert.match(source, /drawers/);
@@ -83,7 +91,10 @@ test("Kitchen geometry has no dangerous calls", async () => {
   const source = await readFile(KITCHEN_GEOMETRY, "utf8");
   assert.match(source, /module KitchenGeometry/);
   assert.match(source, /set_entity_metadata/);
-  assert.match(source, /color_for_kind/);
+  assert.match(source, /place_base_module/);
+  assert.match(source, /place_wall_module/);
+  assert.match(source, /place_appliance/);
+  assert.match(source, /COUNTER_HEIGHT_MM/);
   assert.doesNotMatch(source, /system\(|Open3|eval\(|exec\(|spawn\(|`/);
   assert.doesNotMatch(source, /Net::HTTP|URI\.open|Faraday|HTTParty/);
 });
@@ -96,6 +107,27 @@ test("Kitchen artifact publisher uses atomic writes", async () => {
   assert.match(source, /artifacts\/#\{job_id\}\/#\{SKP_FILENAME\}/);
   assert.doesNotMatch(source, /system\(|Open3|eval\(|exec\(|spawn\(/);
   assert.doesNotMatch(source, /Net::HTTP|URI\.open/);
+});
+
+test("Kitchen update-in-place has safety markers", async () => {
+  const source = await readFile(KITCHEN_UPDATE, "utf8");
+  assert.match(source, /find_existing/);
+  assert.match(source, /update_existing/);
+  assert.match(source, /update_or_place/);
+  assert.match(source, /get_attribute/);
+  assert.doesNotMatch(source, /system\(|Open3|eval\(|exec\(|spawn\(|`/);
+  assert.doesNotMatch(source, /Net::HTTP|URI\.open/);
+});
+
+test("Kitchen EasyKitchen adapter handles unavailable gracefully", async () => {
+  const source = await readFile(KITCHEN_EK, "utf8");
+  assert.match(source, /EASY_KITCHEN_AVAILABLE/);
+  assert.match(source, /place_ek_component/);
+  assert.match(source, /place_ek_preset/);
+  assert.match(source, /:block_fallback/);
+  assert.match(source, /:easykitchen/);
+  assert.doesNotMatch(source, /system\(|Open3|eval\(|exec\(|spawn\(|`/);
+  assert.doesNotMatch(source, /Net::HTTP|URI\.open|Faraday/);
 });
 
 test("Ruby queue consumer contract keeps fail-closed safety markers", async () => {

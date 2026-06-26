@@ -33,6 +33,7 @@ module FurniturePlatform
 
       model = create_or_open_model(job_id)
       execute_plan!(model, plan, job_id)
+      KitchenArtifactPublisher.ensure_scene(model)
       KitchenArtifactPublisher.save_model(model, model_path)
       KitchenArtifactPublisher.export_preview(model, preview_path)
 
@@ -44,17 +45,20 @@ module FurniturePlatform
     def execute_plan!(model, plan, job_id)
       commands = plan["commands"] || []
       commands.each do |cmd|
+        cmd["jobId"] = job_id
         case cmd["type"]
         when "set_units_mm"
           KitchenGeometry.set_units_mm(model)
         when "create_room_envelope"
           KitchenGeometry.create_room_envelope(model, cmd)
         when "place_block_module"
-          cmd["jobId"] = job_id
-          KitchenGeometry.place_block_module(model, cmd)
+          if cmd["zone"] == "wall"
+            KitchenGeometry.place_wall_module(model, cmd)
+          else
+            KitchenGeometry.place_base_module(model, cmd)
+          end
         when "place_block_appliance"
-          cmd["jobId"] = job_id
-          KitchenGeometry.place_block_appliance(model, cmd)
+          KitchenGeometry.place_appliance(model, cmd)
         end
       end
     end
