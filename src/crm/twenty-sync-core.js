@@ -154,16 +154,19 @@ async function saveSyncState(db, orderId, state) {
 }
 
 function extractCreatedId(response, resource) {
-  const data = response?.data;
-  if (!data || typeof data !== "object") return null;
+  // Twenty REST returns { data: { createPerson: { id: ... }, ... } }
+  // sendTwentyRequest returns { data: <fullResponse>, ... } where fullResponse has { data: { createPerson: {...} } }
+  const full = response?.data;
+  if (!full || typeof full !== "object") return null;
 
-  // Twenty REST returns { data: { createPerson: { id: ... }, createOpportunity: ..., createNote: ... } }
-  const mutationKey = `create${resource.charAt(0).toUpperCase() + resource.slice(1)}`;
-  const nested = data[mutationKey];
-  if (nested && typeof nested === "object" && nested.id) return nested.id;
+  const inner = full?.data;
+  if (inner && typeof inner === "object") {
+    const mutationKey = `create${resource.charAt(0).toUpperCase() + resource.slice(1)}`;
+    const nested = inner[mutationKey];
+    if (nested && typeof nested === "object" && nested.id) return nested.id;
+  }
 
-  // Fallback for direct responses
-  return data?.data?.id ?? data?.id ?? null;
+  return full?.data?.id ?? full?.id ?? null;
 }
 
 function errorMessage(error) {
