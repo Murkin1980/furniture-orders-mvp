@@ -11,6 +11,7 @@ describe("buildKitchenFurnitureModel", () => {
   it("builds furniture model from kitchen model", () => {
     const kitchenModel = {
       layout: "straight",
+      readiness: "partial",
       roomEnvelope: { wallAmm: 3000, ceilingHeightMm: 2700 },
       walls: [{ id: "A", lengthMm: 3000 }],
       baseModules: [

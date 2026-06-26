@@ -83,7 +83,7 @@ describe("validateKitchenCommandPlan", () => {
       commands: [
         { type: "set_units_mm" },
         { type: "create_room_envelope", layout: "straight", wallAmm: 3000, ceilingHeightMm: 2700 },
-        { type: "place_block_module", wall: "A", kind: "sink-base", xMm: 0, widthMm: 800, heightMm: 720, depthMm: 560 },
+        { type: "place_block_module", zone: "base", wall: "A", kind: "sink-base", xMm: 0, widthMm: 800, heightMm: 720, depthMm: 560 },
         { type: "place_block_appliance", wall: "A", kind: "fridge", xMm: 1400, widthMm: 600, heightMm: 2000, depthMm: 650 }
       ]
     });

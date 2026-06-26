@@ -4,6 +4,10 @@ const ALLOWED_COMMANDS = new Set(["set_units_mm", "create_room_envelope", "place
 const ALLOWED_MODULE_KINDS = new Set(["sink-base", "drawers", "base-cabinet", "corner-base", "oven-base", "fridge-box", "wall-cabinet", "hood-cabinet"]);
 const ALLOWED_APPLIANCE_KINDS = new Set(["sink", "hob", "oven", "fridge", "dishwasher", "hood"]);
 
+const WALLS = new Set(["A", "B", "C"]);
+const ZONES = new Set(["base", "wall"]);
+const LAYOUTS = new Set(["straight", "l", "u", "galley", "island"]);
+
 export function validateKitchenCommandPlan(plan = {}) {
   if (!plan || typeof plan !== "object") {
     return { ok: false, error: "kitchen_command_plan_required", message: "Kitchen command plan is required." };
@@ -23,15 +27,40 @@ export function validateKitchenCommandPlan(plan = {}) {
     if (!ALLOWED_COMMANDS.has(cmd.type)) {
       return { ok: false, error: "disallowed_command", message: `Command type "${cmd.type}" is not allowed.` };
     }
-    if (cmd.type === "place_block_module" && !ALLOWED_MODULE_KINDS.has(cmd.kind)) {
-      return { ok: false, error: "disallowed_module_kind", message: `Module kind "${cmd.kind}" is not allowed.` };
+    if (cmd.type === "place_block_module") {
+      if (!ALLOWED_MODULE_KINDS.has(cmd.kind)) {
+        return { ok: false, error: "disallowed_module_kind", message: `Module kind "${cmd.kind}" is not allowed.` };
+      }
+      if (!WALLS.has(cmd.wall)) return invalidPayload(i, "wall");
+      if (!ZONES.has(cmd.zone)) return invalidPayload(i, "zone");
+      if (!Number.isFinite(cmd.xMm) || cmd.xMm < 0) return invalidPayload(i, "xMm");
+      if (!Number.isFinite(cmd.widthMm) || cmd.widthMm <= 0) return invalidPayload(i, "widthMm");
+      if (!Number.isFinite(cmd.heightMm) || cmd.heightMm <= 0) return invalidPayload(i, "heightMm");
+      if (!Number.isFinite(cmd.depthMm) || cmd.depthMm <= 0) return invalidPayload(i, "depthMm");
     }
-    if (cmd.type === "place_block_appliance" && !ALLOWED_APPLIANCE_KINDS.has(cmd.kind)) {
-      return { ok: false, error: "disallowed_appliance_kind", message: `Appliance kind "${cmd.kind}" is not allowed.` };
+    if (cmd.type === "place_block_appliance") {
+      if (!ALLOWED_APPLIANCE_KINDS.has(cmd.kind)) {
+        return { ok: false, error: "disallowed_appliance_kind", message: `Appliance kind "${cmd.kind}" is not allowed.` };
+      }
+      if (!WALLS.has(cmd.wall)) return invalidPayload(i, "wall");
+      if (!Number.isFinite(cmd.xMm) || cmd.xMm < 0) return invalidPayload(i, "xMm");
+      if (!Number.isFinite(cmd.widthMm) || cmd.widthMm <= 0) return invalidPayload(i, "widthMm");
+      if (!Number.isFinite(cmd.heightMm) || cmd.heightMm <= 0) return invalidPayload(i, "heightMm");
+      if (!Number.isFinite(cmd.depthMm) || cmd.depthMm <= 0) return invalidPayload(i, "depthMm");
+    }
+    if (cmd.type === "create_room_envelope") {
+      if (cmd.layout && !LAYOUTS.has(cmd.layout)) return invalidPayload(i, "layout");
+      if (!cmd.wallAmm && !cmd.wallBmm && !cmd.wallCmm) {
+        return { ok: false, error: "invalid_envelope", message: `Command ${i}: at least one wall length is required.` };
+      }
     }
   }
 
   return { ok: true, error: "" };
+}
+
+function invalidPayload(index, field) {
+  return { ok: false, error: "invalid_command_payload", message: `Command ${index}: field "${field}" is invalid or missing.` };
 }
 
 export function buildKitchenCommandPlan(furnitureModel = {}) {
@@ -62,6 +91,7 @@ export function buildKitchenCommandPlan(furnitureModel = {}) {
     plan.commands.push(cmd);
   } else {
     plan.warnings.push("No walls defined; room envelope not created.");
+  plan.missingInfo = ["wall dimensions"];
   }
 
   // 3. Place base modules

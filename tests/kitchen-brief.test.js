@@ -81,7 +81,7 @@ describe("normalizeKitchenBrief", () => {
     assert.equal(r.brief.kitchen.modules.length, 0);
   });
 
-  it("applies safe defaults for missing module dimensions", () => {
+  it("marks missing dimensions as provisional", () => {
     const r = normalizeKitchenBrief({
       kitchen: {
         layout: "straight",
@@ -89,8 +89,10 @@ describe("normalizeKitchenBrief", () => {
         modules: [{ zone: "base", type: "sink-base", widthMm: 800 }]
       }
     });
-    assert.equal(r.brief.kitchen.modules[0].heightMm, 720);
-    assert.equal(r.brief.kitchen.modules[0].depthMm, 560);
+    assert.equal(r.brief.kitchen.modules[0].heightMm, null);
+    assert.equal(r.brief.kitchen.modules[0].depthMm, null);
+    assert.equal(r.brief.kitchen.modules[0]._provisional.height, true);
+    assert.equal(r.brief.kitchen.modules[0]._provisional.depth, true);
   });
 
   it("normalizes enum values case-insensitively", () => {

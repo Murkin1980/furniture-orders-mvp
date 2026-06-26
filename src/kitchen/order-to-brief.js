@@ -5,18 +5,16 @@ export function mapOrderToKitchenBrief(order = {}) {
     return { ok: false, error: "invalid_order", brief: null };
   }
 
-  const furnitureType = clean(order.furnitureType || order.furniture_type || "");
-  if (furnitureType !== "kitchen" && furnitureType !== "Кухня".toLowerCase()) {
+  const furnitureType = clean(order.furnitureType || order.furniture_type || "").toLowerCase();
+  if (furnitureType !== "kitchen") {
     return { ok: false, error: "not_a_kitchen_order", brief: null };
   }
 
   const rawPayload = parseRawPayload(order.raw_payload || order.rawPayload);
   const calculatorMeta = rawPayload?.calculatorMeta || null;
-
   const description = clean(order.description) || "";
-  const layout = guessLayout(description, calculatorMeta);
-  const wallAmm = extractWallLength(description) || null;
-  const ceilingHeightMm = 2700;
+  const inferredLayout = guessLayout(description);
+  const wallAmm = extractWallLength(description);
 
   return normalizeKitchenBrief({
     sourceType: "order",
@@ -27,24 +25,25 @@ export function mapOrderToKitchenBrief(order = {}) {
       city: clean(order.city)
     },
     kitchen: {
-      layout,
+      layout: inferredLayout,
       room: {
-        wallAmm,
+        wallAmm: wallAmm || null,
         wallBmm: null,
-        ceilingHeightMm
+        ceilingHeightMm: null
       },
-      modules: buildDefaultModules(layout, wallAmm)
+      modules: []
     },
     commercial: {
       budgetKzt: normalizeInt(order.budget),
       estimateKzt: calculatorMeta?.estimate ? normalizeInt(calculatorMeta.estimate) : null,
       calculatorMeta
     },
-    notes: description ? [description.slice(0, 500)] : []
+    notes: description ? [description.slice(0, 500)] : [],
+    provenance: { inferred: true, requiresReview: true }
   });
 }
 
-function guessLayout(description, calculatorMeta) {
+function guessLayout(description) {
   const lower = description.toLowerCase();
   if (lower.includes("углов") || lower.includes("l-образ") || lower.includes("г-образ")) return "l";
   if (lower.includes("п-образ") || lower.includes("u-образ")) return "u";
@@ -59,35 +58,11 @@ function extractWallLength(description) {
   return null;
 }
 
-function buildDefaultModules(layout, wallAmm) {
-  if (!wallAmm) return [];
-  const units = Math.floor(wallAmm / 600);
-  const modules = [];
-  for (let i = 0; i < units && i < 6; i++) {
-    modules.push({
-      zone: "base", wall: "A", type: i === 0 ? "sink-base" : "base-cabinet", widthMm: 600
-    });
-  }
-  for (let i = 0; i < units && i < 4; i++) {
-    modules.push({
-      zone: "wall", wall: "A", type: "wall-cabinet", widthMm: 600
-    });
-  }
-  return modules;
-}
-
 function parseRawPayload(value) {
   if (!value || typeof value !== "string") return null;
   try { return JSON.parse(value); }
   catch { return null; }
 }
 
-function normalizeInt(value) {
-  const n = Number(value);
-  return Number.isInteger(n) && n > 0 ? n : null;
-}
-
-function clean(value) {
-  if (value === undefined || value === null) return "";
-  return String(value).trim();
-}
+function normalizeInt(value) { const n = Number(value); return Number.isInteger(n) && n > 0 ? n : null; }
+function clean(value) { return value === undefined || value === null ? "" : String(value).trim(); }

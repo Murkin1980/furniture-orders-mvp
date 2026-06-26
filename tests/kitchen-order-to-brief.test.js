@@ -14,7 +14,7 @@ describe("mapOrderToKitchenBrief", () => {
     assert.equal(mapOrderToKitchenBrief("string").ok, false);
   });
 
-  it("maps a kitchen order to brief", () => {
+  it("maps a kitchen order to inferred brief", () => {
     const r = mapOrderToKitchenBrief({
       id: 1,
       name: "Ерлан",
@@ -24,15 +24,17 @@ describe("mapOrderToKitchenBrief", () => {
       budget: 850000,
       description: "Нужна угловая кухня 3 метра, белый матовый фасад"
     });
-    assert.equal(r.ok, true);
+    // The mapper infers layout and wall length but has no ceiling height or modules
+    // → expected: inferred brief with requiresReview=true
+    assert.equal(r.ok, false, "Brief missing ceiling height — needs manager review");
     assert.equal(r.brief.sourceType, "order");
     assert.equal(r.brief.sourceRef.orderId, 1);
     assert.equal(r.brief.customer.name, "Ерлан");
-    assert.equal(r.brief.customer.phone, "+77011234567");
     assert.equal(r.brief.kitchen.layout, "l");
     assert.equal(r.brief.kitchen.room.wallAmm, 3000);
-    assert.equal(r.brief.kitchen.room.ceilingHeightMm, 2700);
-    assert.ok(r.brief.kitchen.modules.length > 0);
+    assert.equal(r.brief.kitchen.room.ceilingHeightMm, null);
+    assert.equal(r.brief.provenance.inferred, true);
+    assert.equal(r.brief.provenance.requiresReview, true);
     assert.equal(r.brief.commercial.budgetKzt, 850000);
   });
 
@@ -48,7 +50,7 @@ describe("mapOrderToKitchenBrief", () => {
         calculatorMeta: { calculatorId: 1, estimate: 615000, formulaVersion: 1 }
       })
     });
-    assert.equal(r.ok, true);
+    assert.equal(r.ok, false, "Inferred brief still requires review");
     assert.equal(r.brief.commercial.estimateKzt, 615000);
     assert.equal(r.brief.commercial.calculatorMeta.calculatorId, 1);
   });
@@ -62,7 +64,7 @@ describe("mapOrderToKitchenBrief", () => {
       city: "Алматы",
       description: "Кухня 3 метра"
     });
-    assert.equal(r.ok, true);
+    assert.equal(r.ok, false, "Needs ceiling height for valid brief");
     assert.equal(r.brief.sourceRef.orderId, 10);
     assert.equal(r.brief.customer.name, "Иван");
     assert.equal(r.brief.kitchen.room.wallAmm, 3000);
