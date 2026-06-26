@@ -47,7 +47,7 @@ export function validateKitchenModel(model = {}) {
     errors.push("At least one wall is required.");
   } else {
     for (const wall of model.walls) {
-      if (!wall.id || !["A", "B", "C"].includes(wall.id)) {
+      if (!wall.id || !["a", "b", "c"].includes(wall.id)) {
         errors.push(`Wall has invalid id "${wall.id}".`);
       }
       if (!Number.isInteger(wall.lengthMm) || wall.lengthMm <= 0) {

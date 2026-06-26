@@ -6,7 +6,7 @@ export const SOURCE_TYPES = Object.freeze(["order", "calculator", "pdf"]);
 export const FRONT_MATERIALS = Object.freeze(["MDF", "LDSP", "massive", "acrylic", "glass", "metal"]);
 export const BODY_MATERIALS = Object.freeze(["LDSP", "MDF", "plywood", "metal"]);
 export const FRONT_FINISHES = Object.freeze(["matte", "gloss", "satin", "natural"]);
-export const ALLOWED_WALLS = Object.freeze(["A", "B", "C"]);
+export const ALLOWED_WALLS = Object.freeze(["a", "b", "c"]);
 
 export function getDefaultKitchenBrief() {
   return {

@@ -139,9 +139,9 @@ export function buildKitchenModel(input = {}) {
 
 function buildWalls(brief) {
   const walls = [];
-  if (brief.kitchen.room.wallAmm) walls.push({ id: "A", lengthMm: brief.kitchen.room.wallAmm });
-  if (brief.kitchen.room.wallBmm) walls.push({ id: "B", lengthMm: brief.kitchen.room.wallBmm });
-  if (brief.kitchen.room.wallCmm) walls.push({ id: "C", lengthMm: brief.kitchen.room.wallCmm });
-  if (walls.length === 0) walls.push({ id: "A", lengthMm: 0 });
+  if (brief.kitchen.room.wallAmm) walls.push({ id: "a", lengthMm: brief.kitchen.room.wallAmm });
+  if (brief.kitchen.room.wallBmm) walls.push({ id: "b", lengthMm: brief.kitchen.room.wallBmm });
+  if (brief.kitchen.room.wallCmm) walls.push({ id: "c", lengthMm: brief.kitchen.room.wallCmm });
+  if (walls.length === 0) walls.push({ id: "a", lengthMm: 0 });
   return walls;
 }

@@ -4,7 +4,7 @@ const ALLOWED_COMMANDS = new Set(["set_units_mm", "create_room_envelope", "place
 const ALLOWED_MODULE_KINDS = new Set(["sink-base", "drawers", "base-cabinet", "corner-base", "oven-base", "fridge-box", "wall-cabinet", "hood-cabinet"]);
 const ALLOWED_APPLIANCE_KINDS = new Set(["sink", "hob", "oven", "fridge", "dishwasher", "hood"]);
 
-const WALLS = new Set(["A", "B", "C"]);
+const WALLS = new Set(["a", "b", "c"]);
 const ZONES = new Set(["base", "wall"]);
 const LAYOUTS = new Set(["straight", "l", "u", "galley", "island"]);
 
@@ -83,9 +83,10 @@ export function buildKitchenCommandPlan(furnitureModel = {}) {
   if (walls.length > 0) {
     const cmd = { type: "create_room_envelope", layout };
     for (const wall of walls) {
-      if (wall.id === "A") cmd.wallAmm = wall.lengthMm;
-      if (wall.id === "B") cmd.wallBmm = wall.lengthMm;
-      if (wall.id === "C") cmd.wallCmm = wall.lengthMm;
+      const id = clean(wall.id).toLowerCase();
+      if (id === "a") cmd.wallAmm = wall.lengthMm;
+      if (id === "b") cmd.wallBmm = wall.lengthMm;
+      if (id === "c") cmd.wallCmm = wall.lengthMm;
     }
     if (furnitureModel.overall?.height) cmd.ceilingHeightMm = furnitureModel.overall.height;
     plan.commands.push(cmd);

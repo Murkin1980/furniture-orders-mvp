@@ -12,16 +12,16 @@ describe("buildKitchenCommandPlan", () => {
     const r = buildKitchenCommandPlan({
       kitchenLayout: "straight",
       overall: { width: 3000, height: 2700 },
-      kitchenWalls: [{ id: "A", lengthMm: 3000 }],
+      kitchenWalls: [{ id: "a", lengthMm: 3000 }],
       kitchenBaseModules: [
-        { wall: "A", kind: "sink-base", xMm: 0, widthMm: 800, heightMm: 720, depthMm: 560 },
-        { wall: "A", kind: "drawers", xMm: 800, widthMm: 600, heightMm: 720, depthMm: 560 }
+        { wall: "a", kind: "sink-base", xMm: 0, widthMm: 800, heightMm: 720, depthMm: 560 },
+        { wall: "a", kind: "drawers", xMm: 800, widthMm: 600, heightMm: 720, depthMm: 560 }
       ],
       kitchenWallModules: [
-        { wall: "A", kind: "wall-cabinet", xMm: 0, widthMm: 800, heightMm: 720, depthMm: 320, mountBottomMm: 1980 }
+        { wall: "a", kind: "wall-cabinet", xMm: 0, widthMm: 800, heightMm: 720, depthMm: 320, mountBottomMm: 1980 }
       ],
       kitchenAppliances: [
-        { wall: "A", kind: "fridge", xMm: 1400, widthMm: 600, heightMm: 2000, depthMm: 650 }
+        { wall: "a", kind: "fridge", xMm: 1400, widthMm: 600, heightMm: 2000, depthMm: 650 }
       ]
     });
 
@@ -83,8 +83,8 @@ describe("validateKitchenCommandPlan", () => {
       commands: [
         { type: "set_units_mm" },
         { type: "create_room_envelope", layout: "straight", wallAmm: 3000, ceilingHeightMm: 2700 },
-        { type: "place_block_module", zone: "base", wall: "A", kind: "sink-base", xMm: 0, widthMm: 800, heightMm: 720, depthMm: 560 },
-        { type: "place_block_appliance", wall: "A", kind: "fridge", xMm: 1400, widthMm: 600, heightMm: 2000, depthMm: 650 }
+        { type: "place_block_module", zone: "base", wall: "a", kind: "sink-base", xMm: 0, widthMm: 800, heightMm: 720, depthMm: 560 },
+        { type: "place_block_appliance", wall: "a", kind: "fridge", xMm: 1400, widthMm: 600, heightMm: 2000, depthMm: 650 }
       ]
     });
     assert.equal(r.ok, true);

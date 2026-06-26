@@ -23,16 +23,16 @@ describe("buildKitchenModel", () => {
         layout: "straight",
         room: { wallAmm: 3000, ceilingHeightMm: 2700 },
         modules: [
-          { zone: "base", wall: "A", type: "sink-base", widthMm: 800 },
-          { zone: "base", wall: "A", type: "drawers", widthMm: 600 },
-          { zone: "wall", wall: "A", type: "wall-cabinet", widthMm: 800 }
+          { zone: "base", wall: "a", type: "sink-base", widthMm: 800 },
+          { zone: "base", wall: "a", type: "drawers", widthMm: 600 },
+          { zone: "wall", wall: "a", type: "wall-cabinet", widthMm: 800 }
         ]
       }
     });
     assert.equal(r.ok, true);
     assert.equal(r.model.layout, "straight");
     assert.equal(r.model.walls.length, 1);
-    assert.equal(r.model.walls[0].id, "A");
+    assert.equal(r.model.walls[0].id, "a");
     assert.equal(r.model.walls[0].lengthMm, 3000);
     assert.equal(r.model.baseModules.length, 2);
     assert.equal(r.model.wallModules.length, 1);
@@ -48,8 +48,8 @@ describe("buildKitchenModel", () => {
         layout: "straight",
         room: { wallAmm: 1000, ceilingHeightMm: 2700 },
         modules: [
-          { zone: "base", wall: "A", type: "sink-base", widthMm: 800 },
-          { zone: "base", wall: "A", type: "drawers", widthMm: 600 }
+          { zone: "base", wall: "a", type: "sink-base", widthMm: 800 },
+          { zone: "base", wall: "a", type: "drawers", widthMm: 600 }
         ]
       }
     });
@@ -63,9 +63,9 @@ describe("buildKitchenModel", () => {
       kitchen: {
         layout: "straight",
         room: { wallAmm: 5000, ceilingHeightMm: 2700 },
-        modules: [{ zone: "base", wall: "A", type: "sink-base", widthMm: 800 }],
+        modules: [{ zone: "base", wall: "a", type: "sink-base", widthMm: 800 }],
         appliances: { sink: false, hob: true, oven: true, fridge: true },
-        zones: { sinkWall: "A", hobWall: "A", fridgeWall: "A" }
+        zones: { sinkWall: "a", hobWall: "a", ovenWall: "a", fridgeWall: "a" }
       }
     });
     assert.equal(r.ok, true);
@@ -80,7 +80,7 @@ describe("buildKitchenModel", () => {
       kitchen: {
         layout: "straight",
         room: { wallAmm: 3000, ceilingHeightMm: 2700 },
-        modules: [{ zone: "base", wall: "A", type: "sink-base", widthMm: 800 }]
+        modules: [{ zone: "base", wall: "a", type: "sink-base", widthMm: 800 }]
       }
     };
     const frozen = Object.freeze(JSON.parse(JSON.stringify(input)));
