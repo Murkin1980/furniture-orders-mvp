@@ -1,13 +1,15 @@
 # Project Progress Dashboard
 
-Last reviewed: 2026-06-25
-Current checkpoint: 9
+Last reviewed: 2026-06-26
+Current checkpoint: 10
 Next checkpoint review: after 5 more completed slices
 
-Current product focus: All 14 platform MVP workstreams are complete (100%).
-Twenty CRM production sync verified and disabled after smoke. Remaining tasks:
-extract Twenty adapter to standalone module repository, Supplier Catalog import
-pipeline, local SketchUp/EasyKitchen render generation.
+Current product focus: All platform MVP workstreams are complete (100%).
+Twenty CRM production sync verified. Kitchen-first 3D pipeline implemented
+(Phases 1-8): KitchenBrief → KitchenModel → furniture-model/v1 →
+kitchen-command-plan/v1 → signed node-job → dry-run → render artifacts.
+Remaining: extract Twenty adapter to standalone module repository, Supplier
+Catalog import pipeline, local SketchUp/EasyKitchen render generation.
 
 This is the canonical visual progress tracker for the complete furniture platform. Percentages are engineering estimates based on implemented, tested, deployed, and operationally verified behavior. A feature is not considered complete only because code exists.
 
@@ -21,7 +23,7 @@ and `SESSION_NOTES.md` together.
 |---|---:|---|
 | Commercial platform | `[#########-] 80%` | Landings, orders, calculators, portfolio, CRM, proposals, and stable operations |
 | AI-assisted platform | `[##########] 100%` | AI qualification, safe communications, OCR, PDF Intelligence (manifest → classification → extraction → estimate → proposal → SketchUp handoff) |
-| Complete vision | `[#########-] 90%` | All platform modules complete: intake, calculators, landings, portfolio, CRM, proposals, AI agents, Hermes Agent, OCR, SketchUp boundary, 3D render pipeline, PDF Intelligence. Remaining external/local tasks: real SketchUp/EasyKitchen adapter, Twenty CRM module extraction, Supplier Catalog |
+| Complete vision | `[##########] 93%` | All platform modules + kitchen-first 3D pipeline (KitchenBrief → KitchenModel → furniture-model/v1 → kitchen-command-plan/v1 → dry-run → render artifacts). Remaining external/local tasks: real SketchUp/EasyKitchen adapter, Twenty CRM module extraction, Supplier Catalog |
 
 ## Workstreams
 
@@ -185,3 +187,4 @@ flowchart LR
 | Google VPS recovery | 2026-06-24 | Google Cloud Debian 12 test VPS `34.140.181.91` installed with nginx, ufw, Node 20, `furniture-vps-control`, Cloudflare secrets, authenticated read-only smoke, controlled live HTML deploy, and public test landing `http://lc6-test.34-140-181-91.nip.io/` | Use `control.34-140-181-91.nip.io` as the active test VPS control origin; do not reuse compromised PS.kz without rebuild |
 | Hermes Agent integration | 2026-06-25 | Backend MVP: pure modules, guarded client, admin endpoint, best-effort inline call, draft persistence, 579 tests pass, disabled by default | Deploy Hermes Agent on Google Cloud VPS before enabling production use |
 | Twenty CRM production verification | 2026-06-26 | Full adapter adapted to real Twenty API schema: person (nested name/phone), opportunity (name/amount with pointOfContactId), note (title). Production smoke order #12 created person + opportunity + note. Disabled after smoke. 636 tests pass | Extract adapter to separate `furniture-twenty-integration` module |
+| Kitchen-first 3D pipeline | 2026-06-26 | 8 phases: KitchenBrief contract, order→brief mapper, KitchenModel + builder, furniture-model/v1 adapter, kitchen-command-plan/v1 (4 commands), dry-run summary, end-to-end smoke test. 44 new tests, 672 total | Connect to real SketchUp 2026 Ruby scaffold for block-model generation |

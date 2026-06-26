@@ -410,14 +410,14 @@
         <p class="lead">Живая карта разработки платформы: все 14 воркстримов MVP завершены. Остались внешние/локальные задачи.</p>
         <div class="meta-row">
           <span class="meta">Обновлено: 25 июня 2026</span>
-          <span class="meta">Checkpoint 9 · Twenty CRM production smoke ✅</span>
-          <span class="meta">636 тестов проходят</span>
-          <span class="meta">Все 14 воркстримов MVP завершены</span>
+          <span class="meta">Checkpoint 10 · Kitchen-first 3D pipeline ✅</span>
+          <span class="meta">672 теста проходят</span>
+          <span class="meta">Kitchen 3D: 8 фаз, 44 новых теста</span>
         </div>
       </section>
       <aside class="readiness">
         <p class="section-kicker">Коммерческая готовность</p>
-        <div class="score">80%<small>AI-assisted готовность: 80%. PDF Intelligence: 100% (Slices 1-11). Все продуктовые модули завершены на уровне MVP. Complete vision: 90%. Остались: SketchUp/EasyKitchen adapter (локально), Twenty CRM (отдельный репозиторий), Supplier Catalog (запланирован).</small></div>
+        <div class="score">80%<small>AI-assisted готовность: 82%. Kitchen-first 3D pipeline: 8 фаз завершены (Brief→Model→command-plan→dry-run→render). Complete vision: 93%. Остались: SketchUp/EasyKitchen adapter (локально), Twenty CRM (отдельный репозиторий), Supplier Catalog.</small></div>
       </aside>
     </header>
 
@@ -501,6 +501,7 @@
     ];
 
     const stages = [
+      { date: "26.06.2026", state: "complete", title: "Kitchen-first 3D pipeline (Phases 1-8)", detail: "Implemented kitchen domain: KitchenBrief (validation, layout, modules), Order→Brief mapper, KitchenModel + builder (straight/L, module placement, appliances), furniture-model/v1 kitchen adapter, kitchen-command-plan/v1 (4 allowlisted commands), dry-run summary extension, and end-to-end smoke test. 44 new tests.", result: "672 tests pass. Kitchen 3D pipeline ready for real SketchUp 2026 Ruby scaffold." },
       { date: "25.06.2026", state: "complete", title: "Hermes Agent Stage 5 — CRM/Admin UI", detail: "Added Hermes Agent button to admin order actions and CRM card. Displays Hermes summary, missing info, next question, and reply draft inline. Uses existing POST /api/orders/:id/agent/hermes endpoint. Hermes disabled by default.", result: "596 tests pass. Hermes backend + UI MVP complete; production enablement requires VPS deployment." },
       { date: "25.06.2026", state: "active", title: "PDF Intelligence Slice 6 — draft storage", detail: "Added migration 0023_project_pdf_drafts.sql and pure pdf-draft-store.js with buildPdfDraftRecord, buildPdfDraftManifestUpdate, serialization helpers, and 17 focused tests. No endpoint, upload, UI, or production change.", result: "D1 storage contract for PDF drafts is ready. Next: protected manual endpoint and trigger analysis." },
       { date: "23.06.2026", state: "active", title: "Proposal/portfolio smoke runners", detail: "Proposal lifecycle runner added; production portfolio read-only recheck confirms D1 tables, R2 bucket, public API, controlled media 404 path, and deploy 29b2620e.", result: "Remaining gate: explicit approval for production writes: one synthetic proposal lifecycle and one temporary portfolio upload." },
