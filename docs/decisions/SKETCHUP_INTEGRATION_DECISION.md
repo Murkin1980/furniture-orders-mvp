@@ -252,6 +252,11 @@ catalog contract. It normalizes safe component definitions, supports
 as inert references, and builds a metadata-only placement plan from approved
 model component labels. Unknown or unsafe entries fail closed with warnings.
 
+`src/sketchup/execution-package.js` combines a validated command plan and a
+validated component placement plan into `sketchup-execution-package/v1`. This
+is a pure local-adapter handoff contract and is not wired into the current
+manual endpoint or signed node job.
+
 This slice does not automate EasyKitchen, dynamic components, detailed
 cabinetry, hardware, materials, or photorealistic rendering. A separately
 reviewed SketchUp 2026 Ruby adapter remains responsible for turning metadata
@@ -291,5 +296,7 @@ platform/R2 assets.
 15. Dynamic component catalog contract. Complete as a pure platform-side
     catalog/placement model; real SketchUp/EasyKitchen placement remains
     pending.
+16. Execution package contract. Complete as a pure command-plan plus
+    component-placement handoff; endpoint/job transport remains unchanged.
 14. Real render generation and production attachment flow. Pending approved
     executor and operational setup.

@@ -1,0 +1,19 @@
+{
+    "jobId":  "render-real-2026-002",
+    "status":  "executed",
+    "artifacts":  [
+                      {
+                          "type":  "skp",
+                          "reference":  "artifacts/render-real-2026-002/model.skp"
+                      },
+                      {
+                          "type":  "preview",
+                          "reference":  "artifacts/render-real-2026-002/preview.png"
+                      },
+                      {
+                          "type":  "render",
+                          "reference":  "artifacts/render-real-2026-002/render-main.png"
+                      }
+                  ],
+    "executed":  true
+}

@@ -147,6 +147,11 @@ allowlisted component references. Component sources can be `in_house`,
 references only, never executable code or file paths. This prepares the growing
 component library without copying EasyKitchen assets or calling SketchUp.
 
+`src/sketchup/execution-package.js` combines a validated command plan with a
+validated component placement plan into `sketchup-execution-package/v1`. It is
+a pure handoff object for a future local SketchUp adapter and is not wired into
+the current manual job endpoint.
+
 Production landing/VPS operations, known failures, and verified solutions:
 [`docs/runbooks/LANDING_VPS_OPS_RUNBOOK.md`](docs/runbooks/LANDING_VPS_OPS_RUNBOOK.md).
 
