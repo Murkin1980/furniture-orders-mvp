@@ -14,6 +14,7 @@ const KITCHEN_VALIDATOR = fileURLToPath(new URL("../ruby/kitchen_plan_validator.
 const KITCHEN_GEOMETRY = fileURLToPath(new URL("../ruby/kitchen_geometry.rb", import.meta.url));
 const KITCHEN_PUBLISHER = fileURLToPath(new URL("../ruby/kitchen_artifact_publisher.rb", import.meta.url));
 const KITCHEN_REGISTRY = fileURLToPath(new URL("../ruby/kitchen_component_registry.rb", import.meta.url));
+const KITCHEN_BUILDER = fileURLToPath(new URL("../ruby/kitchen_component_builder.rb", import.meta.url));
 const PACKAGE_DIR = path.dirname(path.dirname(SCRIPT));
 const JOB_ID = "job-ruby-001";
 
@@ -47,8 +48,35 @@ test("Kitchen component registry is a static allowlist", async () => {
   assert.match(source, /ALLOWED_COMMANDS = %w\[set_units_mm create_room_envelope place_block_module place_block_appliance\]/);
   assert.match(source, /SUPPORTED_LAYOUTS = %w\[straight l\]/);
   assert.match(source, /ALLOWED_WALLS = %w\[a b c\]/);
+  assert.match(source, /COMPONENT_MAP/);
+  // All 14 component kinds present
+  assert.match(source, /sink-base/);
+  assert.match(source, /drawers/);
+  assert.match(source, /base-cabinet/);
+  assert.match(source, /corner-base/);
+  assert.match(source, /oven-base/);
+  assert.match(source, /fridge-box/);
+  assert.match(source, /wall-cabinet/);
+  assert.match(source, /hood-cabinet/);
+  assert.match(source, /sink/);
+  assert.match(source, /hob/);
+  assert.match(source, /oven/);
+  assert.match(source, /fridge/);
+  assert.match(source, /dishwasher/);
+  assert.match(source, /hood/);
   assert.doesNotMatch(source, /eval\(|system\(|Open3|exec\(|spawn\(/);
   assert.doesNotMatch(source, /Net::HTTP|URI\.open/);
+});
+
+test("Kitchen component builder has safety markers", async () => {
+  const source = await readFile(KITCHEN_BUILDER, "utf8");
+  assert.match(source, /KitchenComponentRegistry/);
+  assert.match(source, /find_or_create_component/);
+  assert.match(source, /build_block_definition/);
+  assert.match(source, /add_instance/);
+  assert.match(source, /set_instance_metadata/);
+  assert.doesNotMatch(source, /system\(|Open3|eval\(|exec\(|spawn\(|`/);
+  assert.doesNotMatch(source, /Net::HTTP|URI\.open|Faraday/);
 });
 
 test("Kitchen geometry has no dangerous calls", async () => {
