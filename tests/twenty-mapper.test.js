@@ -16,7 +16,7 @@ test("builds person payload with name phone and email", () => {
 
   assert.equal(person.name.firstName, "Erlan");
   assert.equal(person.name.lastName, "Erlanovich");
-  assert.equal(person.phones.primaryPhoneNumber, "77011234567");
+  assert.equal(person.phones.primaryPhoneNumber, "7011234567");
   assert.equal(person.emails.primaryEmail, "erlan@example.com");
 });
 
@@ -26,19 +26,20 @@ test("omits missing email from person payload", () => {
   assert.deepEqual(payload.emails, {});
 });
 
-test("opportunity prefers AI furniture type", () => {
+test("opportunity prefers AI furniture type in name", () => {
   const payload = buildTwentyOpportunityPayload({
     id: 12,
     ai_furniture_type: "wardrobe",
     furnitureType: "kitchen"
   });
 
-  assert.equal(payload.furnitureType, "wardrobe");
   assert.equal(payload.name, "Order #12 - wardrobe");
+  assert.equal("furnitureType" in payload, false);
 });
 
-test("opportunity falls back to other furniture type", () => {
-  assert.equal(buildTwentyOpportunityPayload({}).furnitureType, "other");
+test("opportunity falls back to other furniture type in name", () => {
+  const payload = buildTwentyOpportunityPayload({});
+  assert.match(payload.name, /other/);
 });
 
 test("opportunity includes budget as amount", () => {
@@ -69,12 +70,13 @@ test("note renders missing info JSON array as a readable list", () => {
   assert.match(note.body, /Missing info:\n- Room dimensions\n- Preferred material/);
 });
 
-test("reads furnitureType from raw payload", () => {
+test("reads raw payload without crashing", () => {
   const payload = buildTwentyOpportunityPayload({
     raw_payload: JSON.stringify({ calculatorMeta: { calculatorId: 4 } })
   });
 
-  assert.equal(payload.furnitureType, "other");
+  assert.ok(payload.name);
+  assert.equal("furnitureType" in payload, false);
 });
 
 test("invalid raw payload does not break mapper", () => {
@@ -132,7 +134,9 @@ test("payload does not contain undefined values", () => {
 
 test("empty input is handled safely", () => {
   assert.doesNotThrow(() => buildTwentySyncPayload());
-  assert.equal(buildTwentySyncPayload().opportunity.furnitureType, "other");
+  const payload = buildTwentySyncPayload();
+  assert.ok(payload.opportunity.name);
+  assert.equal("furnitureType" in payload.opportunity, false);
 });
 
 function containsUndefined(value) {

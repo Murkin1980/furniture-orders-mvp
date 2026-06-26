@@ -5,6 +5,9 @@ export function buildTwentyPersonPayload(order) {
   const rawName = textValue(firstValue(input, ["name", "clientName", "client_name"]));
   const nameParts = rawName.trim().split(/\s+/);
   const phone = textValue(firstValue(input, ["phone"]));
+  const cleanedPhone = phone.replace(/[^\d]/g, "");
+  const callingCode = cleanedPhone.startsWith("7") ? "+7" : "";
+  const localNumber = cleanedPhone.startsWith("7") ? cleanedPhone.slice(1) : cleanedPhone;
 
   return compactObject({
     name: compactObject({
@@ -12,13 +15,13 @@ export function buildTwentyPersonPayload(order) {
       lastName: nameParts.slice(1).join(" ") || nameParts[0] || ""
     }),
     phones: compactObject({
-      primaryPhoneNumber: phone.replace(/[^\d]/g, "")
+      primaryPhoneNumber: localNumber,
+      primaryPhoneCallingCode: callingCode,
+      primaryPhoneCountryCode: callingCode === "+7" ? "KZ" : ""
     }),
     emails: compactObject({
       primaryEmail: textValue(firstValue(input, ["email"]))
-    }),
-    city: textValue(firstValue(input, ["city"])),
-    source: textValue(firstValue(input, ["source"]))
+    })
   });
 }
 
@@ -36,12 +39,16 @@ export function buildTwentyOpportunityPayload(order) {
   const budget = Number(firstValue(input, ["budget"]));
   const amountMicros = Number.isFinite(budget) ? Math.round(budget * 1000000) : null;
 
-  return compactObject({
+  const opp = compactObject({
     name: explicitTitle || buildOpportunityName(orderId, furnitureType),
-    furnitureType,
-    amount: amountMicros ? { amountMicros, currencyCode: "KZT" } : undefined,
-    source: textValue(firstValue(input, ["source"]))
+    amount: amountMicros ? { amountMicros, currencyCode: "KZT" } : undefined
   });
+
+  if (firstValue(input, ["point_of_contact_id", "pointOfContactId"])) {
+    opp.pointOfContactId = firstValue(input, ["point_of_contact_id", "pointOfContactId"]);
+  }
+
+  return opp;
 }
 
 export function buildTwentyNotePayload(order) {

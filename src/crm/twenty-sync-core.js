@@ -40,6 +40,10 @@ export async function syncOrderToTwentyCore({ db, env = {} }, orderId, options =
   const responses = [];
   try {
     for (const request of sync.requests) {
+      // Inject IDs from previous steps
+      if (request.resource === "opportunity" && createdIds.person) {
+        request.body.pointOfContactId = createdIds.person;
+      }
       const response = await options.sendRequest(request);
       responses.push(response);
       createdIds[request.resource] = extractCreatedId(response, request.resource);

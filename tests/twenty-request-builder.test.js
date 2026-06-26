@@ -79,7 +79,7 @@ test("builds sync requests from an order through the mapper", () => {
     "note"
   ]);
   assert.equal(result.requests[0].body.name.firstName, "Aida");
-  assert.equal(result.requests[1].body.furnitureType, "kitchen");
+  assert.match(result.requests[1].body.name, /kitchen/);
   assert.match(result.requests[2].body.body, /Qualified lead/);
   assert.equal(result.meta.orderId, 9);
   assert.equal(result.meta.requestVersion, TWENTY_REQUEST_VERSION);
