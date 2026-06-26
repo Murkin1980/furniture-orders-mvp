@@ -69,8 +69,7 @@ export function buildTwentyNotePayload(order) {
   ].filter(Boolean);
 
   return {
-    title: orderId ? `Furniture order #${orderId}` : "Furniture order",
-    body: lines.join("\n")
+    title: lines.filter(Boolean).join(" | ") || (orderId ? `Furniture order #${orderId}` : "Furniture order")
   };
 }
 

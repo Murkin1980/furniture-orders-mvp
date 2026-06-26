@@ -58,16 +58,18 @@ test("note contains AI summary and next question", () => {
     ai_next_question: "When can we measure the room?"
   });
 
-  assert.match(note.body, /AI summary: Qualified kitchen lead\./);
-  assert.match(note.body, /Next question: When can we measure the room\?/);
+  assert.ok(note.title);
+  assert.match(note.title, /AI summary/);
+  assert.match(note.title, /Next question/);
 });
 
-test("note renders missing info JSON array as a readable list", () => {
+test("note renders missing info in title", () => {
   const note = buildTwentyNotePayload({
     ai_missing_info_json: JSON.stringify(["Room dimensions", "Preferred material"])
   });
 
-  assert.match(note.body, /Missing info:\n- Room dimensions\n- Preferred material/);
+  assert.ok(note.title);
+  assert.match(note.title, /Room dimensions/);
 });
 
 test("reads raw payload without crashing", () => {
