@@ -1834,7 +1834,7 @@
     }
 
     function readTokenFromStorage() {
-      return getCookie("admin_token") || localStorage.getItem("furnitureAdminToken") || "";
+      return localStorage.getItem("furnitureAdminToken") || getCookie("admin_token") || "";
     }
 
     function saveTokenToStorage(token) {

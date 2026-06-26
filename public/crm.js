@@ -325,7 +325,7 @@ function setMessage(text, kind = "") {
   message.className = `status-line ${kind}`.trim();
 }
 function getToken() { return tokenInput.value.trim(); }
-function readTokenFromStorage() { return getCookie("admin_token") || localStorage.getItem("furnitureAdminToken") || ""; }
+function readTokenFromStorage() { return localStorage.getItem("furnitureAdminToken") || getCookie("admin_token") || ""; }
 function saveTokenToStorage(token) { localStorage.setItem("furnitureAdminToken", token); setCookie("admin_token", token, 365); }
 function setCookie(name, value, days) { const d = new Date(); d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000); document.cookie = name + "=" + encodeURIComponent(value) + "; expires=" + d.toUTCString() + "; path=/; SameSite=Lax"; }
 function getCookie(name) { const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)")); return match ? decodeURIComponent(match[2]) : ""; }
