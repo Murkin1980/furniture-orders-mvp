@@ -147,7 +147,6 @@
 
     table {
       width: 100%;
-      min-width: 1600px;
       border-collapse: collapse;
     }
 
@@ -173,13 +172,7 @@
     tr:last-child td { border-bottom: 0; }
     .muted { color: var(--muted); }
     .money { white-space: nowrap; }
-    .actions {
-      min-width: 300px;
-      position: sticky;
-      right: 0;
-      background: #fff;
-      box-shadow: -3px 0 6px rgba(0,0,0,0.05);
-    }
+    .actions { min-width: 260px; }
     .actions form {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -508,45 +501,46 @@
     /* AdminLTE-inspired operational shell without the framework dependency. */
     body {
       margin: 0;
-      padding-left: 232px;
       background: #f4f6f9;
     }
+    .app-shell {
+      display: flex;
+      min-height: 100vh;
+    }
     .app-sidebar {
-      position: fixed;
-      inset: 0 auto 0 0;
-      z-index: 20;
-      width: 232px;
-      padding: 18px 14px;
+      width: 200px;
+      min-width: 200px;
+      padding: 14px 10px;
       color: #f4f6f9;
       background: #343a40;
-      border-right: 1px solid #4b545c;
     }
     .sidebar-brand {
       display: grid;
-      grid-template-columns: 38px 1fr;
-      gap: 10px;
+      grid-template-columns: 32px 1fr;
+      gap: 8px;
       align-items: center;
-      padding: 0 4px 18px;
+      padding: 0 4px 14px;
       border-bottom: 1px solid #4b545c;
     }
     .sidebar-mark {
       display: grid;
-      width: 38px;
+      width: 32px;
       aspect-ratio: 1;
       place-items: center;
-      border-radius: 6px;
+      border-radius: 5px;
       color: #fff;
       background: #315c78;
       font-weight: 900;
+      font-size: 13px;
     }
     .sidebar-brand strong,
     .sidebar-brand small { display: block; }
-    .sidebar-brand strong { font-size: 14px; }
+    .sidebar-brand strong { font-size: 13px; }
     .sidebar-brand small { margin-top: 2px; color: #adb5bd; font-size: 10px; }
     .sidebar-nav {
       display: grid;
-      gap: 3px;
-      margin-top: 18px;
+      gap: 2px;
+      margin-top: 14px;
     }
     .sidebar-nav a {
       padding: 9px 10px;
@@ -570,13 +564,11 @@
       z-index: 10;
       box-shadow: 0 1px 2px rgba(0, 0, 0, .08);
     }
-    .bar,
-    main { width: min(1540px, calc(100% - 36px)); }
-    .bar { min-height: 78px; }
+    .content-area { flex: 1; min-width: 0; padding: 0 12px 24px; }
+    .bar { min-height: 56px; padding: 8px 0; }
     .bar h1 {
-      position: relative;
-      padding-left: 14px;
-      font-size: 20px;
+      font-size: 18px;
+      margin: 0;
     }
     .bar h1::before {
       position: absolute;
@@ -661,21 +653,12 @@
       box-shadow: 0 3px 8px rgba(49, 92, 120, .18);
     }
 
-    @media (max-width: 760px) {
-      body { padding-left: 0; }
-      .app-sidebar {
-        position: static;
-        width: auto;
-        padding: 10px 12px;
-      }
+    @media (max-width: 900px) {
+      .app-shell { flex-direction: column; }
+      .app-sidebar { width: auto; min-width: 0; padding: 8px 10px; }
       .sidebar-brand { display: none; }
-      .sidebar-nav {
-        display: flex;
-        gap: 5px;
-        margin: 0;
-        overflow-x: auto;
-      }
-      .sidebar-nav a { white-space: nowrap; }
+      .sidebar-nav { display: flex; gap: 4px; margin: 0; overflow-x: auto; }
+      .sidebar-nav a { white-space: nowrap; font-size: 11px; padding: 5px 7px; }
       .dashboard-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .orders-toolbar { grid-template-columns: 1fr; }
       .ocr-review-grid { grid-template-columns: 1fr; }
@@ -748,25 +731,27 @@
   </style>
 </head>
 <body>
-  <a class="skip-link" href="#workspace">К рабочей области</a>
-  <aside class="app-sidebar" aria-label="Навигация админки">
-    <div class="sidebar-brand">
-      <span class="sidebar-mark">FM</span>
-      <span><strong>Furniture OS</strong><small>Управление мастерской</small></span>
-    </div>
-    <nav class="sidebar-nav">
-      <a class="active" href="#orders" data-admin-view="orders">Обзор и заказы</a>
-      <a href="/crm.html">CRM-воронка</a>
-      <a href="#project-title" data-admin-view="project">Этапы проекта</a>
-      <a href="#proposal-title" data-admin-view="proposals">Коммерческие предложения</a>
-      <a href="#ocr-review-title" data-admin-view="ocr">OCR review</a>
-      <a href="#calculator-title" data-admin-view="calculators">Калькуляторы</a>
-      <a href="#portfolio-title" data-admin-view="portfolio">Портфолио</a>
-      <a href="#sites-title" data-admin-view="sites">Лендинги</a>
-      <a href="#vps-title" data-admin-view="infrastructure">Инфраструктура</a>
-    </nav>
-  </aside>
-  <header>
+  <div class="app-shell">
+    <a class="skip-link" href="#workspace">К рабочей области</a>
+    <aside class="app-sidebar" aria-label="Навигация админки">
+      <div class="sidebar-brand">
+        <span class="sidebar-mark">FM</span>
+        <span><strong>Furniture OS</strong><small>Управление мастерской</small></span>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="active" href="#orders" data-admin-view="orders">Обзор и заказы</a>
+        <a href="/crm.html">CRM-воронка</a>
+        <a href="#project-title" data-admin-view="project">Этапы проекта</a>
+        <a href="#proposal-title" data-admin-view="proposals">Коммерческие предложения</a>
+        <a href="#ocr-review-title" data-admin-view="ocr">OCR review</a>
+        <a href="#calculator-title" data-admin-view="calculators">Калькуляторы</a>
+        <a href="#portfolio-title" data-admin-view="portfolio">Портфолио</a>
+        <a href="#sites-title" data-admin-view="sites">Лендинги</a>
+        <a href="#vps-title" data-admin-view="infrastructure">Инфраструктура</a>
+      </nav>
+    </aside>
+    <div class="content-area">
+    <header>
     <div class="bar">
       <h1>Заказы мебели</h1>
       <div class="controls">
@@ -1129,6 +1114,8 @@
       </div>
     </section>
   </main>
+  </div><!-- .content-area -->
+  </div><!-- .app-shell -->
   <script src="/admin.js" type="module"></script>
 </body>
 </html>
