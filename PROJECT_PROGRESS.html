@@ -410,9 +410,9 @@
         <p class="lead">Живая карта разработки платформы: все 14 воркстримов MVP завершены. Остались внешние/локальные задачи.</p>
         <div class="meta-row">
           <span class="meta">Обновлено: 25 июня 2026</span>
-          <span class="meta">Checkpoint 9 · PDF Intelligence MVP 100%</span>
-          <span class="meta">635 тестов проходят</span>
-          <span class="meta">Все продуктовые контуры завершены</span>
+          <span class="meta">Checkpoint 9 · Twenty CRM production smoke ✅</span>
+          <span class="meta">636 тестов проходят</span>
+          <span class="meta">Все 14 воркстримов MVP завершены</span>
         </div>
       </section>
       <aside class="readiness">
@@ -490,7 +490,7 @@
       { name: "Commercial proposals", progress: 100, state: "complete", status: "Complete", detail: "Versioned D1 storage, immutable snapshots, publish/approval audit, persisted admin workflow, production migration 0022, Pages deploy, and synthetic production lifecycle smoke are complete.", next: "Extend from real КП workflow feedback." },
       { name: "Cloudflare / VPS", progress: 100, state: "complete", status: "Google test VPS verified", detail: "Pages, D1, R2, nginx, ufw, Node 20, furniture-vps-control, Cloudflare secrets, authenticated Cloudflare -> VPS read-only smoke, controlled live HTML deploy, and public test landing are verified on the Google Cloud Debian 12 test VPS.", next: "Use http://lc6-test.34-140-181-91.nip.io/ for temporary landing checks; rebuild or replace the PS.kz VPS before any production reuse." },
       { name: "Portfolio и media", progress: 100, state: "complete", status: "Complete", detail: "Production R2 bucket, D1 tables, public API, media upload/read/publish/unpublish smoke, explicit runner, and local preflight are complete.", next: "Extend only with real media management needs." },
-      { name: "Twenty CRM модуль", progress: 70, state: "active", status: "Опционально", detail: "Безопасный manual sync path и отдельная граница модуля.", next: "Проверить контракт реального Twenty workspace." },
+      { name: "Twenty CRM интеграция", progress: 100, state: "complete", status: "Production sync verified", detail: "Person (nested name/phone/email), opportunity (name+amount+pointOfContactId), note (title). Production smoke on order #12 успешно создал person + opportunity + note в Twenty CRM. Отключён после smoke.", next: "Извлечь адаптер в отдельный furniture-twenty-integration модуль." },
       { name: "AI-агенты и коммуникации", progress: 100, state: "complete", status: "Готово", detail: "Safe MVP: AI-черновики, редактирование, approval/rejection и audit history без автономной отправки.", next: "Telegram/WhatsApp delivery подключать только отдельными согласованными интеграциями." },
       { name: "Hermes Agent интеграция", progress: 100, state: "complete", status: "Backend MVP завершён", detail: "Pure модули, guarded client, admin endpoint, best-effort inline call после создания заказа, сохранение communication draft; отключён по умолчанию.", next: "Развернуть Hermes Agent на Google Cloud VPS и настроить production secrets перед включением." },
       { name: "OCR и распознавание эскизов", progress: 100, state: "complete", status: "Backend MVP завершён", detail: "Есть durable consent, retention, manager review и fail-closed deletion; customer production pilot выключен.", next: "Перед пилотом отдельно проверить migration 0019 и OCR_MEDIA_BUCKET." },

@@ -1,12 +1,13 @@
 # Project Progress Dashboard
 
 Last reviewed: 2026-06-25
-Current checkpoint: 8
+Current checkpoint: 9
 Next checkpoint review: after 5 more completed slices
 
-Current product focus: All platform MVP modules are complete. Next: real
-SketchUp/EasyKitchen component placement and render generation (local task),
-Twenty CRM module repository extraction, Supplier Catalog import pipeline.
+Current product focus: All 14 platform MVP workstreams are complete (100%).
+Twenty CRM production sync verified and disabled after smoke. Remaining tasks:
+extract Twenty adapter to standalone module repository, Supplier Catalog import
+pipeline, local SketchUp/EasyKitchen render generation.
 
 This is the canonical visual progress tracker for the complete furniture platform. Percentages are engineering estimates based on implemented, tested, deployed, and operationally verified behavior. A feature is not considered complete only because code exists.
 
@@ -35,7 +36,7 @@ and `SESSION_NOTES.md` together.
 | Native CRM | `[##########] 100%` | Production-ready MVP: pipeline, filters, analytics, follow-up, and interaction history | Extend only from real manager usage |
 | Admin and CRM interface | `[##########] 100%` | Complete MVP UI: focused modules, actionable dashboard, responsive orders, efficient CRM cards, states and accessibility polish | Extend only from real manager feedback |
 | Commercial proposals | `[##########] 100%` | Versioned D1 storage, immutable snapshots, publish/approval audit, persisted admin workflow, production migration 0022, Pages deploy, and synthetic production lifecycle smoke are complete | Extend from real КП workflow feedback |
-| Twenty CRM integration | `[#######---] 70%` | Production safety path verified; now a separate future module | Prepare separate integration repository after native CRM verification |
+| Twenty CRM integration | `[##########] 100%` | Production sync verified: person (nested name/phone/email), opportunity (name+amount, linked to person), note (title). Order #12 → person `84627475` + opportunity `3955790d` + note `caf157ad` created. Disabled after smoke | Extract adapter to separate `furniture-twenty-integration` module repository for standalone deployment |
 | AI agents and communications | `[##########] 100%` | Safe MVP complete: manual suggestions, editing, approval/rejection, audit history, and no autonomous sending | Add Telegram/WhatsApp delivery only as separately approved channel integrations |
 | Hermes Agent integration | `[##########] 100%` | Backend MVP complete: pure modules, guarded client with injected fetch, admin-protected manual endpoint, best-effort inline call after order creation, communication draft persistence, disabled by default | Deploy Hermes Agent on Google Cloud VPS and configure production secrets before enabling |
 | OCR and sketch recognition | `[##########] 100%` | Backend MVP complete: durable consent, retention, manager review, and fail-closed deletion; customer production pilot remains disabled | Review/apply migration 0019 and R2 binding only before an approved customer pilot |
@@ -183,3 +184,4 @@ flowchart LR
 | Repo documentation cleanup | 2026-06-23 | Moved long-form decision, runbook, and template docs from root into `docs/decisions/`, `docs/runbooks/`, and `docs/templates/`; added CI in the previous hygiene pass | Continue PDF Intelligence storage design after verifying links/tests |
 | Google VPS recovery | 2026-06-24 | Google Cloud Debian 12 test VPS `34.140.181.91` installed with nginx, ufw, Node 20, `furniture-vps-control`, Cloudflare secrets, authenticated read-only smoke, controlled live HTML deploy, and public test landing `http://lc6-test.34-140-181-91.nip.io/` | Use `control.34-140-181-91.nip.io` as the active test VPS control origin; do not reuse compromised PS.kz without rebuild |
 | Hermes Agent integration | 2026-06-25 | Backend MVP: pure modules, guarded client, admin endpoint, best-effort inline call, draft persistence, 579 tests pass, disabled by default | Deploy Hermes Agent on Google Cloud VPS before enabling production use |
+| Twenty CRM production verification | 2026-06-26 | Full adapter adapted to real Twenty API schema: person (nested name/phone), opportunity (name/amount with pointOfContactId), note (title). Production smoke order #12 created person + opportunity + note. Disabled after smoke. 636 tests pass | Extract adapter to separate `furniture-twenty-integration` module |
