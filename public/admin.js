@@ -58,17 +58,23 @@
     let proposalHtml = "";
     let activeProposal = null;
 
-    tokenInput.value = localStorage.getItem("furnitureAdminToken") || "";
+    tokenInput.value = readTokenFromStorage();
     if (tokenInput.value) {
+      saveTokenToStorage(tokenInput.value);
       loadOrders();
       loadCalculators();
     }
 
     document.querySelector("#save-token").addEventListener("click", () => {
-      localStorage.setItem("furnitureAdminToken", tokenInput.value.trim());
-      setMessage("Токен сохранён.", "ok");
-      loadOrders();
-      loadCalculators();
+      const token = tokenInput.value.trim();
+      if (token) {
+        saveTokenToStorage(token);
+        setMessage("Токен сохранён.", "ok");
+        loadOrders();
+        loadCalculators();
+      } else {
+        setMessage("Введите admin token.", "bad");
+      }
     });
 
     refreshButton.addEventListener("click", loadOrders);
@@ -1825,6 +1831,26 @@
 
     function getToken() {
       return tokenInput.value.trim();
+    }
+
+    function readTokenFromStorage() {
+      return getCookie("admin_token") || localStorage.getItem("furnitureAdminToken") || "";
+    }
+
+    function saveTokenToStorage(token) {
+      localStorage.setItem("furnitureAdminToken", token);
+      setCookie("admin_token", token, 365);
+    }
+
+    function setCookie(name, value, days) {
+      const d = new Date();
+      d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
+      document.cookie = name + "=" + encodeURIComponent(value) + "; expires=" + d.toUTCString() + "; path=/; SameSite=Lax";
+    }
+
+    function getCookie(name) {
+      const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+      return match ? decodeURIComponent(match[2]) : "";
     }
 
     function renderEmpty(text) {

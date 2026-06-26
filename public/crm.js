@@ -13,11 +13,11 @@ const message = document.querySelector("#message");
 const refreshButton = document.querySelector("#refresh");
 const filterButtons = document.querySelectorAll("[data-crm-mode]");
 
-tokenInput.value = localStorage.getItem("furnitureAdminToken") || "";
-if (tokenInput.value) loadOrders();
+tokenInput.value = readTokenFromStorage();
+if (tokenInput.value) { saveTokenToStorage(tokenInput.value); loadOrders(); }
 document.querySelector("#save-token").addEventListener("click", () => {
-  localStorage.setItem("furnitureAdminToken", tokenInput.value.trim());
-  loadOrders();
+  const token = tokenInput.value.trim();
+  if (token) { saveTokenToStorage(token); loadOrders(); }
 });
 refreshButton.addEventListener("click", loadOrders);
 for (const button of filterButtons) {
@@ -325,6 +325,10 @@ function setMessage(text, kind = "") {
   message.className = `status-line ${kind}`.trim();
 }
 function getToken() { return tokenInput.value.trim(); }
+function readTokenFromStorage() { return getCookie("admin_token") || localStorage.getItem("furnitureAdminToken") || ""; }
+function saveTokenToStorage(token) { localStorage.setItem("furnitureAdminToken", token); setCookie("admin_token", token, 365); }
+function setCookie(name, value, days) { const d = new Date(); d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000); document.cookie = name + "=" + encodeURIComponent(value) + "; expires=" + d.toUTCString() + "; path=/; SameSite=Lax"; }
+function getCookie(name) { const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)")); return match ? decodeURIComponent(match[2]) : ""; }
 function formatMoney(value) { return value ? `${new Intl.NumberFormat("ru-KZ").format(value)} ₸` : "Бюджет не указан"; }
 function escapeHtml(value) {
   return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
