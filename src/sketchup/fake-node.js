@@ -30,11 +30,36 @@ export async function handleFakeSketchUpNodeJob(job = {}, options = {}) {
 }
 
 export function buildDryRunSummary(plan = {}) {
-  const envelope = plan.commands?.find((command) => command.type === "create_envelope");
-  const metadata = plan.commands?.find((command) => command.type === "attach_metadata");
+  const commands = Array.isArray(plan.commands) ? plan.commands : [];
+
+  // Kitchen command plan
+  if (plan.planVersion === "kitchen-command-plan/v1") {
+    const room = commands.find((c) => c.type === "create_room_envelope");
+    const baseModules = commands.filter((c) => c.type === "place_block_module" && c.zone === "base");
+    const wallModules = commands.filter((c) => c.type === "place_block_module" && c.zone === "wall");
+    const appliances = commands.filter((c) => c.type === "place_block_appliance");
+    return {
+      planVersion: "kitchen-command-plan/v1",
+      commandTypes: commands.map((c) => c.type),
+      dimensions: room ? { widthMm: room.wallAmm, heightMm: room.ceilingHeightMm } : null,
+      furnitureType: "kitchen",
+      componentCount: baseModules.length + wallModules.length,
+      materialCount: 0,
+      kitchenSummary: {
+        layout: room?.layout || "",
+        baseModuleCount: baseModules.length,
+        wallModuleCount: wallModules.length,
+        applianceCount: appliances.length
+      }
+    };
+  }
+
+  // Standard command plan
+  const envelope = commands.find((command) => command.type === "create_envelope");
+  const metadata = commands.find((command) => command.type === "attach_metadata");
   return {
     planVersion: clean(plan.planVersion),
-    commandTypes: Array.isArray(plan.commands) ? plan.commands.map((command) => clean(command.type)) : [],
+    commandTypes: commands.map((command) => clean(command.type)),
     dimensions: envelope?.dimensions ? { ...envelope.dimensions } : null,
     furnitureType: clean(metadata?.furnitureType) || "other",
     componentCount: Array.isArray(metadata?.components) ? metadata.components.length : 0,

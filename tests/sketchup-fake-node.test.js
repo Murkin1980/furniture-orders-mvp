@@ -78,6 +78,27 @@ test("dry-run summary contains no executable code", () => {
   assert.equal(JSON.stringify(summary).includes("ruby"), false);
 });
 
+test("buildDryRunSummary handles kitchen command plan", () => {
+  const summary = buildDryRunSummary({
+    planVersion: "kitchen-command-plan/v1",
+    commands: [
+      { type: "set_units_mm" },
+      { type: "create_room_envelope", layout: "straight", wallAmm: 3000, ceilingHeightMm: 2700 },
+      { type: "place_block_module", zone: "base", kind: "sink-base", xMm: 0, widthMm: 800, heightMm: 720, depthMm: 560 },
+      { type: "place_block_module", zone: "wall", kind: "wall-cabinet", xMm: 0, widthMm: 800, heightMm: 720, depthMm: 320 },
+      { type: "place_block_appliance", kind: "fridge", xMm: 800, widthMm: 600, heightMm: 2000, depthMm: 650 }
+    ]
+  });
+  assert.equal(summary.planVersion, "kitchen-command-plan/v1");
+  assert.equal(summary.furnitureType, "kitchen");
+  assert.equal(summary.dimensions.widthMm, 3000);
+  assert.ok(summary.kitchenSummary);
+  assert.equal(summary.kitchenSummary.layout, "straight");
+  assert.equal(summary.kitchenSummary.baseModuleCount, 1);
+  assert.equal(summary.kitchenSummary.wallModuleCount, 1);
+  assert.equal(summary.kitchenSummary.applianceCount, 1);
+});
+
 function idempotencyStore() {
   const values = new Map();
   return {
