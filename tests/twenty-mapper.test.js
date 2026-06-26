@@ -8,21 +8,22 @@ import {
 } from "../src/crm/twenty-mapper.js";
 
 test("builds person payload with name phone and email", () => {
-  assert.deepEqual(buildTwentyPersonPayload({
-    clientName: "Erlan",
-    phone: "+77011234567",
-    email: "erlan@example.com"
-  }), {
-    name: "Erlan",
+  const person = buildTwentyPersonPayload({
+    clientName: "Erlan Erlanovich",
     phone: "+77011234567",
     email: "erlan@example.com"
   });
+
+  assert.equal(person.name.firstName, "Erlan");
+  assert.equal(person.name.lastName, "Erlanovich");
+  assert.equal(person.phones.primaryPhoneNumber, "77011234567");
+  assert.equal(person.emails.primaryEmail, "erlan@example.com");
 });
 
 test("omits missing email from person payload", () => {
   const payload = buildTwentyPersonPayload({ name: "Erlan", phone: "+77011234567" });
 
-  assert.equal("email" in payload, false);
+  assert.deepEqual(payload.emails, {});
 });
 
 test("opportunity prefers AI furniture type", () => {
@@ -40,14 +41,14 @@ test("opportunity falls back to other furniture type", () => {
   assert.equal(buildTwentyOpportunityPayload({}).furnitureType, "other");
 });
 
-test("opportunity includes budget and budget range", () => {
+test("opportunity includes budget as amount", () => {
   const payload = buildTwentyOpportunityPayload({
-    budget: 850000,
-    budget_range: "800000-1000000"
+    budget: 850000
   });
 
-  assert.equal(payload.budget, 850000);
-  assert.equal(payload.budgetRange, "800000-1000000");
+  assert.ok(payload.amount);
+  assert.equal(payload.amount.amountMicros, 850000000000);
+  assert.equal(payload.amount.currencyCode, "KZT");
 });
 
 test("note contains AI summary and next question", () => {
@@ -68,20 +69,12 @@ test("note renders missing info JSON array as a readable list", () => {
   assert.match(note.body, /Missing info:\n- Room dimensions\n- Preferred material/);
 });
 
-test("reads calculatorMeta from raw payload JSON string", () => {
+test("reads furnitureType from raw payload", () => {
   const payload = buildTwentyOpportunityPayload({
-    raw_payload: JSON.stringify({
-      calculatorMeta: {
-        calculatorId: 4,
-        estimate: 950000
-      }
-    })
+    raw_payload: JSON.stringify({ calculatorMeta: { calculatorId: 4 } })
   });
 
-  assert.deepEqual(payload.calculatorMeta, {
-    calculatorId: 4,
-    estimate: 950000
-  });
+  assert.equal(payload.furnitureType, "other");
 });
 
 test("invalid raw payload does not break mapper", () => {

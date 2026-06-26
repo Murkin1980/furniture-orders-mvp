@@ -2,14 +2,22 @@ const MAPPER_VERSION = 1;
 
 export function buildTwentyPersonPayload(order) {
   const input = asObject(order);
+  const rawName = textValue(firstValue(input, ["name", "clientName", "client_name"]));
+  const nameParts = rawName.trim().split(/\s+/);
+  const phone = textValue(firstValue(input, ["phone"]));
 
   return compactObject({
-    name: textValue(firstValue(input, ["name", "clientName", "client_name"])),
-    phone: textValue(firstValue(input, ["phone"])),
-    email: textValue(firstValue(input, ["email"])),
+    name: compactObject({
+      firstName: nameParts[0] || "",
+      lastName: nameParts.slice(1).join(" ") || nameParts[0] || ""
+    }),
+    phones: compactObject({
+      primaryPhoneNumber: phone.replace(/[^\d]/g, "")
+    }),
+    emails: compactObject({
+      primaryEmail: textValue(firstValue(input, ["email"]))
+    }),
     city: textValue(firstValue(input, ["city"])),
-    district: textValue(firstValue(input, ["district"])),
-    address: textValue(firstValue(input, ["address"])),
     source: textValue(firstValue(input, ["source"]))
   });
 }
@@ -25,17 +33,14 @@ export function buildTwentyOpportunityPayload(order) {
   ])) || "other";
   const orderId = normalizeOrderId(firstValue(input, ["id", "orderId", "order_id"]));
   const explicitTitle = textValue(firstValue(input, ["title", "opportunityName", "opportunity_name"]));
+  const budget = Number(firstValue(input, ["budget"]));
+  const amountMicros = Number.isFinite(budget) ? Math.round(budget * 1000000) : null;
 
   return compactObject({
     name: explicitTitle || buildOpportunityName(orderId, furnitureType),
-    description: textValue(firstValue(input, ["description"])),
     furnitureType,
-    budget: scalarValue(firstValue(input, ["budget"])),
-    budgetRange: textValue(firstValue(input, ["budget_range", "budgetRange"])),
-    deadline: textValue(firstValue(input, ["deadline"])),
-    status: textValue(firstValue(input, ["status"])),
-    source: textValue(firstValue(input, ["source"])),
-    calculatorMeta: getCalculatorMeta(input, rawPayload)
+    amount: amountMicros ? { amountMicros, currencyCode: "KZT" } : undefined,
+    source: textValue(firstValue(input, ["source"]))
   });
 }
 
