@@ -14,6 +14,7 @@ const refreshButton = document.querySelector("#refresh");
 const filterButtons = document.querySelectorAll("[data-crm-mode]");
 
 tokenInput.value = localStorage.getItem("furnitureAdminToken") || "";
+if (tokenInput.value) loadOrders();
 document.querySelector("#save-token").addEventListener("click", () => {
   localStorage.setItem("furnitureAdminToken", tokenInput.value.trim());
   loadOrders();

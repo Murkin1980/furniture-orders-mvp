@@ -59,6 +59,10 @@
     let activeProposal = null;
 
     tokenInput.value = localStorage.getItem("furnitureAdminToken") || "";
+    if (tokenInput.value) {
+      loadOrders();
+      loadCalculators();
+    }
 
     document.querySelector("#save-token").addEventListener("click", () => {
       localStorage.setItem("furnitureAdminToken", tokenInput.value.trim());
