@@ -42,7 +42,7 @@ export async function syncOrderToTwentyCore({ db, env = {} }, orderId, options =
     for (const request of sync.requests) {
       const response = await options.sendRequest(request);
       responses.push(response);
-      createdIds[request.resource] = extractCreatedId(response);
+      createdIds[request.resource] = extractCreatedId(response, request.resource);
     }
   } catch (error) {
     return saveFailure(db, normalizedOrderId, attemptedAt, errorMessage(error), createdIds);
@@ -149,8 +149,17 @@ async function saveSyncState(db, orderId, state) {
   ).run();
 }
 
-function extractCreatedId(response) {
-  return response?.data?.data?.id ?? response?.data?.id ?? null;
+function extractCreatedId(response, resource) {
+  const data = response?.data;
+  if (!data || typeof data !== "object") return null;
+
+  // Twenty REST returns { data: { createPerson: { id: ... }, createOpportunity: ..., createNote: ... } }
+  const mutationKey = `create${resource.charAt(0).toUpperCase() + resource.slice(1)}`;
+  const nested = data[mutationKey];
+  if (nested && typeof nested === "object" && nested.id) return nested.id;
+
+  // Fallback for direct responses
+  return data?.data?.id ?? data?.id ?? null;
 }
 
 function errorMessage(error) {
