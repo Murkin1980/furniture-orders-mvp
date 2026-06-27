@@ -38,7 +38,7 @@ module FurniturePlatform
       KitchenArtifactPublisher.export_preview(model, preview_path)
 
       artifacts = KitchenArtifactPublisher.build_artifact_list(job_id, has_preview: true)
-      KitchenArtifactPublisher.verify_artifacts(artifact_dir, job_id, artifacts)
+      KitchenArtifactPublisher.verify_artifacts(queue_dir, job_id, artifacts)
       KitchenArtifactPublisher.publish_outbox(queue_dir, job_id, artifacts)
     end
 

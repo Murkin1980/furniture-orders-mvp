@@ -60,10 +60,11 @@ module FurniturePlatform
       true
     end
 
-    def verify_artifacts(artifact_dir, job_id, files)
+    def verify_artifacts(queue_dir, job_id, files)
       errors = []
       files.each do |entry|
-        path = File.join(artifact_dir, entry["reference"].to_s)
+        # reference is relative to queue_dir: "artifacts/{job_id}/model.skp"
+        path = File.join(queue_dir, entry["reference"].to_s)
         unless File.exist?(path)
           errors << "Missing artifact: #{entry["reference"]}"
         end
