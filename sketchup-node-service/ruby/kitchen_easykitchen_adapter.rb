@@ -10,21 +10,31 @@ module FurniturePlatform
       EASY_KITCHEN_AVAILABLE
     end
 
-    def place_ek_component(model, kind, cmd, strict: false)
+    def build_easykitchen_command(component_key, cmd, strict: true)
+      preset = KitchenPresetRegistry.resolve_ek_preset!(component_key, strict: strict)
+
+      # preset is nil only when strict:false and key not found → demo/placeholder path
+      if preset.nil?
+        return build_demo_placeholder(component_key, cmd)
+      end
+
+      preset_id = preset[:ek_preset_id]
+      version = preset[:version]
+      library = preset[:library]
+
       unless available?
-        return strict ? raise("EasyKitchen not available") : KitchenGeometry.place_base_module(model, cmd)
+        raise "EasyKitchen is not available. Cannot place preset '#{preset_id}' (#{library} #{version})."
       end
 
-      entry = KitchenComponentRegistry.lookup!(kind)
-      preset = entry[:ek_preset]
-      unless preset
-        return strict ? raise("No EasyKitchen preset for #{kind}") : KitchenGeometry.place_base_module(model, cmd)
-      end
-
-      place_ek_preset(model, preset, cmd)
+      place_ek_preset(preset_id, cmd)
     end
 
-    def place_ek_preset(model, preset, cmd)
+    def build_demo_placeholder(component_key, cmd)
+      $stderr.puts "[EK Demo] No preset for '#{component_key}' — using block geometry (demo only, not for production)."
+      KitchenGeometry.place_base_module(cmd)
+    end
+
+    def place_ek_preset(preset_id, cmd)
       return :block_fallback unless EasyKitchen.respond_to?(:place_preset)
 
       wall = cmd["wall"].to_s.downcase
@@ -41,12 +51,11 @@ module FurniturePlatform
       translation = Geom::Transformation.translation(origin)
       transform = translation * rotation
 
-      EasyKitchen.place_preset(preset, transform, model)
+      EasyKitchen.place_preset(preset_id, transform)
       :easykitchen
     rescue StandardError => e
-      $stderr.puts "EasyKitchen placement failed for #{preset}: #{e.message}"
-      KitchenGeometry.place_base_module(model, cmd)
-      :block_fallback
+      $stderr.puts "EasyKitchen placement failed for #{preset_id}: #{e.message}"
+      raise
     end
 
     ORIGIN = Geom::Point3d.new(0, 0, 0) if defined?(Geom::Point3d)

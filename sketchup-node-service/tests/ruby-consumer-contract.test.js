@@ -101,10 +101,9 @@ test("Envelope scaffold rejects kitchen command plans", async () => {
 test("Kitchen preset registry has allowlisted presets", async () => {
   const source = await readFile(KITCHEN_PRESETS, "utf8");
   assert.match(source, /EK_PRESET_MAP/);
-  assert.match(source, /DEMO_PRESETS/);
-  assert.match(source, /:strict/);
-  assert.match(source, /:demo/);
-  assert.match(source, /presets_for/);
+  assert.match(source, /resolve_ek_preset!/);
+  assert.match(source, /PresetUnavailableForModule/);
+  assert.match(source, /DEMO_PRESET_IDS/);
   assert.doesNotMatch(source, /system\(|Open3|eval\(|exec\(|spawn\(/);
   assert.doesNotMatch(source, /Net::HTTP|URI\.open/);
 });
@@ -141,13 +140,26 @@ test("Kitchen update-in-place has safety markers", async () => {
   assert.doesNotMatch(source, /Net::HTTP|URI\.open/);
 });
 
+test("Kitchen preset registry resolve_ek_preset! works", async () => {
+  const source = await readFile(KITCHEN_PRESETS, "utf8");
+  assert.match(source, /EK_PRESET_MAP/);
+  assert.match(source, /resolve_ek_preset!/);
+  assert.match(source, /PresetUnavailableForModule/);
+  assert.match(source, /DEMO_PRESET_IDS/);
+  assert.match(source, /strict: true/);
+  assert.match(source, /ek_base_sink_600/);
+  assert.match(source, /appl_hood_600/);
+  assert.doesNotMatch(source, /system\(|Open3|eval\(|exec\(|spawn\(|`/);
+  assert.doesNotMatch(source, /Net::HTTP|URI\.open|Faraday/);
+});
+
 test("Kitchen EasyKitchen adapter handles unavailable gracefully", async () => {
   const source = await readFile(KITCHEN_EK, "utf8");
   assert.match(source, /EASY_KITCHEN_AVAILABLE/);
-  assert.match(source, /place_ek_component/);
-  assert.match(source, /place_ek_preset/);
-  assert.match(source, /:block_fallback/);
-  assert.match(source, /:easykitchen/);
+  assert.match(source, /build_easykitchen_command/);
+  assert.match(source, /resolve_ek_preset!/);
+  assert.match(source, /PresetUnavailableForModule|KitchenPresetRegistry/);
+  assert.match(source, /build_demo_placeholder/);
   assert.doesNotMatch(source, /system\(|Open3|eval\(|exec\(|spawn\(|`/);
   assert.doesNotMatch(source, /Net::HTTP|URI\.open|Faraday/);
 });
