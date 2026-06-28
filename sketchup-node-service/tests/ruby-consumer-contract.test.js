@@ -17,6 +17,7 @@ const KITCHEN_REGISTRY = fileURLToPath(new URL("../ruby/kitchen_component_regist
 const KITCHEN_BUILDER = fileURLToPath(new URL("../ruby/kitchen_component_builder.rb", import.meta.url));
 const KITCHEN_UPDATE = fileURLToPath(new URL("../ruby/kitchen_update_in_place.rb", import.meta.url));
 const KITCHEN_EK = fileURLToPath(new URL("../ruby/kitchen_easykitchen_adapter.rb", import.meta.url));
+const KITCHEN_PRESETS = fileURLToPath(new URL("../ruby/kitchen_preset_registry.rb", import.meta.url));
 const PACKAGE_DIR = path.dirname(path.dirname(SCRIPT));
 const JOB_ID = "job-ruby-001";
 
@@ -85,6 +86,25 @@ test("Kitchen component builder has safety markers", async () => {
   assert.match(source, /set_instance_metadata/);
   assert.doesNotMatch(source, /system\(|Open3|eval\(|exec\(|spawn\(|`/);
   assert.doesNotMatch(source, /Net::HTTP|URI\.open|Faraday/);
+});
+
+test("Envelope scaffold rejects kitchen command plans", async () => {
+  const source = await readFile(SKETCHUP_CONSUMER, "utf8");
+  assert.match(source, /reject_kitchen_plan/);
+  assert.match(source, /kitchen-command-plan\/v1/);
+  assert.match(source, /kitchen_executor\.rb instead/);
+  assert.match(source, /sketchup-command-plan\/v1/);
+});
+
+test("Kitchen preset registry has allowlisted presets", async () => {
+  const source = await readFile(KITCHEN_PRESETS, "utf8");
+  assert.match(source, /EK_PRESET_MAP/);
+  assert.match(source, /DEMO_PRESETS/);
+  assert.match(source, /:strict/);
+  assert.match(source, /:demo/);
+  assert.match(source, /presets_for/);
+  assert.doesNotMatch(source, /system\(|Open3|eval\(|exec\(|spawn\(/);
+  assert.doesNotMatch(source, /Net::HTTP|URI\.open/);
 });
 
 test("Kitchen geometry has no dangerous calls", async () => {

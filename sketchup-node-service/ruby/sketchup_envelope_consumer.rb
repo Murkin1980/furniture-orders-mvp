@@ -14,11 +14,24 @@ module FurniturePlatform
 
     module_function
 
+    def reject_kitchen_plan!(request)
+      return unless request.is_a?(Hash)
+      plan = request["commandPlan"]
+      return unless plan.is_a?(Hash)
+      return unless plan["planVersion"] == PLAN_KITCHEN
+      raise "This scaffold does not support kitchen-command-plan/v1. Use kitchen_executor.rb instead."
+    end
+
+    PLAN_V1 = "sketchup-command-plan/v1".freeze
+    PLAN_KITCHEN = "kitchen-command-plan/v1".freeze
+
     def run(queue_dir:, job_id:)
       ensure_sketchup_api!
       queue_dir = absolute_queue_dir!(queue_dir)
       job_id = safe_job_id!(job_id)
-      request = validate_request!(read_json!(File.join(queue_dir, "inbox", "#{job_id}.json"), "Request"), job_id)
+      request = read_json!(File.join(queue_dir, "inbox", "#{job_id}.json"), "Request")
+      reject_kitchen_plan!(request)
+      request = validate_request!(request, job_id)
       validate_approval!(
         read_json!(File.join(queue_dir, "approvals", "#{job_id}.json"), "Approval"),
         job_id,

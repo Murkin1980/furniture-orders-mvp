@@ -7,6 +7,7 @@ require "time"
 
 SAFE_ID = /\A[a-zA-Z0-9][a-zA-Z0-9._:-]{5,127}\z/
 ALLOWED_COMMANDS = %w[set_units create_envelope attach_metadata].freeze
+KITCHEN_COMMANDS = %w[set_units_mm create_room_envelope place_block_module place_block_appliance].freeze
 MODEL_FILENAMES = %w[model.skp].freeze
 PREVIEW_FILENAMES = %w[preview.webp preview.png preview.jpg preview.jpeg].freeze
 RENDER_FILENAMES = %w[render-main.webp render-main.png render-main.jpg render-main.jpeg render.webp render.png render.jpg render.jpeg].freeze
@@ -42,14 +43,18 @@ def validate_request!(request, job_id)
 
   plan = request["commandPlan"]
   fail_with("Command plan must be a JSON object.") unless plan.is_a?(Hash)
-  fail_with("Unsupported command plan version.") unless plan["planVersion"] == "sketchup-command-plan/v1"
+  plan_version = plan["planVersion"]
+  unless plan_version == "sketchup-command-plan/v1" || plan_version == "kitchen-command-plan/v1"
+    fail_with("Unsupported command plan version: #{plan_version}")
+  end
   commands = plan["commands"]
   fail_with("Command plan commands must be an array.") unless commands.is_a?(Array)
 
+  allowed = plan_version == "kitchen-command-plan/v1" ? KITCHEN_COMMANDS : ALLOWED_COMMANDS
   commands.each do |command|
     fail_with("Command must be a JSON object.") unless command.is_a?(Hash)
     type = clean(command["type"])
-    fail_with("Unsupported command type: #{type}") unless ALLOWED_COMMANDS.include?(type)
+    fail_with("Unsupported command type: #{type}") unless allowed.include?(type)
   end
 
   request
@@ -110,5 +115,14 @@ fail_with("An absolute queue directory is required.") unless !queue_dir.empty? &
 request = validate_request!(read_json!(File.join(queue_dir, "inbox", "#{job_id}.json"), "Request"), job_id)
 approval = read_json!(File.join(queue_dir, "approvals", "#{job_id}.json"), "Approval")
 validate_approval!(approval, job_id, clean(request["requestedBy"]))
-artifacts = collect_artifacts!(queue_dir, job_id)
-puts JSON.pretty_generate(write_outbox!(queue_dir, job_id, artifacts))
+
+plan_version = request.dig("commandPlan", "planVersion")
+case plan_version
+when "kitchen-command-plan/v1"
+  fail_with("Kitchen plans are not supported by this queue consumer. Use kitchen_executor.rb instead.")
+when "sketchup-command-plan/v1"
+  artifacts = collect_artifacts!(queue_dir, job_id)
+  puts JSON.pretty_generate(write_outbox!(queue_dir, job_id, artifacts))
+else
+  fail_with("Unknown plan version: #{plan_version}")
+end
