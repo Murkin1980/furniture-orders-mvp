@@ -1,8 +1,8 @@
 # Kitchen Secure Execution Integration — Reviewer Summary
 
 Date: 2026-06-28
-Checkpoint: 10 (updated)  
-Tests: 724 total (61+ kitchen, 0 kitchen failures)
+Checkpoint: 10 → 11 (EasyKitchen presets)  
+Tests: 732 total (61+ kitchen + 7 EK presets, 0 kitchen failures)
 
 ---
 
@@ -61,6 +61,23 @@ SketchUp 2026 Ruby Console:
 ```
 
 ## 1.5. Explicit plan routing (latest)
+
+| Компонент | Что изменилось |
+|-----------|---------------|
+| `sketchup_envelope_consumer.rb` | Добавлен `UnsupportedPlanForEnvelope` — явный guard. Проверяет `SUPPORTED_PLAN_TYPE="sketchup-command-plan"` + `SUPPORTED_PLAN_VERSION="v1"` до создания любых артефактов. Kitchen-планы отвергаются с сообщением "use kitchen_executor.rb" |
+| `queue_consumer_contract.rb` | `route_plan()` с `case plan_version`: `sketchup-command-plan/v1` → `execute_standard_envelope()`, `kitchen-command-plan/v1` → `execute_kitchen()`, else → `UnsupportedPlanType` |
+| Fixtures | 6 новых файлов: 3 inbox (standard/kitchen/unsupported) + 3 approval |
+| Tests | 3 routing сценария: standard → envelope, kitchen → executor, unsupported → fail-closed |
+
+## 1.6. EasyKitchen presets registry (3 slices, checkpoint 11)
+
+| Slice | Результат | Ключевые изменения |
+|-------|-----------|-------------------|
+| **EK-Presets-1** | `EK_PRESET_MAP` с 14 структурированными записями (`ek_preset_id`, `version`, `library`). `resolve_ek_preset!(key, strict:)` — strict→`PresetUnavailableForModule`, demo→nil. | `kitchen_preset_registry.rb` |
+| **EK-Presets-2** | Adapter полностью переписан: единственный источник — `KitchenPresetRegistry.resolve_ek_preset!`. Нет внутренних карт, нет угадывания. `build_easykitchen_command(key, cmd, strict:)` + `build_demo_placeholder` | `kitchen_easykitchen_adapter.rb` |
+| **EK-Presets-3** | Decision doc `EASY_KITCHEN_PRESETS_DECISION.md`. Strict-mode integration test (7 тестов). Demo-mode помечен "not for production". Все production пути используют `strict: true` | `ek-presets-strict.test.js` + decision |
+
+**Ключевое архитектурное решение:** реестр — единый источник правды. Ни адаптер, ни executor, ни другой модуль не могут "угадать" preset. Отсутствие preset'a в strict-режиме → `PresetUnavailableForModule` → fail-closed до создания артефактов.
 
 | Компонент | Что изменилось |
 |-----------|---------------|
