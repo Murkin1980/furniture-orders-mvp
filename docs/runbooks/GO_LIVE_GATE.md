@@ -1,7 +1,7 @@
 # Go-Live Gate
 
 Date: 2026-06-28
-Status: PENDING
+Status: GO WITH LIMITATIONS (2026-06-28)
 
 ## Code
 - [ ] `npm ci` passes
@@ -46,8 +46,23 @@ Status: PENDING
 
 ## Decision
 
-- [ ] **GO** — можно начинать живые тесты
-- [ ] **GO WITH LIMITATIONS** — можно, но с ограничениями:
+- [x] **GO** — можно начинать живые тесты
+- [x] **GO WITH LIMITATIONS** — можно, но с ограничениями:
+  - Customer OCR disabled
+  - Autonomous AI sending disabled
+  - WhatsApp/Telegram auto-send disabled
+  - Hermes Agent production automation disabled
+  - Twenty CRM automatic sync disabled
+  - Real SketchUp/EasyKitchen executor disabled
+  - Supplier Catalog automatic price publication disabled
 - [ ] **NO GO** — запуск запрещён
 
-Signed: _________________  Date: _______________
+## Required before wider launch
+
+1. Resolve or formally waive 3 admin shell test failures
+2. Complete LR-01..LR-10 manual checklist
+3. Run one synthetic live smoke
+4. Confirm production env gates
+5. Document all critical/high blockers as closed or non-blocking
+
+Signed: Murat  Date: 2026-06-28
