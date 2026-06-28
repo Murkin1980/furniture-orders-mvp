@@ -95,6 +95,33 @@ describe("buildKitchenModel", () => {
     assert.ok(r.error.includes("wallB"));
   });
 
+  it("rejects inferred data without manager approval", () => {
+    const r = buildKitchenModel({
+      kitchen: {
+        layout: "straight",
+        room: { wallAmm: 3000, ceilingHeightMm: 2700 },
+        modules: [{ zone: "base", wall: "a", type: "sink-base", widthMm: 800 }]
+      },
+      provenance: { inferred: true, managerApprovedInferred: false }
+    });
+    assert.equal(r.ok, true);
+    assert.equal(r.model.readiness, "draft");
+    assert.ok(r.model.warnings.some((w) => w.includes("Inferred data")));
+  });
+
+  it("accepts inferred data after manager approval", () => {
+    const r = buildKitchenModel({
+      kitchen: {
+        layout: "straight",
+        room: { wallAmm: 3000, ceilingHeightMm: 2700 },
+        modules: [{ zone: "base", wall: "a", type: "sink-base", widthMm: 800 }]
+      },
+      provenance: { inferred: true, managerApprovedInferred: true }
+    });
+    assert.equal(r.ok, true);
+    assert.equal(r.model.readiness, "execution_ready");
+  });
+
   it("rejects unknown wall reference in modules", () => {
     const r = buildKitchenModel({
       kitchen: {

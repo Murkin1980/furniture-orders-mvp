@@ -1,0 +1,10 @@
+{
+  "planVersion": "kitchen-command-plan/v1",
+  "commands": [
+    { "type": "set_units_mm" },
+    { "type": "create_room_envelope", "layout": "straight", "ceilingHeightMm": 2700 },
+    { "type": "place_block_module", "zone": "base", "wall": "x", "kind": "sink-base", "xMm": 0, "widthMm": 800, "heightMm": 720, "depthMm": 560 },
+    { "type": "place_block_module", "zone": "base", "wall": "a", "kind": "custom-invalid", "xMm": 0, "widthMm": 600, "heightMm": 720, "depthMm": 560 },
+    { "type": "place_block_appliance", "wall": "a", "kind": "unknown_appliance", "xMm": 0, "widthMm": 600, "heightMm": 2000, "depthMm": 650 }
+  ]
+}

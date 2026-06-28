@@ -10,22 +10,15 @@ module FurniturePlatform
       EASY_KITCHEN_AVAILABLE
     end
 
-    def place_ek_component(model, kind, cmd)
+    def place_ek_component(model, kind, cmd, strict: false)
       unless available?
-        KitchenGeometry.place_base_module(model, cmd)
-        return :block_fallback
+        return strict ? raise("EasyKitchen not available") : KitchenGeometry.place_base_module(model, cmd)
       end
 
-      entry = KitchenComponentRegistry.lookup(kind)
-      unless entry
-        KitchenGeometry.place_base_module(model, cmd)
-        return :block_fallback
-      end
-
+      entry = KitchenComponentRegistry.lookup!(kind)
       preset = entry[:ek_preset]
       unless preset
-        KitchenGeometry.place_base_module(model, cmd)
-        return :block_fallback
+        return strict ? raise("No EasyKitchen preset for #{kind}") : KitchenGeometry.place_base_module(model, cmd)
       end
 
       place_ek_preset(model, preset, cmd)

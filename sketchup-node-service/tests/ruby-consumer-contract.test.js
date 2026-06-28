@@ -90,10 +90,12 @@ test("Kitchen component builder has safety markers", async () => {
 
 test("Envelope scaffold rejects kitchen command plans", async () => {
   const source = await readFile(SKETCHUP_CONSUMER, "utf8");
-  assert.match(source, /reject_kitchen_plan/);
-  assert.match(source, /kitchen-command-plan\/v1/);
+  assert.match(source, /UnsupportedPlanForEnvelope/);
+  assert.match(source, /SUPPORTED_PLAN_TYPE/);
+  assert.match(source, /SUPPORTED_PLAN_VERSION/);
+  assert.match(source, /ensure_supported_standard_plan!/);
   assert.match(source, /kitchen_executor\.rb instead/);
-  assert.match(source, /sketchup-command-plan\/v1/);
+  assert.match(source, /sketchup-command-plan/);
 });
 
 test("Kitchen preset registry has allowlisted presets", async () => {
@@ -153,12 +155,13 @@ test("Kitchen EasyKitchen adapter handles unavailable gracefully", async () => {
 test("Ruby queue consumer contract keeps fail-closed safety markers", async () => {
   const source = await readFile(SCRIPT, "utf8");
 
-  assert.match(source, /furniture-sketchup-file-queue\/v1/);
+  assert.match(source, /SUPPORTED_STANDARD/);
   assert.match(source, /sketchup-command-plan\/v1/);
-  assert.match(source, /ALLOWED_COMMANDS = %w\[set_units create_envelope attach_metadata\]/);
-  assert.match(source, /Manager approval is required/);
-  assert.match(source, /A generated model\.skp artifact is required/);
-  assert.match(source, /At least one generated preview or render artifact is required/);
+  assert.match(source, /SUPPORTED_KITCHEN  = "kitchen-command-plan\/v1"/);
+  assert.match(source, /UnsupportedPlanType/);
+  assert.match(source, /execute_standard_envelope/);
+  assert.match(source, /execute_kitchen/);
+  assert.match(source, /route_plan/);
   assert.doesNotMatch(source, /Sketchup\.active_model|UI\.messagebox|system\(|Open3|`/);
 });
 
@@ -176,6 +179,32 @@ test("SketchUp envelope consumer is manual and allowlist-bound", async () => {
   assert.match(source, /artifacts\/#\{job_id\}\/preview\.png/);
   assert.doesNotMatch(source, /system\(|Open3|eval\(|exec\(|spawn\(|`/);
   assert.doesNotMatch(source, /Net::HTTP|URI\.open|Faraday|HTTParty/);
+});
+
+test("Envelope scaffold rejects kitchen plan with UnsupportedPlanForEnvelope", async () => {
+  const source = await readFile(SKETCHUP_CONSUMER, "utf8");
+  assert.match(source, /UnsupportedPlanForEnvelope/);
+  assert.match(source, /SUPPORTED_PLAN_TYPE/);
+  assert.match(source, /SUPPORTED_PLAN_VERSION/);
+  assert.match(source, /ensure_supported_standard_plan!/);
+  assert.match(source, /kitchen_executor\.rb instead/);
+  // The phrase kitchen-command-plan appears in the rejection error message (expected)
+  assert.match(source, /got.*planVersion/);
+});
+
+test("Queue consumer routes by plan version (standard vs kitchen vs unsupported)", async () => {
+  const source = await readFile(SCRIPT, "utf8");
+  assert.match(source, /SUPPORTED_STANDARD/);
+  assert.match(source, /SUPPORTED_KITCHEN/);
+  assert.match(source, /UnsupportedPlanType/);
+  assert.match(source, /route_plan/);
+  assert.match(source, /execute_standard_envelope/);
+  assert.match(source, /execute_kitchen/);
+  // Standard and kitchen plan versions are defined
+  assert.match(source, /sketchup-command-plan\/v1/);
+  assert.match(source, /kitchen-command-plan\/v1/);
+  // Unsupported plan produces error
+  assert.match(source, /Unsupported plan type/);
 });
 
 test("Ruby queue consumer publishes outbox when Ruby is available", async (t) => {

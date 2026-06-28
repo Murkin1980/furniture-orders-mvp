@@ -7,31 +7,28 @@ require "time"
 
 module FurniturePlatform
   module SketchUpEnvelopeConsumer
+    class UnsupportedPlanForEnvelope < StandardError; end
+
     SAFE_ID = /\A[a-zA-Z0-9][a-zA-Z0-9._:-]{5,127}\z/
     ALLOWED_COMMANDS = %w[set_units create_envelope attach_metadata].freeze
     BRIDGE_VERSION = "furniture-sketchup-file-queue/v1"
-    PLAN_VERSION = "sketchup-command-plan/v1"
+
+    # This scaffold supports ONLY sketchup-command-plan/v1.
+    # Kitchen plans (kitchen-command-plan/v1) are rejected with UnsupportedPlanForEnvelope.
+    SUPPORTED_PLAN_TYPE    = "sketchup-command-plan"
+    SUPPORTED_PLAN_VERSION = "v1"
 
     module_function
-
-    def reject_kitchen_plan!(request)
-      return unless request.is_a?(Hash)
-      plan = request["commandPlan"]
-      return unless plan.is_a?(Hash)
-      return unless plan["planVersion"] == PLAN_KITCHEN
-      raise "This scaffold does not support kitchen-command-plan/v1. Use kitchen_executor.rb instead."
-    end
-
-    PLAN_V1 = "sketchup-command-plan/v1".freeze
-    PLAN_KITCHEN = "kitchen-command-plan/v1".freeze
 
     def run(queue_dir:, job_id:)
       ensure_sketchup_api!
       queue_dir = absolute_queue_dir!(queue_dir)
       job_id = safe_job_id!(job_id)
+
       request = read_json!(File.join(queue_dir, "inbox", "#{job_id}.json"), "Request")
-      reject_kitchen_plan!(request)
-      request = validate_request!(request, job_id)
+      plan = request["commandPlan"]
+      ensure_supported_standard_plan!(plan)
+      validate_request!(request, job_id)
       validate_approval!(
         read_json!(File.join(queue_dir, "approvals", "#{job_id}.json"), "Approval"),
         job_id,
@@ -43,11 +40,19 @@ module FurniturePlatform
       model_path = File.join(artifact_dir, "model.skp")
       preview_path = File.join(artifact_dir, "preview.png")
 
-      build_envelope_model!(request["commandPlan"], model_path, preview_path)
+      build_envelope_model!(plan, model_path, preview_path)
       write_outbox!(queue_dir, job_id, [
         { "type" => "skp", "reference" => "artifacts/#{job_id}/model.skp" },
         { "type" => "preview", "reference" => "artifacts/#{job_id}/preview.png" }
       ])
+    end
+
+    def ensure_supported_standard_plan!(plan)
+      raise UnsupportedPlanForEnvelope,
+        "Envelope scaffold supports only #{SUPPORTED_PLAN_TYPE}/#{SUPPORTED_PLAN_VERSION}, " \
+        "got #{plan["planVersion"] || "nil"}. " \
+        "Kitchen plans must be processed through kitchen_executor.rb instead." unless
+        plan.is_a?(Hash) && plan["planVersion"] == "#{SUPPORTED_PLAN_TYPE}/#{SUPPORTED_PLAN_VERSION}"
     end
 
     def build_envelope_model!(plan, model_path, preview_path)
@@ -98,7 +103,7 @@ module FurniturePlatform
 
       plan = request["commandPlan"]
       raise "Command plan must be a JSON object." unless plan.is_a?(Hash)
-      raise "Unsupported command plan version." unless plan["planVersion"] == PLAN_VERSION
+      raise "Unsupported command plan version." unless plan["planVersion"] == "#{SUPPORTED_PLAN_TYPE}/#{SUPPORTED_PLAN_VERSION}"
       commands = plan["commands"]
       raise "Command plan commands must be an array." unless commands.is_a?(Array)
       raise "Command plan must contain exactly three commands." unless commands.length == 3
@@ -107,8 +112,6 @@ module FurniturePlatform
         raise "Unsupported command type." unless ALLOWED_COMMANDS.include?(clean(command["type"]))
       end
       raise "Envelope command is required." unless commands.any? { |command| command["type"] == "create_envelope" }
-
-      plan
       request
     end
 

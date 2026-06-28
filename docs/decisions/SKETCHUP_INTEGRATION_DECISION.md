@@ -300,3 +300,50 @@ platform/R2 assets.
     component-placement handoff; endpoint/job transport remains unchanged.
 14. Real render generation and production attachment flow. Pending approved
     executor and operational setup.
+
+## Kitchen Command Plan Decision (2026-06-27)
+
+### Разделение command plan версий
+
+`sketchup-command-plan/v1` остаётся минимальным протоколом для wardrobe/OCR
+прототипа (set_units + create_envelope + attach_metadata).
+
+Для kitchen-first pipeline введён отдельный `kitchen-command-plan/v1` с
+расширенным, но строго allowlisted набором команд: `set_units_mm`,
+`create_room_envelope`, `place_block_module`, `place_block_appliance`.
+
+### Принцип
+
+- Kitchen НЕ расширяет и НЕ модифицирует `sketchup-command-plan/v1`.
+- Две версии планов сосуществуют как независимые allowlisted contract-ы.
+- Bridge-слой (`src/sketchup/kitchen-job-bridge.js`) адаптирует kitchen план
+  для прохождения через существующий `sketchup-node-job/v1` pipeline (HMAC,
+  TTL, idempotency, audit).
+- В будущем возможен `sketchup-command-plan/v2`, который объединит оба
+  подмножества — но только после стабилизации обоих протоколов.
+
+### Что уже реализовано
+
+| Компонент | Статус |
+|-----------|--------|
+| `kitchen-command-plan/v1` contract | ✅ `src/sketchup/kitchen-command-plan.js` |
+| Payload validation (xMm≥0, wall∈[a,b,c], zone∈[base,wall]) | ✅ |
+| Validate kitchen-command-plan/v1 | ✅ |
+| Ruby executor (`kitchen_executor.rb`) | ✅ |
+| Real SketchUp 2026 smoke (model.skp + preview.png) | ✅ |
+
+### Что реализовано в этом этапе
+
+- Bridge `src/sketchup/kitchen-job-bridge.js` — конвертирует kitchen-command-plan
+  в node-job совместимый формат без потери kitchen-специфичных данных.
+- `managerApprovedInferred` gate — ни одна эвристика не попадает в execution-ready
+  без явного подтверждения менеджера.
+- Golden fixtures для JS и Ruby тестов.
+- Queue consumer расширен для распознавания kitchen jobs.
+
+### Kitchen модель данных не должна обходить
+
+- signed node-job (HMAC + TTL + idempotency) ❌
+- pending-first audit (sketchup_jobs таблица) ❌
+- render artifact contract (sketchup-render-artifact/v1) ❌
+- guarded upload path (POST /api/orders/:id/sketchup/render-files) ❌
