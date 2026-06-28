@@ -155,11 +155,12 @@ function normalizeModule(input, warnings) {
   }
   const wall = normalizeEnum(input.wall, ALLOWED_WALLS);
   if (!wall) {
-    warnings.push(`Module "${type}" references unknown wall "${input.wall}" — using A.`);
+    warnings.push(`Module "${type}" references unknown wall "${input.wall}" — skipping.`);
+    return null;
   }
   return {
     zone: clean(input.zone) || "base",
-    wall: wall || "A",
+    wall: wall,
     type,
     widthMm,
     heightMm: normalizePositiveInt(input.heightMm),

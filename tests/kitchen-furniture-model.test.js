@@ -11,7 +11,7 @@ describe("buildKitchenFurnitureModel", () => {
   it("builds furniture model from kitchen model", () => {
     const kitchenModel = {
       layout: "straight",
-      readiness: "partial",
+      readiness: "execution_ready",
       roomEnvelope: { wallAmm: 3000, ceilingHeightMm: 2700 },
       walls: [{ id: "A", lengthMm: 3000 }],
       baseModules: [
@@ -63,5 +63,35 @@ describe("buildKitchenFurnitureModel", () => {
     const input = { layout: "straight", roomEnvelope: { wallAmm: 3000, ceilingHeightMm: 2700 }, walls: [{ id: "A", lengthMm: 3000 }], baseModules: [], wallModules: [], applianceBlocks: [] };
     const frozen = Object.freeze(JSON.parse(JSON.stringify(input)));
     buildKitchenFurnitureModel(frozen);
+  });
+
+  it("readyForSketchUp false for draft readiness", () => {
+    const r = buildKitchenFurnitureModel({
+      layout: "straight", readiness: "draft",
+      roomEnvelope: { wallAmm: 3000, ceilingHeightMm: 2700 },
+      walls: [{ id: "a", lengthMm: 3000 }],
+      baseModules: [{ id: "b1", wall: "a", kind: "sink-base", xMm: 0, widthMm: 800, heightMm: 720, depthMm: 560 }]
+    });
+    assert.equal(r.model.readyForSketchUp, false);
+  });
+
+  it("readyForSketchUp false for partial readiness", () => {
+    const r = buildKitchenFurnitureModel({
+      layout: "straight", readiness: "partial",
+      roomEnvelope: { wallAmm: 3000, ceilingHeightMm: 2700 },
+      walls: [{ id: "a", lengthMm: 3000 }],
+      baseModules: [{ id: "b1", wall: "a", kind: "sink-base", xMm: 0, widthMm: 800, heightMm: 720, depthMm: 560 }]
+    });
+    assert.equal(r.model.readyForSketchUp, false);
+  });
+
+  it("readyForSketchUp true for execution_ready with modules", () => {
+    const r = buildKitchenFurnitureModel({
+      layout: "straight", readiness: "execution_ready",
+      roomEnvelope: { wallAmm: 3000, ceilingHeightMm: 2700 },
+      walls: [{ id: "a", lengthMm: 3000 }],
+      baseModules: [{ id: "b1", wall: "a", kind: "sink-base", xMm: 0, widthMm: 800, heightMm: 720, depthMm: 560 }]
+    });
+    assert.equal(r.model.readyForSketchUp, true);
   });
 });

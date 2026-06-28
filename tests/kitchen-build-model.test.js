@@ -86,4 +86,38 @@ describe("buildKitchenModel", () => {
     const frozen = Object.freeze(JSON.parse(JSON.stringify(input)));
     buildKitchenModel(frozen);
   });
+
+  it("rejects L layout without wallB", () => {
+    const r = buildKitchenModel({
+      kitchen: { layout: "l", room: { wallAmm: 3000, ceilingHeightMm: 2700 } }
+    });
+    assert.equal(r.ok, false);
+    assert.ok(r.error.includes("wallB"));
+  });
+
+  it("rejects unknown wall reference in modules", () => {
+    const r = buildKitchenModel({
+      kitchen: {
+        layout: "straight",
+        room: { wallAmm: 3000, ceilingHeightMm: 2700 },
+        modules: [{ zone: "base", wall: "x", type: "sink-base", widthMm: 800 }]
+      }
+    });
+    assert.equal(r.ok, true);
+    assert.equal(r.model.baseModules.length, 0);
+    assert.ok(r.model.warnings.some((w) => w.includes("unknown wall")));
+  });
+
+  it("skips modules with null widthMm", () => {
+    const r = buildKitchenModel({
+      kitchen: {
+        layout: "straight",
+        room: { wallAmm: 3000, ceilingHeightMm: 2700 },
+        modules: [{ zone: "base", wall: "a", type: "sink-base", widthMm: null }]
+      }
+    });
+    assert.equal(r.ok, true);
+    assert.equal(r.model.baseModules.length, 0);
+    assert.ok(r.model.warnings.some((w) => w.includes("no width")));
+  });
 });

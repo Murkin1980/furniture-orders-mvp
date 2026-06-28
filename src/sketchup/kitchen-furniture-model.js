@@ -31,11 +31,11 @@ export function buildKitchenFurnitureModel(kitchenModel = {}, options = {}) {
   model.components = buildComponents(kitchenModel);
   model.materials = [];
 
-  // Stricter readyForSketchUp: needs dimensions AND layout AND at least one module
+  // readyForSketchUp: only execution_ready models pass the gate
   const hasDimensions = envelope.wallAmm !== null && envelope.ceilingHeightMm !== null;
-  const hasLayout = kitchenModel.readiness === "execution_ready" || kitchenModel.readiness === "partial";
+  const isReady = kitchenModel.readiness === "execution_ready";
   const hasContent = (kitchenModel.baseModules?.length || 0) + (kitchenModel.wallModules?.length || 0) > 0;
-  model.readyForSketchUp = hasDimensions && hasLayout && hasContent;
+  model.readyForSketchUp = hasDimensions && isReady && hasContent;
 
   // Kitchen-specific extension fields
   model.kitchenLayout = kitchenModel.layout || "";

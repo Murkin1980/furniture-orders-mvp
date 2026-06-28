@@ -64,17 +64,18 @@ export function buildKitchenModel(input = {}) {
       continue;
     }
 
-    const depthMm = mod.depthMm || (mod.zone === "wall" ? 320 : 560);
+    const depthMm = mod.depthMm;
     const block = {
       id: `${mod.zone}-${xMm}`,
       wall,
       kind: mod.type,
       xMm,
       widthMm: mod.widthMm,
-      heightMm: mod.heightMm || 720,
+      heightMm: mod.heightMm,
       depthMm,
       _provisional: mod._provisional || {}
     };
+    if (!depthMm) block._provisional.depth = true;
 
     if (mod.zone === "wall") {
       block.mountBottomMm = brief.kitchen.room.ceilingHeightMm

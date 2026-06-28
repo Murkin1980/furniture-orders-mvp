@@ -86,7 +86,7 @@ describe("normalizeKitchenBrief", () => {
       kitchen: {
         layout: "straight",
         room: { wallAmm: 3000, ceilingHeightMm: 2700 },
-        modules: [{ zone: "base", type: "sink-base", widthMm: 800 }]
+        modules: [{ zone: "base", wall: "a", type: "sink-base", widthMm: 800 }]
       }
     });
     assert.equal(r.brief.kitchen.modules[0].heightMm, null);
