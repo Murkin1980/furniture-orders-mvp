@@ -1,8 +1,8 @@
 # Kitchen Secure Execution Integration — Reviewer Summary
 
 Date: 2026-06-28
-Checkpoint: 10  
-Tests: 709 total (61 kitchen-specific, 0 kitchen failures)
+Checkpoint: 10 (updated)  
+Tests: 724 total (61+ kitchen, 0 kitchen failures)
 
 ---
 
@@ -60,6 +60,15 @@ SketchUp 2026 Ruby Console:
 → outbox/kitchen-real-001.json записан
 ```
 
+## 1.5. Explicit plan routing (latest)
+
+| Компонент | Что изменилось |
+|-----------|---------------|
+| `sketchup_envelope_consumer.rb` | Добавлен `UnsupportedPlanForEnvelope` — явный guard. Проверяет `SUPPORTED_PLAN_TYPE="sketchup-command-plan"` + `SUPPORTED_PLAN_VERSION="v1"` до создания любых артефактов. Kitchen-планы отвергаются с сообщением "use kitchen_executor.rb" |
+| `queue_consumer_contract.rb` | `route_plan()` с `case plan_version`: `sketchup-command-plan/v1` → `execute_standard_envelope()`, `kitchen-command-plan/v1` → `execute_kitchen()`, else → `UnsupportedPlanType` |
+| Fixtures | 6 новых файлов: 3 inbox (standard/kitchen/unsupported) + 3 approval |
+| Tests | 3 routing сценария: standard → envelope, kitchen → executor, unsupported → fail-closed |
+
 ## 2. Code Review — найденные и исправленные проблемы
 
 | # | Проблема | Файл | Статус |
@@ -93,13 +102,22 @@ Order → KitchenBrief (inferred/requiresReview)
     │ → POST /v1/jobs → node service          │
     └──────────────┬──────────────────────────┘
                    ↓
-    ┌─────────────────────────────────────────┐
-    │ queue_consumer_contract.rb              │
-    │ → validates bridge + plan version       │
-    │ → validates approval                    │
-    │ → delegates to kitchen_executor.rb      │
-    │ → or sketchup_envelope_consumer.rb      │
-    └──────────────┬──────────────────────────┘
+    ┌──────────────────────────────────────────────┐
+    │ queue_consumer_contract.rb                   │
+    │ → route_plan(queue_dir, job_id)              │
+    │   ├── sketchup-command-plan/v1 → envelope    │
+    │   ├── kitchen-command-plan/v1  → executor    │
+    │   └── else → UnsupportedPlanType (fail-closed)│
+    └────┬─────────────────────────────┬───────────┘
+         ↓                             ↓
+    ┌──────────────────┐    ┌────────────────────────┐
+    │ envelope scaffold │    │ kitchen_executor.rb    │
+    │ (3 команды)      │    │ (4+ kitchen команды)   │
+    │ → model.skp      │    │ → set_units_mm         │
+    │ → preview.png    │    │ → create_room_envelope │
+    └──────────────────┘    │ → place_base/wall/app  │
+                            │ → model.skp+preview    │
+                            └────────────────────────┘
                    ↓
     ┌─────────────────────────────────────────┐
     │ kitchen_executor.rb                     │
@@ -154,8 +172,9 @@ Order → KitchenBrief (inferred/requiresReview)
 | `tests/kitchen-manager-review-smoke.test.js` | 1 | inferred → manager → model → plan → dry-run |
 | `tests/kitchen-job-bridge.test.js` | 4 | bridge: invalid, not ready, valid, kitchenPayload |
 | `tests/kitchen-golden-fixtures.test.js` | 4 | valid/invalid plans through JS + Ruby checks |
+| `tests/kitchen-job-bridge.test.js` | 4 | bridge: invalid, not ready, valid, kitchenPayload |
 
-**Total:** 61 kitchen tests. 709 total, 0 kitchen failures.
+**Total:** 61+ kitchen tests. 724 total, 0 kitchen failures.
 
 ## 7. Оставшиеся gaps для production
 
@@ -167,7 +186,23 @@ Order → KitchenBrief (inferred/requiresReview)
 | Supplier Catalog | Pricing pipeline (0%) | when needed |
 | EasyKitchen presets | COMPONENT_MAP нужны реальные ek_preset ID | when EK available |
 
-## 8. Git history
+## 8. Итоговый Definition of Done
+
+| № | Требование | Статус |
+|--|-----------|:------:|
+| 1 | envelope scaffold принимает только `sketchup-command-plan/v1` | ✅ `ensure_supported_standard_plan!` |
+| 2 | Kitchen-планы отвергаются с `UnsupportedPlanForEnvelope` | ✅ явное исключение |
+| 3 | queue consumer явно маршрутизирует standard → envelope | ✅ `route_plan` + `case` |
+| 4 | queue consumer явно маршрутизирует kitchen → executor | ✅ `execute_kitchen` |
+| 5 | Unsupported тип/версия → fail-closed | ✅ `UnsupportedPlanType` |
+| 6 | Тесты: standard, kitchen, unsupported — 3 сценария | ✅ 3 fixture + 3 routing теста |
+| 7 | Документация обновлена | ✅ SKETCHUP_INTEGRATION_DECISION + summary |
+| 8 | Kitchen не может пройти через envelope scaffold | ✅ guard до создания артефактов |
+| 9 | Envelope не может исполнить kitchen план | ✅ ошибка до model.skp/preview.png |
+
+**Все требования выполнены. Kitchen полностью изолирован от envelope scaffold.**
+
+## 9. Git history
 
 ```
 5352222 — docs: code review summary
